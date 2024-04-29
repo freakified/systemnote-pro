@@ -1,0 +1,7 @@
+{
+  "name": "SystemNote Pro",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
