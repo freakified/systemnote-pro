@@ -1,0 +1,20 @@
+.react-calendar {
+    border: none;
+    border-radius: 10px;
+    background-color: var(--ion-background-color);
+    
+    color: var(--ion-text-color);
+}
+
+.react-calendar__tile {
+    appearance: none;
+    background-color: var(--ion-background-color);
+    color: var(--ion-text-color);
+    font-size: var(--ion-font-size);
+    border-radius: 8px;
+    height: 44px;
+}
+
+.react-calendar__tile--active {
+    border: 3px solid var(--ion-color-primary);
+}

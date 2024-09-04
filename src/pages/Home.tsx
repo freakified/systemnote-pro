@@ -1,7 +1,11 @@
 import MessageListItem from '../components/MessageListItem';
 import { useState } from 'react';
 import { Message, getMessages } from '../data/messages';
+import Calendar from 'react-calendar';
+import { Value, OnArgs } from 'react-calendar/dist/cjs/shared/types';
+import './Calendar.css';
 import {
+  IonButton,
   IonContent,
   IonDatetime,
   IonHeader,
@@ -18,11 +22,27 @@ import './Home.css';
 const Home: React.FC = () => {
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [value, setValue] = useState<Value>(new Date());
+  const [activeStartDate, setActiveStartDate] = useState<Date | undefined>(new Date());
 
   useIonViewWillEnter(() => {
     const msgs = getMessages();
     setMessages(msgs);
   });
+
+  const onDateChange = (value: Value) => {
+    setValue(value);
+  };
+
+  const onActiveStartDateChange = (args: OnArgs) => {
+    setActiveStartDate(args.activeStartDate || undefined);
+    console.log(args.activeStartDate);
+  };
+
+  const resetCalendarView = () => {
+    setValue(new Date());
+    setActiveStartDate(new Date());
+  }
 
   const refresh = (e: CustomEvent) => {
     setTimeout(() => {
@@ -33,35 +53,22 @@ const Home: React.FC = () => {
   return (
     <IonPage id="home-page">
         <IonContent className="ion-padding" scrollY={false}>
-          <IonDatetime
-            locale="ja-JP"
-            presentation="date"
-            // TODO make these programmatic (maybe to current year plus/minus 10?)
-            yearValues="2022,2023,2024,2025,2026"
-            highlightedDates={[
-              {
-                date: '2024-09-05',
-                textColor: '#800080',
-                backgroundColor: '#ffc0cb',
-              },
-              {
-                date: '2024-09-10',
-                textColor: '#09721b',
-                backgroundColor: '#c8e5d0',
-              },
-              {
-                date: '2024-09-20',
-                textColor: 'var(--ion-color-secondary-contrast)',
-                backgroundColor: 'var(--ion-color-secondary)',
-              },
-              {
-                date: '2024-09-23',
-                textColor: 'rgb(68, 10, 184)',
-                backgroundColor: 'rgb(211, 200, 229)',
-              },
-            ]}
-            >
-            </IonDatetime>
+          <Calendar
+            onChange={onDateChange}
+            value={value}
+            selectRange={false}
+
+            // Hide the "quick skip" buttons because no one wants to jump 10 years
+            // at a time for this app
+            prev2Label=""
+            next2Label=""
+
+            // Hide the year/century/decade view, no one needs that much POWER
+            minDetail="month"
+            activeStartDate={activeStartDate}
+            onActiveStartDateChange={onActiveStartDateChange}
+          />
+          <IonButton onClick={resetCalendarView}>Back to today</IonButton>
         </IonContent>
     </IonPage>
   );
