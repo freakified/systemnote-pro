@@ -18,3 +18,13 @@
 .react-calendar__tile--active {
     border: 3px solid var(--ion-color-primary);
 }
+
+.react-calendar__month-view__days__day--neighboringMonth {
+    color: #ddd;
+}
+
+/* TODO: rename this to something more coherent */
+.calendarheading-year {
+    font-weight: 300;
+    opacity: 0.75;
+}

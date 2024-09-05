@@ -37,7 +37,12 @@ const Home: React.FC = () => {
 		setActiveStartDate(new Date());
 	}
 	
-	const getMonthName = (date: Date, locale: string = 'en-US'): string => {
+	const getFormattedYear = (date: Date, locale: string = 'en-US'): string => {
+		const options = { year: 'numeric' } as Intl.DateTimeFormatOptions;
+		return new Intl.DateTimeFormat(locale, options).format(date);
+	};
+
+	const getFormattedMonth = (date: Date, locale: string = 'en-US'): string => {
 		const options = { month: 'long' } as Intl.DateTimeFormatOptions;
 		return new Intl.DateTimeFormat(locale, options).format(date);
 	};
@@ -70,13 +75,27 @@ const Home: React.FC = () => {
 		onChange: onDateChange,
 		value: value,
 		selectRange: false,
-
+		// This sets the start date to Sunday; we'll add an option to control this later
+		locale: 'en-US',
 		// Hide the navigation, since we're using a custom swipe-based nav system
 		showNavigation: false,
 		// Hide the year/century/decade view, no one needs that much POWER
 		minDetail: 'month',
+	}; 
+
+	interface CalendarTitleProps {
+		date: Date;
 	}
-	
+
+	const CalendarTitle : React.FC<CalendarTitleProps> = ( { date } ) => (
+		<IonToolbar>
+			<IonTitle>
+				{getFormattedMonth(date)}
+				<span className="calendarheading-year"> {getFormattedYear(date)}</span>
+			</IonTitle>
+		</IonToolbar>
+	);
+		
 	return (
 		<IonPage id="home-page">
 			<IonContent className="ion-padding" scrollY={false}>
@@ -87,21 +106,21 @@ const Home: React.FC = () => {
 					onSwiper={(swiper) => (swiperRef.current = swiper)}
 				>
 					<SwiperSlide>
-						<h2>{ getMonthName(getDateWithMonthOffset(activeStartDate, -1)) }</h2>
+						<CalendarTitle date={getDateWithMonthOffset(activeStartDate, -1)} />
 						<Calendar
 							activeStartDate={getDateWithMonthOffset(activeStartDate, -1)}
 							{...calendarCommonProps}
 						/>
 					</SwiperSlide>
 					<SwiperSlide>
-						<h2>{ getMonthName(activeStartDate) }</h2>
+						<CalendarTitle date={activeStartDate} />
 						<Calendar
 							activeStartDate={activeStartDate}
 							{...calendarCommonProps}
 						/>
 					</SwiperSlide>
 					<SwiperSlide>
-						<h2>{ getMonthName(getDateWithMonthOffset(activeStartDate, 1)) }</h2>
+						<CalendarTitle date={getDateWithMonthOffset(activeStartDate, 1)} />
 						<Calendar
 							activeStartDate={getDateWithMonthOffset(activeStartDate, 1)}
 							{...calendarCommonProps}
