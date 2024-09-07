@@ -28,3 +28,22 @@
     font-weight: 300;
     opacity: 0.75;
 }
+
+.sneakyFloatingToolbar {
+    /* position: absolute;
+    top: 0;
+    right: 0; */
+    /* background-color: var(--ion-background-color); */
+    z-index: 2;
+    /* padding: 8px 8px 0 48px; */
+    background-image: linear-gradient(90deg, rgba(var(--ion-background-color-rgb), 0) 75%, rgba(var(--ion-background-color-rgb), 1));
+    /* background-image: linear-gradient(90deg, rgba(255,0,0, 0) 220px, rgba(255,0,0, 1)); */
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: -58px;
+    position: relative;
+}
+
+.sneakyFloatingToolbar ion-button {
+    min-height: 0;
+}

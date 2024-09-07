@@ -3,8 +3,10 @@ import { useRef, useState } from 'react';
 import { Message, getMessages } from '../data/messages';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Swiper as SwiperInstance } from 'swiper';;
+import SwiperCore, { Swiper as SwiperInstance } from 'swiper';
+import { cogOutline, arrowUndo } from 'ionicons/icons';
 import { Value, OnArgs } from 'react-calendar/dist/cjs/shared/types';
+
 import './Calendar.css';
 import 'swiper/css';
 
@@ -13,6 +15,7 @@ import {
 	IonContent,
 	IonDatetime,
 	IonHeader,
+	IonIcon,
 	IonList,
 	IonPage,
 	IonRefresher,
@@ -23,36 +26,35 @@ import {
 } from '@ionic/react';
 import './Home.css';
 
+import { getDateWithMonthOffset, getFullMonthName, getFullYear } from '../utils/dateUtils';
+import DayView from '../components/DayView';
+
 const Home: React.FC = () => {
-	const [value, setValue] = useState<Value>(new Date());
-	const [activeStartDate, setActiveStartDate] = useState<Date>(new Date());
+	const DEFAULT_DATE = new Date();
+
+	const [value, setValue] = useState<Value>(DEFAULT_DATE);
+	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
 	const swiperRef = useRef<SwiperInstance | null>(null);
+
 	
 	const onDateChange = (value: Value) => {
 		setValue(value);
 	};
 	
 	const resetCalendarView = () => {
-		setValue(new Date());
-		setActiveStartDate(new Date());
+		setValue(DEFAULT_DATE);
+		setActiveStartDate(DEFAULT_DATE);
 	}
 	
-	const getFormattedYear = (date: Date, locale: string = 'en-US'): string => {
-		const options = { year: 'numeric' } as Intl.DateTimeFormatOptions;
-		return new Intl.DateTimeFormat(locale, options).format(date);
-	};
-
-	const getFormattedMonth = (date: Date, locale: string = 'en-US'): string => {
-		const options = { month: 'long' } as Intl.DateTimeFormatOptions;
-		return new Intl.DateTimeFormat(locale, options).format(date);
-	};
-	
-	// Add or subtract a month from a date
-	const getDateWithMonthOffset = (date: Date, monthOffset: number) => {
-		const newDate = new Date(date);
-		newDate.setMonth(newDate.getMonth() + monthOffset);
-		return newDate;
-	};
+	// Converts the react-calendar specific "value" type to a vanilla date
+	// (Value can be a range, but we don't use range functionality here)
+	const valueToDate = (value: Value) => {
+		if (Array.isArray(value)) {
+			return value[0] ?? DEFAULT_DATE;
+		} else {
+			return value ?? DEFAULT_DATE;
+		}
+	}
 
 	const onSlideChangeEnd = (swiper: SwiperInstance) => {
 		const { activeIndex } = swiper;
@@ -88,17 +90,25 @@ const Home: React.FC = () => {
 	}
 
 	const CalendarTitle : React.FC<CalendarTitleProps> = ( { date } ) => (
-		<IonToolbar>
-			<IonTitle>
-				{getFormattedMonth(date)}
-				<span className="calendarheading-year"> {getFormattedYear(date)}</span>
-			</IonTitle>
-		</IonToolbar>
+		<h2>
+			{getFullMonthName(date)}
+			<span className="calendarheading-year"> {getFullYear(date)}</span>
+		</h2>
 	);
 		
 	return (
 		<IonPage id="home-page">
-			<IonContent className="ion-padding" scrollY={false}>
+			<IonHeader>
+				<div className="sneakyFloatingToolbar">
+					<IonButton
+						size="default"
+						fill="solid"
+						color="primary"
+						onClick={resetCalendarView}>
+							Today
+					</IonButton>
+					<IonButton size="large" fill="clear" shape="round"><IonIcon slot="icon-only" size="large" icon={cogOutline}></IonIcon></IonButton>
+				</div>
 				<Swiper
 					initialSlide={1}
 					slidesPerView={1}
@@ -127,7 +137,9 @@ const Home: React.FC = () => {
 						/>
 					</SwiperSlide>
 				</Swiper>
-				<IonButton onClick={resetCalendarView}>Back to today</IonButton>
+			</IonHeader>
+			<IonContent>
+				<DayView date={valueToDate(value)} />
 			</IonContent>
 		</IonPage>
 	);
