@@ -1,3 +1,4 @@
+import React from 'react';
 import MessageListItem from '../components/MessageListItem';
 import { useRef, useState } from 'react';
 import { Message, getMessages } from '../data/messages';
@@ -22,11 +23,15 @@ import {
 	IonRefresherContent,
 	IonTitle,
 	IonToolbar,
-	useIonViewWillEnter
+	useIonViewWillEnter,
 } from '@ionic/react';
 import './Home.css';
 
-import { getDateWithMonthOffset, getFullMonthName, getFullYear } from '../utils/dateUtils';
+import {
+	getDateWithMonthOffset,
+	getFullMonthName,
+	getFullYear,
+} from '../utils/dateUtils';
 import DayView from '../components/DayView';
 
 const Home: React.FC = () => {
@@ -36,16 +41,15 @@ const Home: React.FC = () => {
 	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
 	const swiperRef = useRef<SwiperInstance | null>(null);
 
-	
 	const onDateChange = (value: Value) => {
 		setValue(value);
 	};
-	
+
 	const resetCalendarView = () => {
 		setValue(DEFAULT_DATE);
 		setActiveStartDate(DEFAULT_DATE);
-	}
-	
+	};
+
 	// Converts the react-calendar specific "value" type to a vanilla date
 	// (Value can be a range, but we don't use range functionality here)
 	const valueToDate = (value: Value) => {
@@ -54,25 +58,29 @@ const Home: React.FC = () => {
 		} else {
 			return value ?? DEFAULT_DATE;
 		}
-	}
+	};
 
 	const onSlideChangeEnd = (swiper: SwiperInstance) => {
 		const { activeIndex } = swiper;
-		
+
 		if (activeIndex === 0) {
-		  // Swiped to previous month
-		  setActiveStartDate((prevDate) => getDateWithMonthOffset(prevDate, -1));
+			// Swiped to previous month
+			setActiveStartDate((prevDate) =>
+				getDateWithMonthOffset(prevDate, -1),
+			);
 		} else if (activeIndex === 2) {
-		  // Swiped to next month
-		  setActiveStartDate((prevDate) => getDateWithMonthOffset(prevDate, 1));
+			// Swiped to next month
+			setActiveStartDate((prevDate) =>
+				getDateWithMonthOffset(prevDate, 1),
+			);
 		}
-	
+
 		// After adjusting the date, reset the swiper back to the middle slide
 		setTimeout(() => {
-		  swiper.slideTo(1, 0); // No transition
+			swiper.slideTo(1, 0); // No transition
 		}, 0);
-	  };	
-	
+	};
+
 	const calendarCommonProps: CalendarProps = {
 		onChange: onDateChange,
 		value: value,
@@ -83,19 +91,19 @@ const Home: React.FC = () => {
 		showNavigation: false,
 		// Hide the year/century/decade view, no one needs that much POWER
 		minDetail: 'month',
-	}; 
+	};
 
 	interface CalendarTitleProps {
 		date: Date;
 	}
 
-	const CalendarTitle : React.FC<CalendarTitleProps> = ( { date } ) => (
+	const CalendarTitle: React.FC<CalendarTitleProps> = ({ date }) => (
 		<h2>
 			{getFullMonthName(date)}
 			<span className="calendarheading-year"> {getFullYear(date)}</span>
 		</h2>
 	);
-		
+
 	return (
 		<IonPage id="home-page">
 			<IonHeader>
@@ -104,10 +112,17 @@ const Home: React.FC = () => {
 						size="default"
 						fill="solid"
 						color="primary"
-						onClick={resetCalendarView}>
-							Today
+						onClick={resetCalendarView}
+					>
+						Today
 					</IonButton>
-					<IonButton size="large" fill="clear" shape="round"><IonIcon slot="icon-only" size="large" icon={cogOutline}></IonIcon></IonButton>
+					<IonButton size="large" fill="clear" shape="round">
+						<IonIcon
+							slot="icon-only"
+							size="large"
+							icon={cogOutline}
+						></IonIcon>
+					</IonButton>
 				</div>
 				<Swiper
 					initialSlide={1}
@@ -116,9 +131,14 @@ const Home: React.FC = () => {
 					onSwiper={(swiper) => (swiperRef.current = swiper)}
 				>
 					<SwiperSlide>
-						<CalendarTitle date={getDateWithMonthOffset(activeStartDate, -1)} />
+						<CalendarTitle
+							date={getDateWithMonthOffset(activeStartDate, -1)}
+						/>
 						<Calendar
-							activeStartDate={getDateWithMonthOffset(activeStartDate, -1)}
+							activeStartDate={getDateWithMonthOffset(
+								activeStartDate,
+								-1,
+							)}
 							{...calendarCommonProps}
 						/>
 					</SwiperSlide>
@@ -130,9 +150,14 @@ const Home: React.FC = () => {
 						/>
 					</SwiperSlide>
 					<SwiperSlide>
-						<CalendarTitle date={getDateWithMonthOffset(activeStartDate, 1)} />
+						<CalendarTitle
+							date={getDateWithMonthOffset(activeStartDate, 1)}
+						/>
 						<Calendar
-							activeStartDate={getDateWithMonthOffset(activeStartDate, 1)}
+							activeStartDate={getDateWithMonthOffset(
+								activeStartDate,
+								1,
+							)}
 							{...calendarCommonProps}
 						/>
 					</SwiperSlide>

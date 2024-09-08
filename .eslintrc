@@ -1,0 +1,39 @@
+{
+	"root": true,
+	"env": {
+		"node": true,
+		"browser": true,
+		"es2020": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 2020,
+		"sourceType": "module"
+	},
+	"plugins": ["@typescript-eslint", "prettier"],
+	"extends": [
+		"plugin:react/recommended",
+		"plugin:@typescript-eslint/recommended",
+		"eslint:recommended",
+		"plugin:prettier/recommended"
+	],
+	"rules": {
+		"no-console": "warn",
+		"no-debugger": "warn",
+		"indent": ["error", "tab"],
+		"prettier/prettier": ["warn", {
+			"useTabs": true,
+			"tabWidth": 4,
+			"semi": true,
+			"trailingComma": "all",
+			"singleQuote": true,
+			"bracketSameLine": false,
+			"bracketSpacing": true,
+			"printWidth": 80
+		}]
+	},
+	"settings": {
+		"react": {
+			"version": "detect"
+		}
+	}
+}
