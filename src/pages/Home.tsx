@@ -31,6 +31,7 @@ import {
 	getDateWithMonthOffset,
 	getFullMonthName,
 	getFullYear,
+	getMonthNumber,
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 
@@ -98,9 +99,14 @@ const Home: React.FC = () => {
 	}
 
 	const CalendarTitle: React.FC<CalendarTitleProps> = ({ date }) => (
-		<h2>
-			{getFullMonthName(date)}
-			<span className="calendarheading-year"> {getFullYear(date)}</span>
+		<h2 className="calendarHeading-root">
+			<div className="calendarHeading-monthNumber">
+				{getMonthNumber(date)}
+			</div>
+			<div className="calendarHeading-monthAndYear">
+				<div>{getFullYear(date)}</div>
+				<div>{getFullMonthName(date)}</div>
+			</div>
 		</h2>
 	);
 

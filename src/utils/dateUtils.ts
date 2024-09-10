@@ -15,6 +15,12 @@ export const getFullMonthName = (
 	return new Intl.DateTimeFormat(locale, options).format(date);
 };
 
+// Given a Date, returns a string of the month number alone
+// Example output: "11"
+export const getMonthNumber = (date: Date): string => {
+	return (date.getMonth() + 1).toString();
+};
+
 // Given a Date, returns a string of the day alone
 // Example output: "23"
 export const getDayNumber = (date: Date): string => {

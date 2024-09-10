@@ -13,7 +13,7 @@ const DayView: React.FC<DayViewProps> = ({ date }) => {
 			<div className="dayView-toolbar">
 				<div className="dayView-dayNumber">{getDayNumber(date)}</div>
 				<div className="dayView-weekday">
-					{getWeekdayNameShort(date)}
+					{getWeekdayNameShort(date, 'ja-JP')} {getWeekdayNameShort(date)}
 				</div>
 			</div>
 			<div className="dayView-note">

@@ -1,9 +1,25 @@
 .react-calendar {
 	border: none;
-	border-radius: 10px;
 	background-color: var(--ion-background-color);
 	
 	color: var(--ion-text-color);
+	font-size: 14px;
+	border-left: 1px solid var(--ion-color-light-shade);
+	border-top: 1px solid var(--ion-color-light-shade);
+	box-sizing: border-box;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+	text-transform: uppercase;
+	border-right: 1px solid var(--ion-color-light-shade);
+	border-bottom: 1px solid var(--ion-color-light-shade);
+	font-size: 12px;
+    padding: 6px;
+	text-align: center;
+}
+
+.react-calendar__month-view__weekdays__weekday > abbr {
+	text-decoration: none;
 }
 
 .react-calendar__tile {
@@ -11,22 +27,46 @@
 	background-color: var(--ion-background-color);
 	color: var(--ion-text-color);
 	font-size: var(--ion-font-size);
-	border-radius: 8px;
 	height: 44px;
+	display: flex;
+	padding: 4px;
+	border-bottom: 1px solid var(--ion-color-light-shade);
+	border-right: 1px solid var(--ion-color-light-shade);
 }
 
 .react-calendar__tile--active {
-	border: 3px solid var(--ion-color-primary);
+	box-shadow: 0px 0px 0px 3px var(--ion-color-primary);
+    z-index: 1;
+    border-radius: 4px;
+    border: 0px none;
 }
 
 .react-calendar__month-view__days__day--neighboringMonth {
 	color: #ddd;
 }
 
+
+
+
+
 /* TODO: rename this to something more coherent */
-.calendarheading-year {
-	font-weight: 300;
-	opacity: 0.75;
+
+.calendarHeading-root {
+	display: flex;
+	align-items: center;
+}
+
+.calendarHeading-monthNumber {
+	font-size: 40px;
+	font-weight: bold;
+	padding-right: 4px;
+}
+
+.calendarHeading-monthAndYear {
+	font-size: 16px;
+	font-weight: normal;
+	text-transform: uppercase;
+	line-height: 1;
 }
 
 .sneakyFloatingToolbar {
