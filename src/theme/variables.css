@@ -4,6 +4,7 @@ http://ionicframework.com/docs/theming/ */
 :root {
 	--ion-background-color: #ffffff;
 	--ion-background-color-rgb: 255,255,255;
+	--ion-color-primary: #00C7BE;
 
 	--ion-text-color: #000000;
 	--ion-text-color-rgb: 0,0,0;

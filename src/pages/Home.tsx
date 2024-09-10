@@ -29,9 +29,12 @@ import './Home.css';
 
 import {
 	getDateWithMonthOffset,
+	getDayNumber,
 	getFullMonthName,
 	getFullYear,
 	getMonthNumber,
+	getWeekdayNameShort,
+	isToday,
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 
@@ -49,6 +52,9 @@ const Home: React.FC = () => {
 	const resetCalendarView = () => {
 		setValue(DEFAULT_DATE);
 		setActiveStartDate(DEFAULT_DATE);
+		setTimeout(() => {
+			swiperRef.current?.updateAutoHeight(300);
+		}, 0);
 	};
 
 	// Converts the react-calendar specific "value" type to a vanilla date
@@ -78,7 +84,7 @@ const Home: React.FC = () => {
 
 		// After adjusting the date, reset the swiper back to the middle slide
 		setTimeout(() => {
-			swiper.slideTo(1, 0); // No transition
+			swiper.slideTo(1, 0);
 		}, 0);
 	};
 
@@ -92,6 +98,21 @@ const Home: React.FC = () => {
 		showNavigation: false,
 		// Hide the year/century/decade view, no one needs that much POWER
 		minDetail: 'month',
+		formatShortWeekday: (locale: string | undefined, date: Date) => {
+			return `${getWeekdayNameShort(date, 'ja-JP')} ${getWeekdayNameShort(date, 'en-US')}`;
+		},
+		// Ensures that saturdays and sundays can have distinct styling
+		tileClassName: ({ date }) => {
+			const dayNumber = date.getDay();
+
+			if (dayNumber === 0) {
+				return 'react-calendar__month-view__days__day--sunday';
+			} else if (dayNumber === 6) {
+				return 'react-calendar__month-view__days__day--saturday';
+			} else {
+				return null;
+			}
+		},
 	};
 
 	interface CalendarTitleProps {
@@ -110,18 +131,24 @@ const Home: React.FC = () => {
 		</h2>
 	);
 
+	const showTodayResetButton =
+		!isToday(valueToDate(value)) ||
+		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
+
 	return (
 		<IonPage id="home-page">
 			<IonHeader>
 				<div className="sneakyFloatingToolbar">
-					<IonButton
-						size="default"
-						fill="solid"
-						color="primary"
-						onClick={resetCalendarView}
-					>
-						Today
-					</IonButton>
+					{showTodayResetButton && (
+						<IonButton
+							size="default"
+							fill="solid"
+							color="light"
+							onClick={resetCalendarView}
+						>
+							Today
+						</IonButton>
+					)}
 					<IonButton size="large" fill="clear" shape="round">
 						<IonIcon
 							slot="icon-only"
@@ -133,39 +160,53 @@ const Home: React.FC = () => {
 				<Swiper
 					initialSlide={1}
 					slidesPerView={1}
+					spaceBetween={32}
+					autoHeight={true}
 					onSlideChangeTransitionEnd={onSlideChangeEnd}
 					onSwiper={(swiper) => (swiperRef.current = swiper)}
 				>
 					<SwiperSlide>
-						<CalendarTitle
-							date={getDateWithMonthOffset(activeStartDate, -1)}
-						/>
-						<Calendar
-							activeStartDate={getDateWithMonthOffset(
-								activeStartDate,
-								-1,
-							)}
-							{...calendarCommonProps}
-						/>
+						<div className="calendarContainer">
+							<CalendarTitle
+								date={getDateWithMonthOffset(
+									activeStartDate,
+									-1,
+								)}
+							/>
+							<Calendar
+								activeStartDate={getDateWithMonthOffset(
+									activeStartDate,
+									-1,
+								)}
+								{...calendarCommonProps}
+							/>
+						</div>
 					</SwiperSlide>
 					<SwiperSlide>
-						<CalendarTitle date={activeStartDate} />
-						<Calendar
-							activeStartDate={activeStartDate}
-							{...calendarCommonProps}
-						/>
+						<div className="calendarContainer">
+							<CalendarTitle date={activeStartDate} />
+							<Calendar
+								activeStartDate={activeStartDate}
+								{...calendarCommonProps}
+							/>
+						</div>
 					</SwiperSlide>
 					<SwiperSlide>
-						<CalendarTitle
-							date={getDateWithMonthOffset(activeStartDate, 1)}
-						/>
-						<Calendar
-							activeStartDate={getDateWithMonthOffset(
-								activeStartDate,
-								1,
-							)}
-							{...calendarCommonProps}
-						/>
+						<div className="calendarContainer">
+							<CalendarTitle
+								date={getDateWithMonthOffset(
+									activeStartDate,
+									1,
+								)}
+							/>
+							<Calendar
+								activeStartDate={getDateWithMonthOffset(
+									activeStartDate,
+									1,
+								)}
+								{...calendarCommonProps}
+							/>
+						</div>
 					</SwiperSlide>
 				</Swiper>
 			</IonHeader>

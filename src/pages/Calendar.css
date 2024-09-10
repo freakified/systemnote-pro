@@ -1,12 +1,10 @@
 .react-calendar {
 	border: none;
-	background-color: var(--ion-background-color);
-	
+	/* background-color: transparent; */
 	color: var(--ion-text-color);
 	font-size: 14px;
-	border-left: 1px solid var(--ion-color-light-shade);
-	border-top: 1px solid var(--ion-color-light-shade);
 	box-sizing: border-box;
+	padding-bottom: 4px;
 }
 
 .react-calendar__month-view__weekdays__weekday {
@@ -14,7 +12,7 @@
 	border-right: 1px solid var(--ion-color-light-shade);
 	border-bottom: 1px solid var(--ion-color-light-shade);
 	font-size: 12px;
-    padding: 6px;
+    padding: 6px 0;
 	text-align: center;
 }
 
@@ -24,10 +22,10 @@
 
 .react-calendar__tile {
 	appearance: none;
-	background-color: var(--ion-background-color);
+	background-color: transparent;
 	color: var(--ion-text-color);
 	font-size: var(--ion-font-size);
-	height: 44px;
+	height: 48px;
 	display: flex;
 	padding: 4px;
 	border-bottom: 1px solid var(--ion-color-light-shade);
@@ -41,25 +39,49 @@
     border: 0px none;
 }
 
-.react-calendar__month-view__days__day--neighboringMonth {
-	color: #ddd;
+
+
+.react-calendar__month-view__weekdays__weekday {
+	background-color: #0000000f;
 }
 
 
 
+/* TODO: this will need to become smarter once we add support
+   for week starting on monday */
+.react-calendar__month-view__weekdays__weekday:nth-child(1),
+.react-calendar__month-view__days__day--sunday {
+	background-color: #FF3B300F;
+	color: #FF3B30;
+}
 
+.react-calendar__month-view__weekdays__weekday:nth-child(7),
+.react-calendar__month-view__days__day--saturday {
+	background-color: #007AFF0F;
+	border-right: 0px none;
+	color: #007AFF;
+}
 
-/* TODO: rename this to something more coherent */
+.react-calendar__month-view__weekdays__weekday:nth-child(1) {
+	background-color: #FF3B301F;
+}
+
+.react-calendar__month-view__weekdays__weekday:nth-child(7) {
+	background-color: #007AFF1F;
+}
 
 .calendarHeading-root {
 	display: flex;
 	align-items: center;
+	margin: 1px 0px;
+	padding-left: 6px;
 }
 
 .calendarHeading-monthNumber {
 	font-size: 40px;
 	font-weight: bold;
-	padding-right: 4px;
+	padding-right: 6px;
+	letter-spacing: -2px;
 }
 
 .calendarHeading-monthAndYear {
@@ -69,21 +91,26 @@
 	line-height: 1;
 }
 
-.sneakyFloatingToolbar {
-	/* position: absolute;
-	top: 0;
-	right: 0; */
-	/* background-color: var(--ion-background-color); */
-	z-index: 2;
-	/* padding: 8px 8px 0 48px; */
-	background-image: linear-gradient(90deg, rgba(var(--ion-background-color-rgb), 0) 75%, rgba(var(--ion-background-color-rgb), 1));
-	/* background-image: linear-gradient(90deg, rgba(255,0,0, 0) 220px, rgba(255,0,0, 1)); */
-	display: flex;
-	justify-content: flex-end;
-	margin-bottom: -58px;
-	position: relative;
+/* .react-calendar__month-view__days__day--neighboringMonth {
+	background-color: #00000009;
+} */
+
+.react-calendar__month-view__days__day--neighboringMonth > abbr {
+	opacity: 0.2;
+	/* color: var(--ion-text-color); */
 }
 
-.sneakyFloatingToolbar ion-button {
-	min-height: 0;
+.react-calendar__month-view {
+	/* box-shadow: 1px 0 0 0 var(--ion-color-light-shade), -1px 0 0 0 var(--ion-color-light-shade); */
+	border-left: 1px solid var(--ion-color-light-shade);
+	border-right: 1px solid var(--ion-color-light-shade);
+	border-top: 1px solid var(--ion-color-light-shade);
+	margin-left: -1px;
+	margin-right: -1px;
 }
+
+/* .calendarContainer {
+	border-left: 6px solid grey;
+	margin-left: -12px;
+	padding-left: 6px;
+} */
