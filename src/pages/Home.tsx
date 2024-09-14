@@ -43,6 +43,9 @@ const Home: React.FC = () => {
 
 	const [value, setValue] = useState<Value>(DEFAULT_DATE);
 	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
+	const [resetAnimationActive, setResetAnimationActive] =
+		useState<boolean>(false);
+
 	const swiperRef = useRef<SwiperInstance | null>(null);
 
 	const onDateChange = (value: Value) => {
@@ -50,11 +53,43 @@ const Home: React.FC = () => {
 	};
 
 	const resetCalendarView = () => {
-		setValue(DEFAULT_DATE);
-		setActiveStartDate(DEFAULT_DATE);
-		setTimeout(() => {
-			swiperRef.current?.updateAutoHeight(300);
-		}, 0);
+		const defaultMonth =
+			DEFAULT_DATE.getMonth() + DEFAULT_DATE.getFullYear() * 100;
+		const activeMonth =
+			activeStartDate.getMonth() + activeStartDate.getFullYear() * 100;
+
+		if (activeMonth === defaultMonth) {
+			setValue(DEFAULT_DATE);
+			setActiveStartDate(DEFAULT_DATE);
+		} else {
+			// this will cause non-active dates to show they're the default
+			setResetAnimationActive(true);
+
+			// Handle the case when we're in a future month
+			if (activeMonth > defaultMonth) {
+				// Animate left after updating the previous slide
+				setTimeout(() => {
+					swiperRef.current?.slidePrev(300, true); // Swipe left (previous slide)
+				}, 0);
+			}
+
+			// Handle the case when we're in a past month
+			else if (activeMonth < defaultMonth) {
+				// Animate right after updating the next slide
+				setTimeout(() => {
+					swiperRef.current?.slideNext(300, true); // Swipe right (next slide)
+				}, 0);
+			}
+
+			// After the animation completes, reset everything back to default
+			setTimeout(() => {
+				setValue(DEFAULT_DATE);
+				setActiveStartDate(DEFAULT_DATE);
+				swiperRef.current?.slideTo(1, 0, false); // Ensure swiper is back in the middle
+				swiperRef.current?.updateAutoHeight(300); // Update height for new content
+				setResetAnimationActive(false);
+			}, 300);
+		}
 	};
 
 	// Converts the react-calendar specific "value" type to a vanilla date
@@ -84,7 +119,7 @@ const Home: React.FC = () => {
 
 		// After adjusting the date, reset the swiper back to the middle slide
 		setTimeout(() => {
-			swiper.slideTo(1, 0);
+			swiper.slideTo(1, 0, false);
 		}, 0);
 	};
 
@@ -135,6 +170,15 @@ const Home: React.FC = () => {
 		!isToday(valueToDate(value)) ||
 		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
 
+	const pastCalendarStartDate =
+		resetAnimationActive === true
+			? DEFAULT_DATE
+			: getDateWithMonthOffset(activeStartDate, -1);
+	const futureCalendarStartDate =
+		resetAnimationActive === true
+			? DEFAULT_DATE
+			: getDateWithMonthOffset(activeStartDate, 1);
+
 	return (
 		<IonPage id="home-page">
 			<IonHeader>
@@ -165,23 +209,17 @@ const Home: React.FC = () => {
 					onSlideChangeTransitionEnd={onSlideChangeEnd}
 					onSwiper={(swiper) => (swiperRef.current = swiper)}
 				>
+					{/* Past */}
 					<SwiperSlide>
 						<div className="calendarContainer">
-							<CalendarTitle
-								date={getDateWithMonthOffset(
-									activeStartDate,
-									-1,
-								)}
-							/>
+							<CalendarTitle date={pastCalendarStartDate} />
 							<Calendar
-								activeStartDate={getDateWithMonthOffset(
-									activeStartDate,
-									-1,
-								)}
+								activeStartDate={pastCalendarStartDate}
 								{...calendarCommonProps}
 							/>
 						</div>
 					</SwiperSlide>
+					{/* Present */}
 					<SwiperSlide>
 						<div className="calendarContainer">
 							<CalendarTitle date={activeStartDate} />
@@ -191,19 +229,12 @@ const Home: React.FC = () => {
 							/>
 						</div>
 					</SwiperSlide>
+					{/* Future */}
 					<SwiperSlide>
 						<div className="calendarContainer">
-							<CalendarTitle
-								date={getDateWithMonthOffset(
-									activeStartDate,
-									1,
-								)}
-							/>
+							<CalendarTitle date={futureCalendarStartDate} />
 							<Calendar
-								activeStartDate={getDateWithMonthOffset(
-									activeStartDate,
-									1,
-								)}
+								activeStartDate={futureCalendarStartDate}
 								{...calendarCommonProps}
 							/>
 						</div>

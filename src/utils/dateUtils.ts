@@ -47,7 +47,7 @@ export const getDateWithMonthOffset = (date: Date, monthOffset: number) => {
 // Given two Dates, returns true if it's today
 export const isToday = (date: Date) => {
 	const dateOnly = date.setHours(0, 0, 0, 0);
-	const todayDateOnly = (new Date()).setHours(0, 0, 0, 0);
+	const todayDateOnly = new Date().setHours(0, 0, 0, 0);
 
 	return dateOnly === todayDateOnly;
-}
+};
