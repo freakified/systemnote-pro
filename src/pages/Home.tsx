@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperInstance } from 'swiper';
 import { cogOutline } from 'ionicons/icons';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
+import cx from 'classnames';
 
 import './Calendar.css';
 import 'swiper/css';
@@ -114,11 +115,13 @@ const Home: React.FC = () => {
 		// After adjusting the date, reset the swiper back to the middle slide
 		setTimeout(() => {
 			swiper.slideTo(1, 0, false);
+			swiper.updateAutoHeight();
 		}, 0);
 	};
 
 	const calendarCommonProps: CalendarProps = {
 		onChange: onDateChange,
+		// If the reset animation is active, temporarily hide the "today" ring
 		value: resetAnimationActive ? null : value,
 		selectRange: false,
 		// This sets the start date to Sunday; we'll add an option to control this later
@@ -177,16 +180,18 @@ const Home: React.FC = () => {
 		<IonPage id="home-page">
 			<IonHeader>
 				<div className="sneakyFloatingToolbar">
-					{showTodayResetButton && (
-						<IonButton
-							size="default"
-							fill="solid"
-							color="light"
-							onClick={resetCalendarView}
-						>
-							Today
-						</IonButton>
-					)}
+					<IonButton
+						size="default"
+						fill="solid"
+						color="light"
+						onClick={resetCalendarView}
+						className={cx({
+							resetButton: true,
+							'resetButton--hidden': !showTodayResetButton,
+						})}
+					>
+						Today
+					</IonButton>
 					<IonButton size="large" fill="clear" shape="round">
 						<IonIcon
 							slot="icon-only"

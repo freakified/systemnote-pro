@@ -25,3 +25,12 @@ ion-header {
 .sneakyFloatingToolbar ion-button {
 	min-height: 0;
 }
+
+.resetButton {
+	transition: opacity ease 250ms;
+	opacity: 1;
+}
+
+.resetButton--hidden {
+	opacity: 0;
+}
