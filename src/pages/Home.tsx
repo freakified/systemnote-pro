@@ -1,12 +1,10 @@
 import React from 'react';
-import MessageListItem from '../components/MessageListItem';
 import { useRef, useState } from 'react';
-import { Message, getMessages } from '../data/messages';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, { Swiper as SwiperInstance } from 'swiper';
-import { cogOutline, arrowUndo } from 'ionicons/icons';
-import { Value, OnArgs } from 'react-calendar/dist/cjs/shared/types';
+import { Swiper as SwiperInstance } from 'swiper';
+import { cogOutline } from 'ionicons/icons';
+import { Value } from 'react-calendar/dist/cjs/shared/types';
 
 import './Calendar.css';
 import 'swiper/css';
@@ -14,22 +12,14 @@ import 'swiper/css';
 import {
 	IonButton,
 	IonContent,
-	IonDatetime,
 	IonHeader,
 	IonIcon,
-	IonList,
 	IonPage,
-	IonRefresher,
-	IonRefresherContent,
-	IonTitle,
-	IonToolbar,
-	useIonViewWillEnter,
 } from '@ionic/react';
 import './Home.css';
 
 import {
 	getDateWithMonthOffset,
-	getDayNumber,
 	getFullMonthName,
 	getFullYear,
 	getMonthNumber,
