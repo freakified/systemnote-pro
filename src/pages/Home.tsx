@@ -30,6 +30,7 @@ import DayView from '../components/DayView';
 
 const Home: React.FC = () => {
 	const DEFAULT_DATE = new Date();
+	const ANIMATION_DURATION = 300;
 
 	const [value, setValue] = useState<Value>(DEFAULT_DATE);
 	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
@@ -59,7 +60,7 @@ const Home: React.FC = () => {
 			if (activeMonth > defaultMonth) {
 				// Animate left after updating the previous slide
 				setTimeout(() => {
-					swiperRef.current?.slidePrev(300, true); // Swipe left (previous slide)
+					swiperRef.current?.slidePrev(ANIMATION_DURATION, true); // Swipe left (previous slide)
 				}, 0);
 			}
 
@@ -67,18 +68,21 @@ const Home: React.FC = () => {
 			else if (activeMonth < defaultMonth) {
 				// Animate right after updating the next slide
 				setTimeout(() => {
-					swiperRef.current?.slideNext(300, true); // Swipe right (next slide)
+					swiperRef.current?.slideNext(ANIMATION_DURATION, true); // Swipe right (next slide)
 				}, 0);
 			}
 
-			// After the animation completes, reset everything back to default
 			setTimeout(() => {
 				setValue(DEFAULT_DATE);
 				setActiveStartDate(DEFAULT_DATE);
+			}, ANIMATION_DURATION / 10);
+
+			// After the animation completes, reset everything back to default
+			setTimeout(() => {
 				swiperRef.current?.slideTo(1, 0, false); // Ensure swiper is back in the middle
-				swiperRef.current?.updateAutoHeight(300); // Update height for new content
 				setResetAnimationActive(false);
-			}, 300);
+				swiperRef.current?.updateAutoHeight(ANIMATION_DURATION); // Update height for new content
+			}, ANIMATION_DURATION);
 		}
 	};
 
@@ -115,7 +119,7 @@ const Home: React.FC = () => {
 
 	const calendarCommonProps: CalendarProps = {
 		onChange: onDateChange,
-		value: value,
+		value: resetAnimationActive ? null : value,
 		selectRange: false,
 		// This sets the start date to Sunday; we'll add an option to control this later
 		locale: 'en-US',
