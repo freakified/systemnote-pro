@@ -4,7 +4,6 @@
 	color: var(--ion-text-color);
 	font-size: 14px;
 	box-sizing: border-box;
-	padding-bottom: 4px;
 }
 
 .react-calendar__month-view__weekdays__weekday {
