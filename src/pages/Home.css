@@ -1,15 +1,24 @@
-html {
+/* html {
 	min-height: calc(100% + env(safe-area-inset-top));
 	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
+} */
 
 ion-header {
-	/* background-color: aqu	amarine; */
+	background-color: var(--ion-background-color);
 }
+
+.home-view-header {
+	padding-top: env(safe-area-inset-top);
+}
+
+/* #root {
+		min-height: calc(100% + env(safe-area-inset-top));
+		padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+} */
 
 .sneakyFloatingToolbar {
 	position: absolute;
-	top: 0;
+	top: env(safe-area-inset-top);
 	right: 0;
 	/* background-color: var(--ion-background-color); */
 	z-index: 2;

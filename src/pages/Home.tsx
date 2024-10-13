@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -16,6 +16,7 @@ import {
 	IonHeader,
 	IonIcon,
 	IonPage,
+	IonModal,
 } from '@ionic/react';
 import './Home.css';
 
@@ -28,8 +29,32 @@ import {
 	isToday,
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
+import SettingsPage from '../components/SettingsPage';
 
 const Home: React.FC = () => {
+	// related to settings modal
+	// const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
+
+	// const openSettingsModal = () => {
+	// 	setSettingsModalOpen(true);
+	// };
+
+	const modal = useRef<HTMLIonModalElement>(null);
+	const page = useRef(null);
+
+	const [presentingElement, setPresentingElement] =
+		useState<HTMLElement | null>(null);
+
+	useEffect(() => {
+		setPresentingElement(page.current);
+	}, []);
+
+	function dismissSettingsModal() {
+		modal.current?.dismiss();
+	}
+
+	// related to calendar view
+
 	const DEFAULT_DATE = new Date();
 	const ANIMATION_DURATION = 300;
 
@@ -73,6 +98,8 @@ const Home: React.FC = () => {
 				}, 0);
 			}
 
+			// Just before the animation completes, reset the state
+			// Adding this timing ensures that the state is in time
 			setTimeout(() => {
 				setValue(DEFAULT_DATE);
 				setActiveStartDate(DEFAULT_DATE);
@@ -177,8 +204,8 @@ const Home: React.FC = () => {
 			: getDateWithMonthOffset(activeStartDate, 1);
 
 	return (
-		<IonPage id="home-page">
-			<IonHeader>
+		<IonPage id="home-page" ref={page}>
+			<IonHeader className="home-view-header">
 				<div className="sneakyFloatingToolbar">
 					<IonButton
 						size="default"
@@ -192,7 +219,12 @@ const Home: React.FC = () => {
 					>
 						Today
 					</IonButton>
-					<IonButton size="large" fill="clear" shape="round">
+					<IonButton
+						size="large"
+						fill="clear"
+						shape="round"
+						id="open-settings-modal"
+					>
 						<IonIcon
 							slot="icon-only"
 							size="large"
@@ -242,6 +274,13 @@ const Home: React.FC = () => {
 			</IonHeader>
 			<IonContent>
 				<DayView date={valueToDate(value)} />
+				<IonModal
+					ref={modal}
+					trigger="open-settings-modal"
+					presentingElement={presentingElement!}
+				>
+					<SettingsPage onCancelButtonClick={dismissSettingsModal} />
+				</IonModal>
 			</IonContent>
 		</IonPage>
 	);

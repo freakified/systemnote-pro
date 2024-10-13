@@ -36,3 +36,9 @@
 	padding: 0 8px;
 	flex: 1;
 }
+
+.dayView-note-textarea {
+	--background: #373737 transparent;
+    /* appearance: none;
+    border: 0; */
+}

@@ -11,7 +11,7 @@
       "src": "favicon.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "monochrome maskable"
+      "purpose": "maskable"
     }
   ],
   "start_url": ".",
