@@ -1,21 +1,17 @@
-.dayView-root {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-}
-
 .dayView-toolbar {
 	display: flex;
 	align-items: baseline;
 	gap: 4px;
-	/* position: sticky; */
+	position: sticky;
+	z-index: 1;
 	top: 0;
 	padding-top: 4px;
-	padding-left: 6px;
+	padding-left: 4px;
 	background-color: var(--ion-background-color);
+	/* background-color: rgba(var(--ion-background-color-rgb), .5); */
+	/* backdrop-filter: blur(10px); */
 	border-bottom: 1px dotted rgba(128, 128, 128, 0.5);
 }
-
 
 .dayView-dayNumber {
 	font-size: 32px;
@@ -28,17 +24,20 @@
 	text-transform: uppercase;
 }
 
-.dayView-note {
+.dayView-note-textarea {
 	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="20" viewBox="0 0 100 20" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="20" stroke="rgba(150, 150, 150, 0.3)" stroke-width="1"/></svg>');
 	background-size: 100% 24px;
 	line-height: 24px;
 	background-repeat: repeat-y;
-	padding: 0 8px;
-	flex: 1;
+	padding: 0 4px;
+	min-height: calc(100% - 48px - 4px);
+	width: 100%;
+    border: 0;
+	caret-color : var(--ion-color-primary);
+	padding-bottom: env(safe-area-inset-bottom);
+	overflow: hidden;
 }
 
-.dayView-note-textarea {
-	--background: #373737 transparent;
-    /* appearance: none;
-    border: 0; */
+.dayView-note-textarea:focus {
+	outline: 0 none; /* TODO: Add meaningful focus visible state for keyboard users */
 }

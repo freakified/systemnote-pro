@@ -1,7 +1,8 @@
 import React from 'react';
-import { IonItem, IonLabel, IonNote, IonTextarea } from '@ionic/react';
+import { IonContent, IonItem, IonLabel, IonNote, IonTextarea } from '@ionic/react';
 import './DayView.css';
 import { getDayNumber, getWeekdayNameShort } from '../utils/dateUtils';
+import TextareaAutosize from "react-textarea-autosize"
 
 interface DayViewProps {
 	date: Date;
@@ -9,7 +10,7 @@ interface DayViewProps {
 
 const DayView: React.FC<DayViewProps> = ({ date }) => {
 	return (
-		<div className="dayView-root">
+		<IonContent className="dayView-root">
 			<div className="dayView-toolbar">
 				<div className="dayView-dayNumber">{getDayNumber(date)}</div>
 				<div className="dayView-weekday">
@@ -17,15 +18,8 @@ const DayView: React.FC<DayViewProps> = ({ date }) => {
 					{getWeekdayNameShort(date)}
 				</div>
 			</div>
-			<div className="dayView-note" contentEditable="plaintext-only">
-				{/* <textarea className="dayView-note-textarea"></textarea> */}
-				{/* <IonTextarea
-					className="dayView-note-textarea"
-					autoGrow={true}
-					
-				></IonTextarea> */}
-			</div>
-		</div>
+			<TextareaAutosize className="dayView-note-textarea"></TextareaAutosize>
+		</IonContent>
 	);
 };
 

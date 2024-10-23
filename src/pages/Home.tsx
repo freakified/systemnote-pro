@@ -272,16 +272,14 @@ const Home: React.FC = () => {
 					</SwiperSlide>
 				</Swiper>
 			</IonHeader>
-			<IonContent>
-				<DayView date={valueToDate(value)} />
-				<IonModal
-					ref={modal}
-					trigger="open-settings-modal"
-					presentingElement={presentingElement!}
-				>
-					<SettingsPage onCancelButtonClick={dismissSettingsModal} />
-				</IonModal>
-			</IonContent>
+			<DayView date={valueToDate(value)} />
+			<IonModal
+				ref={modal}
+				trigger="open-settings-modal"
+				presentingElement={presentingElement!}
+			>
+				<SettingsPage onCancelButtonClick={dismissSettingsModal} />
+			</IonModal>
 		</IonPage>
 	);
 };
