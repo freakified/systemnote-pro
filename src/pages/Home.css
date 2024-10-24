@@ -35,6 +35,10 @@ ion-header {
 	min-height: 0;
 }
 
+.swiper {
+	overflow: visible; /* ensure that selected day ring doesn't get cut off */
+}
+
 .resetButton {
 	transition: opacity ease 250ms;
 	opacity: 1;
