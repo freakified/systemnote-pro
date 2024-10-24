@@ -49,9 +49,9 @@ const Home: React.FC = () => {
 		setPresentingElement(page.current);
 	}, []);
 
-	function dismissSettingsModal() {
+	const dismissSettingsModal = () => {
 		modal.current?.dismiss();
-	}
+	};
 
 	// related to calendar view
 
