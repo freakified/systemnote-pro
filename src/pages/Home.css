@@ -40,7 +40,13 @@ ion-header {
 }
 
 .resetButton {
-	transition: opacity ease 250ms;
+	transition: all ease 250ms;
+	min-width: 40px;
+	--background: rgba(var(--ion-color-primary-rgb), 0.1);
+	--background-hover: rgba(var(--ion-color-primary-rgb), 0.2);
+	--background-activated: rgba(var(--ion-color-primary-rgb), 0.2);
+	--background-focused: rgba(var(--ion-color-primary-rgb), 0.2);
+	--color: var(--ion-color-primary);
 	opacity: 1;
 }
 

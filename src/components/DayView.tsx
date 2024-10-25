@@ -32,9 +32,8 @@ const DayView: React.FC<DayViewProps> = ({
 			<TextareaAutosize
 				onChange={onTextAreaChange}
 				className="dayView-note-textarea"
-			>
-				{note}
-			</TextareaAutosize>
+				value={note}
+			/>
 		</IonContent>
 	);
 };

@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperInstance } from 'swiper';
-import { cogOutline } from 'ionicons/icons';
+import { arrowUndo, arrowUndoCircle, arrowUndoOutline, cogOutline } from 'ionicons/icons';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import cx from 'classnames';
 import { Storage } from '@ionic/storage';
@@ -35,7 +35,7 @@ import {
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 import SettingsPage from '../components/SettingsPage';
-import { setDayNote } from '../utils/storageUtils';
+import { getDayNote, setDayNote } from '../utils/storageUtils';
 
 interface HomeProps {
 	storage?: Storage;
@@ -62,7 +62,11 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		const note = e.target.value;
 		setCurrentNote(note);
 		if (storage !== undefined) {
-			setDayNote(getNumericDateString(valueToDate(value)), note, storage);
+			setDayNote(
+				getNumericDateString(valueToDate(selectedDate)),
+				note,
+				storage,
+			);
 		}
 	};
 
@@ -71,30 +75,34 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const DEFAULT_DATE = new Date();
 	const ANIMATION_DURATION = 300;
 
-	const [value, setValue] = useState<Value>(DEFAULT_DATE);
+	// Note that this is a "value" type and not a "date" type due to peculiarities
+	// about react-calendar. Specifically, "value" can be a range, though we never
+	// actually use that functionality.
+	const [selectedDate, setSelectedDate] = useState<Value>(DEFAULT_DATE);
+
+	// ActiveStartDate represents the currently in-view month
 	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
+
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 
 	const swiperRef = useRef<SwiperInstance | null>(null);
 
 	const onDateChange = (value: Value) => {
-		setValue(value);
+		setSelectedDate(value);
 	};
 
+	// Update the displayed note from storage when the date "value" changes
 	useEffect(() => {
-		console.log('getting note');
-		const getLatestNote = async () => {
-			const note = await storage.get('note');
-			setCurrentNote(note);
-			console.log(`the note actuall was ${currentNote}`);
-		};
-
-		getLatestNote();
-
-		console.log('got? note');
-		console.log(`the note was ${currentNote}`);
-	}, [storage, value]);
+		if (storage) {
+			getDayNote(
+				getNumericDateString(valueToDate(selectedDate)),
+				storage,
+			).then((note) => {
+				setCurrentNote(note);
+			});
+		}
+	}, [storage, selectedDate]);
 
 	const resetCalendarView = () => {
 		const defaultMonth =
@@ -103,7 +111,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			activeStartDate.getMonth() + activeStartDate.getFullYear() * 100;
 
 		if (activeMonth === defaultMonth) {
-			setValue(DEFAULT_DATE);
+			setSelectedDate(DEFAULT_DATE);
 			setActiveStartDate(DEFAULT_DATE);
 		} else {
 			// this will cause non-active dates to show they're the default
@@ -128,7 +136,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			// Just before the animation completes, reset the state
 			// Adding this timing ensures that the state is in time
 			setTimeout(() => {
-				setValue(DEFAULT_DATE);
+				setSelectedDate(DEFAULT_DATE);
 				setActiveStartDate(DEFAULT_DATE);
 			}, ANIMATION_DURATION / 10);
 
@@ -176,7 +184,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const calendarCommonProps: CalendarProps = {
 		onChange: onDateChange,
 		// If the reset animation is active, temporarily hide the "today" ring
-		value: resetAnimationActive ? null : value,
+		value: resetAnimationActive ? null : selectedDate,
 		selectRange: false,
 		// This sets the start date to Sunday; we'll add an option to control this later
 		locale: 'en-US',
@@ -218,7 +226,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	);
 
 	const showTodayResetButton =
-		!isToday(valueToDate(value)) ||
+		!isToday(valueToDate(selectedDate)) ||
 		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
 
 	const pastCalendarStartDate =
@@ -237,14 +245,15 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					<IonButton
 						size="default"
 						fill="solid"
-						color="light"
+						// color="light"
+						shape="round"
 						onClick={resetCalendarView}
 						className={cx({
 							resetButton: true,
 							'resetButton--hidden': !showTodayResetButton,
 						})}
 					>
-						Today
+						<IonIcon slot="icon-only" size="medium" icon={arrowUndo}></IonIcon>
 					</IonButton>
 					<IonButton
 						size="large"
@@ -300,7 +309,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				</Swiper>
 			</IonHeader>
 			<DayView
-				date={valueToDate(value)}
+				date={valueToDate(selectedDate)}
 				onTextAreaChange={onDayEdit}
 				note={currentNote}
 			/>
