@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import { Storage } from '@ionic/storage';
+
 import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
@@ -38,16 +40,29 @@ setupIonicReact({
 	mode: 'ios',
 });
 
-const App: React.FC = () => (
-	<IonApp>
-		<IonReactRouter>
-			<IonRouterOutlet>
-				<Route path="/" exact={true}>
-					<Home />
-				</Route>
-			</IonRouterOutlet>
-		</IonReactRouter>
-	</IonApp>
-);
+const App: React.FC = () => {
+	const [storage, setStorage] = useState<Storage | null>(null);
+
+	useEffect(() => {
+		const initStorage = async () => {
+			const store = new Storage();
+			const newStorage = await store.create();
+			setStorage(newStorage);
+		};
+		initStorage();
+	}, []);
+
+	return (
+		<IonApp>
+			<IonReactRouter>
+				<IonRouterOutlet>
+					<Route path="/" exact={true}>
+						<Home storage={storage} />
+					</Route>
+				</IonRouterOutlet>
+			</IonReactRouter>
+		</IonApp>
+	);
+};
 
 export default App;

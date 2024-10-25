@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
 import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -6,6 +6,7 @@ import { Swiper as SwiperInstance } from 'swiper';
 import { cogOutline } from 'ionicons/icons';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import cx from 'classnames';
+import { Storage } from '@ionic/storage';
 
 import './Calendar.css';
 import 'swiper/css';
@@ -17,27 +18,31 @@ import {
 	IonIcon,
 	IonPage,
 	IonModal,
+	TextareaCustomEvent,
 } from '@ionic/react';
+
 import './Home.css';
 
 import {
 	getDateWithMonthOffset,
 	getFullMonthName,
 	getFullYear,
-	getMonthNumber,
+	getNumericDateString,
+	getNumericMonthString,
+	getNumericYearString,
 	getWeekdayNameShort,
 	isToday,
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 import SettingsPage from '../components/SettingsPage';
+import { setDayNote } from '../utils/storageUtils';
 
-const Home: React.FC = () => {
-	// related to settings modal
-	// const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
-
-	// const openSettingsModal = () => {
-	// 	setSettingsModalOpen(true);
-	// };
+interface HomeProps {
+	storage?: Storage;
+}
+const Home: React.FC<HomeProps> = ({ storage }) => {
+	// state
+	const [currentNote, setCurrentNote] = useState('');
 
 	const modal = useRef<HTMLIonModalElement>(null);
 	const page = useRef(null);
@@ -51,6 +56,14 @@ const Home: React.FC = () => {
 
 	const dismissSettingsModal = () => {
 		modal.current?.dismiss();
+	};
+
+	const onDayEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
+		const note = e.target.value;
+		setCurrentNote(note);
+		if (storage !== undefined) {
+			setDayNote(getNumericDateString(valueToDate(value)), note, storage);
+		}
 	};
 
 	// related to calendar view
@@ -68,6 +81,20 @@ const Home: React.FC = () => {
 	const onDateChange = (value: Value) => {
 		setValue(value);
 	};
+
+	useEffect(() => {
+		console.log('getting note');
+		const getLatestNote = async () => {
+			const note = await storage.get('note');
+			setCurrentNote(note);
+			console.log(`the note actuall was ${currentNote}`);
+		};
+
+		getLatestNote();
+
+		console.log('got? note');
+		console.log(`the note was ${currentNote}`);
+	}, [storage, value]);
 
 	const resetCalendarView = () => {
 		const defaultMonth =
@@ -181,10 +208,10 @@ const Home: React.FC = () => {
 	const CalendarTitle: React.FC<CalendarTitleProps> = ({ date }) => (
 		<h2 className="calendarHeading-root">
 			<div className="calendarHeading-monthNumber">
-				{getMonthNumber(date)}
+				{getNumericMonthString(date)}
 			</div>
 			<div className="calendarHeading-monthAndYear">
-				<div>{getFullYear(date)}</div>
+				<div>{getNumericYearString(date)}</div>
 				<div>{getFullMonthName(date)}</div>
 			</div>
 		</h2>
@@ -272,7 +299,11 @@ const Home: React.FC = () => {
 					</SwiperSlide>
 				</Swiper>
 			</IonHeader>
-			<DayView date={valueToDate(value)} />
+			<DayView
+				date={valueToDate(value)}
+				onTextAreaChange={onDayEdit}
+				note={currentNote}
+			/>
 			<IonModal
 				ref={modal}
 				trigger="open-settings-modal"

@@ -1,9 +1,58 @@
 // Given a Date, returns a string of the year alone
+
+import {
+	NumericDateString,
+	NumericDayString,
+	NumericMonthString,
+	NumericYearMonthString,
+	NumericYearString,
+} from './customTypes';
+
+/**** Convenient stringification Functions ****/
+
 // Example output: "2024"
-export const getFullYear = (date: Date, locale: string = 'en-US'): string => {
+export const getNumericYearString = (
+	date: Date,
+	locale: string = 'en-US',
+): NumericYearString => {
 	const options = { year: 'numeric' } as Intl.DateTimeFormatOptions;
-	return new Intl.DateTimeFormat(locale, options).format(date);
+	const year = new Intl.DateTimeFormat(locale, options).format(date);
+
+	if (/^\d{4}$/.test(year)) {
+		return year as NumericYearString;
+	} else {
+		throw new Error(`Invalid year returned: ${year}`);
+	}
 };
+
+// Given a Date, returns a string of the month number alone
+// Example output: "11"
+export const getNumericMonthString = (date: Date): NumericMonthString => {
+	const month = (date.getMonth() + 1)
+		.toString()
+		.padStart(2, '0') as NumericMonthString;
+	return month;
+};
+
+// Given a Date, returns a string of the day alone
+// Example output: "23"
+export const getNumericDayString = (date: Date): NumericDayString => {
+	const dayNumber = date
+		.getDate()
+		.toString()
+		.padStart(2, '0') as NumericDayString;
+	return dayNumber;
+};
+
+export const getNumericYearMonthString = (date: Date): NumericYearMonthString => {
+	return `${getNumericYearString(date)}${getNumericMonthString(date)}`;
+};
+
+export const getNumericDateString = (date: Date): NumericDateString => {
+	return `${getNumericYearString(date)}${getNumericMonthString(date)}${getNumericDayString(date)}`;
+};
+
+/**** Localization Functions ****/
 
 // Given a Date, returns a string of the month alone
 // Example output: "September"
@@ -13,18 +62,6 @@ export const getFullMonthName = (
 ): string => {
 	const options = { month: 'long' } as Intl.DateTimeFormatOptions;
 	return new Intl.DateTimeFormat(locale, options).format(date);
-};
-
-// Given a Date, returns a string of the month number alone
-// Example output: "11"
-export const getMonthNumber = (date: Date): string => {
-	return (date.getMonth() + 1).toString();
-};
-
-// Given a Date, returns a string of the day alone
-// Example output: "23"
-export const getDayNumber = (date: Date): string => {
-	return date.getDate().toString();
 };
 
 // Given a Date, returns a string of the short day
@@ -37,8 +74,13 @@ export const getWeekdayNameShort = (
 	return new Intl.DateTimeFormat(locale, options).format(date);
 };
 
+/**** Date Math ****/
+
 // Given a Date, adds or subtract N months from that date
-export const getDateWithMonthOffset = (date: Date, monthOffset: number) => {
+export const getDateWithMonthOffset = (
+	date: Date,
+	monthOffset: number,
+): Date => {
 	const newDate = new Date(date);
 	newDate.setMonth(newDate.getMonth() + monthOffset);
 	return newDate;
