@@ -9,9 +9,6 @@ import {
 	MonthTags,
 } from './customTypes';
 
-
-
-// 1. Retrieve all tags for a specific month
 export const getMonthTags = async (
 	month: NumericYearMonthString,
 	storage: Storage,
@@ -53,4 +50,17 @@ export const setDayNote = async (
 ): Promise<void> => {
 	const dayKey = `note_${day}`;
 	await storage.set(dayKey, note); // Save the note to storage
+};
+
+// Function to get days in a specific month that have notes
+export const getDaysWithNotes = async (
+	month: NumericYearMonthString,
+	storage: Storage,
+): Promise<NumericDayString[]> => {
+	const keys = await storage.keys(); // Retrieve all keys in storage
+	const daysWithNotes: NumericDayString[] = keys
+		.filter((key) => key.startsWith(`note_${month}`)) // Filter keys for the specific month (e.g., "note_202401")
+		.map((key) => key.slice(-2) as NumericDayString); // Extract the last two characters as Day (e.g., "01", "15")
+
+	return daysWithNotes;
 };

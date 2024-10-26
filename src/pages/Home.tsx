@@ -3,7 +3,12 @@ import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperInstance } from 'swiper';
-import { arrowUndo, arrowUndoCircle, arrowUndoOutline, cogOutline } from 'ionicons/icons';
+import {
+	arrowUndo,
+	arrowUndoCircle,
+	arrowUndoOutline,
+	cogOutline,
+} from 'ionicons/icons';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import cx from 'classnames';
 import { Storage } from '@ionic/storage';
@@ -28,21 +33,44 @@ import {
 	getFullMonthName,
 	getFullYear,
 	getNumericDateString,
+	getNumericDayString,
 	getNumericMonthString,
+	getNumericYearMonthString,
 	getNumericYearString,
 	getWeekdayNameShort,
 	isToday,
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 import SettingsPage from '../components/SettingsPage';
-import { getDayNote, setDayNote } from '../utils/storageUtils';
+import {
+	getDayNote,
+	getDaysWithNotes,
+	setDayNote,
+} from '../utils/storageUtils';
+import { NumericDayString } from '../utils/customTypes';
 
 interface HomeProps {
 	storage?: Storage;
 }
+
 const Home: React.FC<HomeProps> = ({ storage }) => {
-	// state
+	const DEFAULT_DATE = new Date();
+	const ANIMATION_DURATION = 300;
+
+	// TODO: this should be a setting?
+	const DEFAULT_NOTE_EMOJI = '📝';
+
+	// Note that this is a "value" type and not a "date" type due to peculiarities
+	// about react-calendar. Specifically, "value" can be a range, though we never
+	// actually use that functionality.
+	const [selectedDate, setSelectedDate] = useState<Value>(DEFAULT_DATE);
+
+	// ActiveStartDate represents the currently in-view month
+	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
+
+	// Note related states
 	const [currentNote, setCurrentNote] = useState('');
+	const [daysWithNotes, setDaysWithNotes] = useState<NumericDayString[]>();
 
 	const modal = useRef<HTMLIonModalElement>(null);
 	const page = useRef(null);
@@ -58,31 +86,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		modal.current?.dismiss();
 	};
 
-	const onDayEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
-		const note = e.target.value;
-		setCurrentNote(note);
-		if (storage !== undefined) {
-			setDayNote(
-				getNumericDateString(valueToDate(selectedDate)),
-				note,
-				storage,
-			);
-		}
-	};
-
-	// related to calendar view
-
-	const DEFAULT_DATE = new Date();
-	const ANIMATION_DURATION = 300;
-
-	// Note that this is a "value" type and not a "date" type due to peculiarities
-	// about react-calendar. Specifically, "value" can be a range, though we never
-	// actually use that functionality.
-	const [selectedDate, setSelectedDate] = useState<Value>(DEFAULT_DATE);
-
-	// ActiveStartDate represents the currently in-view month
-	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
-
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 
@@ -91,6 +94,19 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const onDateChange = (value: Value) => {
 		setSelectedDate(value);
 	};
+
+	// Ensure displayed months have visible note annotations
+	useEffect(() => {
+		if (storage) {
+			getDaysWithNotes(
+				getNumericYearMonthString(activeStartDate),
+				storage,
+			).then((daysWithNotes) => {
+				setDaysWithNotes(daysWithNotes);
+				console.log(daysWithNotes);
+			});
+		}
+	}, [storage, activeStartDate]);
 
 	// Update the displayed note from storage when the date "value" changes
 	useEffect(() => {
@@ -103,6 +119,19 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			});
 		}
 	}, [storage, selectedDate]);
+
+	// Update day note in storage when notes area modified
+	const onDayEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
+		const note = e.target.value;
+		setCurrentNote(note);
+		if (storage !== undefined) {
+			setDayNote(
+				getNumericDateString(valueToDate(selectedDate)),
+				note,
+				storage,
+			);
+		}
+	};
 
 	const resetCalendarView = () => {
 		const defaultMonth =
@@ -207,6 +236,23 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				return null;
 			}
 		},
+		tileContent: ({ date }) => {
+			const numericDayString = getNumericDayString(date);
+
+			if (
+				daysWithNotes &&
+				daysWithNotes.indexOf(numericDayString) !== -1
+			) {
+				// todo: potentialy refactor this into a "day tags" components
+				return (
+					<div className="react-calendar__daymoji_container">
+						<span className="react-calendar__daymoji">
+							{DEFAULT_NOTE_EMOJI}
+						</span>
+					</div>
+				);
+			}
+		},
 	};
 
 	interface CalendarTitleProps {
@@ -245,7 +291,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					<IonButton
 						size="default"
 						fill="solid"
-						// color="light"
 						shape="round"
 						onClick={resetCalendarView}
 						className={cx({
@@ -253,7 +298,11 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 							'resetButton--hidden': !showTodayResetButton,
 						})}
 					>
-						<IonIcon slot="icon-only" size="medium" icon={arrowUndo}></IonIcon>
+						<IonIcon
+							slot="icon-only"
+							size="medium"
+							icon={arrowUndo}
+						></IonIcon>
 					</IonButton>
 					<IonButton
 						size="large"
