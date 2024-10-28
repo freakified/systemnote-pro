@@ -61,8 +61,7 @@ export type NumericYearMonthString = `${NumericYearString}${NumericMonthString}`
 // Each day can have 0 or more "tags", which are emojis
 // In v1, you get 2 emoji per day. In the future, we
 // could increase this for ABSOLUTE CHAOS
-export interface TagEntry {
-	tags: string[];
-}
+export type TagEntry = string[];
+
 // Every day in a month can have
 export type MonthTags = Partial<Record<NumericDayString, TagEntry>>;

@@ -1,0 +1,11 @@
+.dayTags__container {
+	flex: 1;
+	display: flex;
+    align-items: end;
+	font-size: 16px;
+	/* padding-bottom: 2px; */
+}
+
+.dayTags__tag {
+	/* asdf */
+}

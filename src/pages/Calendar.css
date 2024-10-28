@@ -135,14 +135,3 @@
 	padding-left: 6px;
 } */
 
-.react-calendar__daymoji_container {
-	flex: 1;
-	display: flex;
-    align-items: end;
-	font-size: 16px;
-	padding-bottom: 2px;
-}
-
-.react-calendar__daymoji {
-	/* asdf */
-}

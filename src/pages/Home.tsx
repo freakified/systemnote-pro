@@ -47,7 +47,8 @@ import {
 	getDaysWithNotes,
 	setDayNote,
 } from '../utils/storageUtils';
-import { NumericDayString } from '../utils/customTypes';
+import { NumericDayString, TagEntry } from '../utils/customTypes';
+import DayTags from '../components/DayTags';
 
 interface HomeProps {
 	storage?: Storage;
@@ -70,7 +71,23 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	// Note related states
 	const [currentNote, setCurrentNote] = useState('');
-	const [daysWithNotes, setDaysWithNotes] = useState<NumericDayString[]>();
+	const [currentMonthDaysWithNotes, setCurrentMonthDaysWithNotes] =
+		useState<NumericDayString[]>();
+	const [pastMonthDaysWithNotes, setPastMonthDaysWithNotes] =
+		useState<NumericDayString[]>();
+	const [futureMonthDaysWithNotes, setFutureMonthDaysWithNotes] =
+		useState<NumericDayString[]>();
+
+	const getDefaultTagsForDay = (date: Date, notes?: NumericDayString[]) => {
+		const numericDayString = getNumericDayString(date);
+
+		return (
+			notes &&
+			([
+				notes.indexOf(numericDayString) !== -1 && DEFAULT_NOTE_EMOJI,
+			] as TagEntry)
+		);
+	};
 
 	const modal = useRef<HTMLIonModalElement>(null);
 	const page = useRef(null);
@@ -98,15 +115,33 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	// Ensure displayed months have visible note annotations
 	useEffect(() => {
 		if (storage) {
+			// Get current month days with notes
 			getDaysWithNotes(
 				getNumericYearMonthString(activeStartDate),
 				storage,
 			).then((daysWithNotes) => {
-				setDaysWithNotes(daysWithNotes);
-				console.log(daysWithNotes);
+				setCurrentMonthDaysWithNotes(daysWithNotes);
+			});
+			// Get past month
+			getDaysWithNotes(
+				getNumericYearMonthString(
+					getDateWithMonthOffset(activeStartDate, -1),
+				),
+				storage,
+			).then((daysWithNotes) => {
+				setPastMonthDaysWithNotes(daysWithNotes);
+			});
+			// Get future month
+			getDaysWithNotes(
+				getNumericYearMonthString(
+					getDateWithMonthOffset(activeStartDate, 1),
+				),
+				storage,
+			).then((daysWithNotes) => {
+				setFutureMonthDaysWithNotes(daysWithNotes);
 			});
 		}
-	}, [storage, activeStartDate]);
+	}, [storage, selectedDate, activeStartDate]);
 
 	// Update the displayed note from storage when the date "value" changes
 	useEffect(() => {
@@ -236,23 +271,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				return null;
 			}
 		},
-		tileContent: ({ date }) => {
-			const numericDayString = getNumericDayString(date);
-
-			if (
-				daysWithNotes &&
-				daysWithNotes.indexOf(numericDayString) !== -1
-			) {
-				// todo: potentialy refactor this into a "day tags" components
-				return (
-					<div className="react-calendar__daymoji_container">
-						<span className="react-calendar__daymoji">
-							{DEFAULT_NOTE_EMOJI}
-						</span>
-					</div>
-				);
-			}
-		},
 	};
 
 	interface CalendarTitleProps {
@@ -331,6 +349,14 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 							<CalendarTitle date={pastCalendarStartDate} />
 							<Calendar
 								activeStartDate={pastCalendarStartDate}
+								tileContent={({ date }) => (
+									<DayTags
+										tags={getDefaultTagsForDay(
+											date,
+											pastMonthDaysWithNotes,
+										)}
+									/>
+								)}
 								{...calendarCommonProps}
 							/>
 						</div>
@@ -341,6 +367,14 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 							<CalendarTitle date={activeStartDate} />
 							<Calendar
 								activeStartDate={activeStartDate}
+								tileContent={({ date }) => (
+									<DayTags
+										tags={getDefaultTagsForDay(
+											date,
+											currentMonthDaysWithNotes,
+										)}
+									/>
+								)}
 								{...calendarCommonProps}
 							/>
 						</div>
@@ -351,6 +385,14 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 							<CalendarTitle date={futureCalendarStartDate} />
 							<Calendar
 								activeStartDate={futureCalendarStartDate}
+								tileContent={({ date }) => (
+									<DayTags
+										tags={getDefaultTagsForDay(
+											date,
+											futureMonthDaysWithNotes,
+										)}
+									/>
+								)}
 								{...calendarCommonProps}
 							/>
 						</div>
