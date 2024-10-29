@@ -106,6 +106,15 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 
+	const pastCalendarStartDate =
+		resetAnimationActive === true
+			? DEFAULT_DATE
+			: getDateWithMonthOffset(activeStartDate, -1);
+	const futureCalendarStartDate =
+		resetAnimationActive === true
+			? DEFAULT_DATE
+			: getDateWithMonthOffset(activeStartDate, 1);
+
 	const swiperRef = useRef<SwiperInstance | null>(null);
 
 	const onDateChange = (value: Value) => {
@@ -124,18 +133,14 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			});
 			// Get past month
 			getDaysWithNotes(
-				getNumericYearMonthString(
-					getDateWithMonthOffset(activeStartDate, -1),
-				),
+				getNumericYearMonthString(pastCalendarStartDate),
 				storage,
 			).then((daysWithNotes) => {
 				setPastMonthDaysWithNotes(daysWithNotes);
 			});
 			// Get future month
 			getDaysWithNotes(
-				getNumericYearMonthString(
-					getDateWithMonthOffset(activeStartDate, 1),
-				),
+				getNumericYearMonthString(futureCalendarStartDate),
 				storage,
 			).then((daysWithNotes) => {
 				setFutureMonthDaysWithNotes(daysWithNotes);
@@ -292,15 +297,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const showTodayResetButton =
 		!isToday(valueToDate(selectedDate)) ||
 		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
-
-	const pastCalendarStartDate =
-		resetAnimationActive === true
-			? DEFAULT_DATE
-			: getDateWithMonthOffset(activeStartDate, -1);
-	const futureCalendarStartDate =
-		resetAnimationActive === true
-			? DEFAULT_DATE
-			: getDateWithMonthOffset(activeStartDate, 1);
 
 	return (
 		<IonPage id="home-page" ref={page}>
