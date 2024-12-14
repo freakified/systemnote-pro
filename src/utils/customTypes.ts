@@ -56,7 +56,8 @@ export type NumericDayString =
 // at last, we can define a date string
 export type NumericDateString =
 	`${NumericYearString}${NumericMonthString}${NumericDayString}`;
-export type NumericYearMonthString = `${NumericYearString}${NumericMonthString}`;
+export type NumericYearMonthString =
+	`${NumericYearString}${NumericMonthString}`;
 
 // Each day can have 0 or more "tags", which are emojis
 // In v1, you get 2 emoji per day. In the future, we
@@ -65,3 +66,7 @@ export type TagEntry = string[];
 
 // Every day in a month can have
 export type MonthTags = Partial<Record<NumericDayString, TagEntry>>;
+
+export type CombinedMonthData = Partial<
+	Record<NumericDayString, { note: string; tags: TagEntry }>
+>;
