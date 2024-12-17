@@ -1,7 +1,3 @@
-// Normally, I would be much too lazy, but thanks to the magic of genAI we can now automatically
-// write absolutely insane type validation code automatically
-// Please enjoy this impressive show of ChatGPT's Typescript prowess
-
 export type NumericYearString = `${number}`;
 
 // there are only 12 months
@@ -67,6 +63,8 @@ export type TagEntry = string[];
 // Every day in a month can have
 export type MonthTags = Partial<Record<NumericDayString, TagEntry>>;
 
-export type CombinedMonthData = Partial<
+export type MonthlyData = Partial<
 	Record<NumericDayString, { note: string; tags: TagEntry }>
 >;
+
+export type MultiMonthlyData = Record<NumericYearMonthString, MonthlyData>;

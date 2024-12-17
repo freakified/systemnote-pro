@@ -4,13 +4,7 @@ import { debounce } from 'lodash';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperInstance } from 'swiper';
-import {
-	arrowUndo,
-	arrowUndoCircle,
-	arrowUndoOutline,
-	cogOutline,
-} from 'ionicons/icons';
-import { Value } from 'react-calendar/dist/cjs/shared/types';
+import { arrowUndo, cogOutline } from 'ionicons/icons';
 import cx from 'classnames';
 import { Storage } from '@ionic/storage';
 
@@ -43,13 +37,15 @@ import {
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 import SettingsPage from '../components/SettingsPage';
-import { getMonthData } from '../utils/storageUtils';
+import { getMonthData, writeMultiMonthlyData } from '../utils/storageUtils';
 import {
-	CombinedMonthData,
+	MonthlyData,
+	MultiMonthlyData,
 	NumericDayString,
 	TagEntry,
 } from '../utils/customTypes';
 import DayTags from '../components/DayTags';
+import { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface HomeProps {
 	storage?: Storage;
@@ -66,9 +62,9 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const [activeStartDate, setActiveStartDate] = useState(DEFAULT_DATE);
 
 	// Note related states
-	const [monthlyData, setMonthlyData] = useState<
-		Record<string, CombinedMonthData>
-	>({});
+	const [multiMonthlyData, setMultiMonthlyData] = useState<MultiMonthlyData>(
+		{},
+	);
 	const [currentNote, setCurrentNote] = useState('');
 
 	// Set up sheet modal used by Settings
@@ -87,7 +83,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	};
 
 	// Fetch initial data on component mount
-	// TODO: refactor this out into storageUtils
 	useEffect(() => {
 		const fetchInitialData = async () => {
 			if (!storage) return;
@@ -109,7 +104,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				),
 			);
 
-			setMonthlyData(
+			setMultiMonthlyData(
 				dataByMonth.reduce(
 					(acc, { month, data }) => ({ ...acc, [month]: data }),
 					{},
@@ -125,28 +120,26 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const syncToStorage = async () => {
 		if (!storage) return;
 
-		for (const [month, data] of Object.entries(monthlyData)) {
-			await storage.set(`data_${month}`, data);
-		}
+		writeMultiMonthlyData(multiMonthlyData, storage);
 	};
 
 	const debouncedSyncToStorage = debounce(syncToStorage, 1000);
 
 	useEffect(() => {
 		debouncedSyncToStorage();
-	}, [monthlyData]);
+	}, [multiMonthlyData]);
 
-	const onDateChange = (value: Date) => {
-		setSelectedDate(value);
+	const onDateChange = (value: Value) => {
+		setSelectedDate(value as Date);
 	};
 
 	useEffect(() => {
 		const targetDate = selectedDate;
 		const monthKey = getNumericYearMonthString(targetDate);
 		const dayKey = getNumericDayString(targetDate);
-		const dayData = monthlyData[monthKey]?.[dayKey];
+		const dayData = multiMonthlyData[monthKey]?.[dayKey];
 		setCurrentNote(dayData?.note || '');
-	}, [selectedDate, monthlyData]);
+	}, [selectedDate, multiMonthlyData]);
 
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
@@ -170,7 +163,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		const monthKey = getNumericYearMonthString(date);
 		const dayKey = getNumericDayString(date);
 
-		setMonthlyData((prevData) => ({
+		setMultiMonthlyData((prevData) => ({
 			...prevData,
 			[monthKey]: {
 				...prevData[monthKey],
@@ -275,7 +268,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		tileContent: ({ date }) => {
 			const monthKey = getNumericYearMonthString(date);
 			const dayKey = getNumericDayString(date);
-			const dayData = monthlyData[monthKey]?.[dayKey];
+			const dayData = multiMonthlyData[monthKey]?.[dayKey];
 			return <DayTags tags={dayData?.tags || []} />;
 		},
 	};
@@ -306,19 +299,18 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				<div className="sneakyFloatingToolbar">
 					<IonButton
 						size="default"
-						fill="solid"
-						shape="round"
 						onClick={resetCalendarView}
 						className={cx({
 							resetButton: true,
 							'resetButton--hidden': !showTodayResetButton,
 						})}
 					>
-						<IonIcon
-							slot="icon-only"
+						{/* <IonIcon
+							slot="start"
 							size="medium"
 							icon={arrowUndo}
-						></IonIcon>
+						></IonIcon> */}
+						Today
 					</IonButton>
 					<IonButton
 						size="large"

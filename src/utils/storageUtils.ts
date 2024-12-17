@@ -1,34 +1,29 @@
 import { Storage } from '@ionic/storage';
 
 import {
-	NumericDayString,
 	NumericYearMonthString,
-	TagEntry,
-	CombinedMonthData,
+	MonthlyData,
+	MultiMonthlyData,
 } from './customTypes';
+
+const DB_PREFIX = 'systemnote';
 
 export const getMonthData = async (
 	month: NumericYearMonthString,
 	storage: Storage,
-): Promise<CombinedMonthData> => {
-	const monthKey = `data_${month}`; // e.g., "data_202401"
-	const monthData: CombinedMonthData = (await storage.get(monthKey)) || {};
+): Promise<MonthlyData> => {
+	const monthKey = `${DB_PREFIX}_${month}`;
+	const monthData: MonthlyData = (await storage.get(monthKey)) || {};
 	return monthData;
 };
 
-export const setDayData = async (
-	month: NumericYearMonthString,
-	day: NumericDayString,
-	note: string,
-	tags: TagEntry,
+export const writeMultiMonthlyData = async (
+	monthlyData: MultiMonthlyData,
 	storage: Storage,
-): Promise<void> => {
-	const monthKey = `data_${month}`;
-	const monthData: CombinedMonthData = await getMonthData(month, storage);
-
-	// Update or add data for the specified day
-	monthData[day] = { note, tags };
-
-	// Save the updated month data
-	await storage.set(monthKey, monthData);
+) => {
+	for (const [yearMonthStr, data] of Object.entries(monthlyData)) {
+		if (Object.keys(data).length > 0) {
+			await storage.set(`${DB_PREFIX}_${yearMonthStr}`, data);
+		}
+	}
 };
