@@ -167,7 +167,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			...prevData,
 			[monthKey]: {
 				...prevData[monthKey],
-				[dayKey]: { note, tags: [DEFAULT_NOTE_EMOJI] },
+				[dayKey]: { note, tags: [] }, // todo: add tag inputs
 			},
 		}));
 	};
@@ -269,7 +269,16 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			const monthKey = getNumericYearMonthString(date);
 			const dayKey = getNumericDayString(date);
 			const dayData = multiMonthlyData[monthKey]?.[dayKey];
-			return <DayTags tags={dayData?.tags || []} />;
+			const dayHasTags = (dayData?.tags || []).length > 0;
+			const dayHasNote = (dayData?.note || '').length > 0;
+
+			if (dayHasTags) {
+				return <DayTags tags={dayData?.tags} />;
+			} else if (dayHasNote) {
+				return <DayTags tags={[DEFAULT_NOTE_EMOJI]} />;
+			} else {
+				return undefined;
+			}
 		},
 	};
 
