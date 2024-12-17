@@ -13,9 +13,11 @@ import {
 	IonToggle,
 	IonButton,
 	IonButtons,
-	IonNote,
 	IonListHeader,
+	IonInput,
+	IonText,
 } from '@ionic/react';
+import { AppSettings } from '../utils/settingsUtils';
 
 interface SettingsPageProps {
 	onCancelButtonClick: () => void;
@@ -23,9 +25,11 @@ interface SettingsPageProps {
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ onCancelButtonClick }) => {
 	// States for the settings
-	const [darkMode, setDarkMode] = useState<'system' | 'light' | 'dark'>('system');
-	const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-	const [weekStartDay, setWeekStartDay] = useState<'sunday' | 'monday'>('sunday');
+	const [currentSettings, setCurrentSettings] = useState<AppSettings>({
+		theme: 'DEFAULT',
+		weekStartDay: 'DEFAULT',
+		defaultNoteTag: '',
+	});
 
 	return (
 		<IonPage>
@@ -42,45 +46,56 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onCancelButtonClick }) => {
 					<IonTitle>Settings</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent color="light">
+			<IonContent>
 				<IonListHeader>General</IonListHeader>
 				<IonList inset={true}>
 					{/* Dark Mode Selection */}
 					<IonItem>
 						<IonLabel>Appearance</IonLabel>
 						<IonSelect
-							value={darkMode}
-							onIonChange={(e) => setDarkMode(e.detail.value)}
-							interface="action-sheet"
-						>
-							<IonSelectOption value="system">System Default</IonSelectOption>
-							<IonSelectOption value="light">Light</IonSelectOption>
-							<IonSelectOption value="dark">Dark</IonSelectOption>
-						</IonSelect>
-					</IonItem>
-
-					{/* Notifications Toggle */}
-					<IonItem>
-						<IonLabel>Start week on Monday</IonLabel>
-						<IonToggle
-							checked={notificationsEnabled}
+							value={currentSettings.theme}
 							onIonChange={(e) =>
-								setNotificationsEnabled(e.detail.checked)
+								setCurrentSettings({
+									...currentSettings,
+									theme: e.detail
+										.value as AppSettings['theme'],
+								})
 							}
-						/>
-					</IonItem>
-
-					{/* Week Start Day Selection */}
-					<IonItem>
-						<IonLabel>Start Week On</IonLabel>
-						<IonSelect
-							value={weekStartDay}
-							onIonChange={(e) => setWeekStartDay(e.detail.value)}
 							interface="popover"
 						>
-							<IonSelectOption value="sunday">Sunday</IonSelectOption>
-							<IonSelectOption value="monday">Monday</IonSelectOption>
+							<IonSelectOption value="DEFAULT">
+								System Default
+							</IonSelectOption>
+							<IonSelectOption value="LIGHT">
+								Light
+							</IonSelectOption>
+							<IonSelectOption value="DARK">Dark</IonSelectOption>
 						</IonSelect>
+					</IonItem>
+				</IonList>
+				<IonListHeader>Data and Backups</IonListHeader>
+				<IonList inset={true}>
+					<IonItem>
+						<IonLabel color="primary">
+							Export calendar data
+						</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonLabel color="primary">
+							Import calendar data
+						</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonLabel color="danger">
+							Delete all calendar data
+						</IonLabel>
+					</IonItem>
+				</IonList>
+				<IonList inset={true}>
+					<IonItem>
+						<IonText color="medium">
+							SystemNote Pro v0.0001 Pre-Alpha
+						</IonText>
 					</IonItem>
 				</IonList>
 			</IonContent>

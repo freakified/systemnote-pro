@@ -5,6 +5,7 @@ import {
 	MonthlyData,
 	MultiMonthlyData,
 } from './customTypes';
+import { AppSettings, DefaultSettings } from './settingsUtils';
 
 const DB_PREFIX = 'systemnote';
 
@@ -26,4 +27,18 @@ export const writeMultiMonthlyData = async (
 			await storage.set(`${DB_PREFIX}_${yearMonthStr}`, data);
 		}
 	}
+};
+
+export const getSettings = async (storage: Storage): Promise<AppSettings> => {
+	const storedSettings: Partial<AppSettings> = await storage.get(
+		`${DB_PREFIX}_settings`,
+	);
+	return {
+		...DefaultSettings,
+		...(storedSettings || {}),
+	} as AppSettings;
+};
+
+export const setSettings = async (settings: AppSettings, storage: Storage) => {
+	await storage.set(`${DB_PREFIX}_settings`, settings);
 };
