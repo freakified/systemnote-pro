@@ -277,7 +277,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			} else if (dayHasNote) {
 				return <DayTags tags={[DEFAULT_NOTE_EMOJI]} />;
 			} else {
-				return undefined;
+				return <DayTags visible={false} />;
 			}
 		},
 	};

@@ -1,15 +1,21 @@
 import React from 'react';
 import { TagEntry } from '../utils/customTypes';
+import cx from 'classnames';
 
 import './DayTags.css';
 
 interface DayTagsProps {
 	tags?: TagEntry;
+	visible?: boolean;
 }
 
-const DayTags: React.FC<DayTagsProps> = ({ tags }) => {
+const DayTags: React.FC<DayTagsProps> = ({ tags, visible = true }) => {
+	const classnames = cx('dayTags__container', {
+		'dayTags__container--hidden': !visible,
+	});
+
 	return (
-		<div className="dayTags__container">
+		<div className={classnames}>
 			{tags?.map((tag, idx) => (
 				<span className="dayTags__tag" key={idx}>
 					{tag}

@@ -3,7 +3,14 @@
 	display: flex;
     align-items: end;
 	font-size: 16px;
-	/* padding-bottom: 2px; */
+	opacity: 1;
+	transition: 300ms all ease;
+	transform: scale3d(1, 1, 1);
+}
+
+.dayTags__container--hidden {
+	opacity: 0;
+	transform: scale3d(.1, .1, .1);
 }
 
 .dayTags__tag {
