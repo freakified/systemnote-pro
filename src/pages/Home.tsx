@@ -43,7 +43,7 @@ import {
 } from '../utils/dateUtils';
 import DayView from '../components/DayView';
 import SettingsPage from '../components/SettingsPage';
-import { getMonthData, setDayData } from '../utils/storageUtils';
+import { getMonthData } from '../utils/storageUtils';
 import {
 	CombinedMonthData,
 	NumericDayString,
@@ -62,20 +62,16 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	// TODO: this should be a setting?
 	const DEFAULT_NOTE_EMOJI = '📝';
 
-	// Note that this is a "value" type and not a "date" type due to peculiarities
-	// about react-calendar. Specifically, "value" can be a range, though we never
-	// actually use that functionality.
-	const [selectedDate, setSelectedDate] = useState<Value>(DEFAULT_DATE);
-
-	// ActiveStartDate represents the currently in-view month
-	const [activeStartDate, setActiveStartDate] = useState<Date>(DEFAULT_DATE);
+	const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
+	const [activeStartDate, setActiveStartDate] = useState(DEFAULT_DATE);
 
 	// Note related states
-	const [currentNote, setCurrentNote] = useState('');
 	const [monthlyData, setMonthlyData] = useState<
 		Record<string, CombinedMonthData>
 	>({});
+	const [currentNote, setCurrentNote] = useState('');
 
+	// Set up sheet modal used by Settings
 	const modal = useRef<HTMLIonModalElement>(null);
 	const page = useRef(null);
 
@@ -89,6 +85,68 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const dismissSettingsModal = () => {
 		modal.current?.dismiss();
 	};
+
+	// Fetch initial data on component mount
+	// TODO: refactor this out into storageUtils
+	useEffect(() => {
+		const fetchInitialData = async () => {
+			if (!storage) return;
+			const monthsToFetch = [
+				getNumericYearMonthString(
+					getDateWithMonthOffset(activeStartDate, -1),
+				),
+				getNumericYearMonthString(activeStartDate),
+				getNumericYearMonthString(
+					getDateWithMonthOffset(activeStartDate, 1),
+				),
+			];
+			const dataByMonth = await Promise.all(
+				monthsToFetch.map((month) =>
+					getMonthData(month, storage).then((data) => ({
+						month,
+						data,
+					})),
+				),
+			);
+
+			setMonthlyData(
+				dataByMonth.reduce(
+					(acc, { month, data }) => ({ ...acc, [month]: data }),
+					{},
+				),
+			);
+		};
+
+		fetchInitialData();
+	}, [storage, activeStartDate]);
+
+	// Sync changes to storage periodically
+	// TODO: probably refactor these into StorageUtils also
+	const syncToStorage = async () => {
+		if (!storage) return;
+
+		for (const [month, data] of Object.entries(monthlyData)) {
+			await storage.set(`data_${month}`, data);
+		}
+	};
+
+	const debouncedSyncToStorage = debounce(syncToStorage, 1000);
+
+	useEffect(() => {
+		debouncedSyncToStorage();
+	}, [monthlyData]);
+
+	const onDateChange = (value: Date) => {
+		setSelectedDate(value);
+	};
+
+	useEffect(() => {
+		const targetDate = selectedDate;
+		const monthKey = getNumericYearMonthString(targetDate);
+		const dayKey = getNumericDayString(targetDate);
+		const dayData = monthlyData[monthKey]?.[dayKey];
+		setCurrentNote(dayData?.note || '');
+	}, [selectedDate, monthlyData]);
 
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
@@ -104,90 +162,21 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	const swiperRef = useRef<SwiperInstance | null>(null);
 
-	const onDateChange = (value: Value) => {
-		setSelectedDate(value);
-	};
-
-	useEffect(() => {
-		const fetchMonthData = async () => {
-			if (storage) {
-				const monthsToFetch = [
-					getNumericYearMonthString(pastCalendarStartDate),
-					getNumericYearMonthString(activeStartDate),
-					getNumericYearMonthString(futureCalendarStartDate),
-				];
-
-				// Fetch month data for each month and merge into state
-				const dataByMonth = await Promise.all(
-					monthsToFetch.map((month) =>
-						getMonthData(month, storage).then((data) => ({
-							month,
-							data,
-						})),
-					),
-				);
-
-				setMonthlyData((prevData) => ({
-					...prevData,
-					...dataByMonth.reduce(
-						(acc, { month, data }) => ({ ...acc, [month]: data }),
-						{},
-					),
-				}));
-			}
-		};
-
-		fetchMonthData();
-	}, [
-		activeStartDate,
-		pastCalendarStartDate,
-		futureCalendarStartDate,
-		storage,
-	]);
-
-	// Update the displayed note from storage when the date "value" changes
-	useEffect(() => {
-		const targetDate = valueToDate(selectedDate);
-		const monthKey = getNumericYearMonthString(targetDate);
-		const dayKey = getNumericDayString(targetDate);
-		const dayData = monthlyData[monthKey]?.[dayKey];
-		setCurrentNote(dayData?.note || '')
-	}, [selectedDate]);
-
-	const debouncedSaveNote = debounce((note: string) => {
-		if (storage) {
-			const date = valueToDate(selectedDate);
-			setDayData(
-				getNumericYearMonthString(date),
-				getNumericDayString(date),
-				note,
-				[DEFAULT_NOTE_EMOJI],
-				storage,
-			);
-		}
-	}, 500);
-
-	// Update day note in storage when notes area modified
 	const onDayEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
 		const note = e.target.value;
 		setCurrentNote(note);
 
-		const date = valueToDate(selectedDate);
+		const date = selectedDate;
 		const monthKey = getNumericYearMonthString(date);
 		const dayKey = getNumericDayString(date);
 
-		setMonthlyData((prevData) => {
-			const monthData = prevData[monthKey] || {};
-			return {
-				...prevData,
-				[monthKey]: {
-					...monthData,
-					[dayKey]: { note, tags: [DEFAULT_NOTE_EMOJI] },
-				},
-			};
-		});
-
-		debouncedSaveNote(note);
+		setMonthlyData((prevData) => ({
+			...prevData,
+			[monthKey]: {
+				...prevData[monthKey],
+				[dayKey]: { note, tags: [DEFAULT_NOTE_EMOJI] },
+			},
+		}));
 	};
 
 	const resetCalendarView = () => {
@@ -232,16 +221,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				setResetAnimationActive(false);
 				swiperRef.current?.updateAutoHeight(ANIMATION_DURATION); // Update height for new content
 			}, ANIMATION_DURATION);
-		}
-	};
-
-	// Converts the react-calendar specific "value" type to a vanilla date
-	// (Value can be a range, but we don't use range functionality here)
-	const valueToDate = (value: Value) => {
-		if (Array.isArray(value)) {
-			return value[0] ?? DEFAULT_DATE;
-		} else {
-			return value ?? DEFAULT_DATE;
 		}
 	};
 
@@ -318,7 +297,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	);
 
 	const showTodayResetButton =
-		!isToday(valueToDate(selectedDate)) ||
+		!isToday(selectedDate) ||
 		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
 
 	return (
@@ -395,7 +374,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				</Swiper>
 			</IonHeader>
 			<DayView
-				date={valueToDate(selectedDate)}
+				date={selectedDate}
 				onTextAreaChange={onDayEdit}
 				note={currentNote}
 			/>
