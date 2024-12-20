@@ -35,10 +35,6 @@ ion-header {
 	min-height: 0;
 }
 
-.swiper {
-	overflow: visible; /* ensure that selected day ring doesn't get cut off */
-}
-
 .resetButton {
 	transition: all ease 250ms;
 	min-width: 40px;

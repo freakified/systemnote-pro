@@ -17,13 +17,15 @@ import {
 	IonInput,
 	IonText,
 } from '@ionic/react';
-import { AppSettings } from '../utils/settingsUtils';
+import { AppSettings } from '../../utils/settingsUtils';
 
 interface SettingsPageProps {
 	onCancelButtonClick: () => void;
 }
 
-const SettingsPage: React.FC<SettingsPageProps> = ({ onCancelButtonClick }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({
+	onCancelButtonClick,
+}) => {
 	// States for the settings
 	const [currentSettings, setCurrentSettings] = useState<AppSettings>({
 		theme: 'DEFAULT',
@@ -102,5 +104,3 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ onCancelButtonClick }) => {
 		</IonPage>
 	);
 };
-
-export default SettingsPage;

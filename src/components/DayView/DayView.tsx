@@ -1,9 +1,12 @@
 import React from 'react';
 import { IonContent } from '@ionic/react';
 import './DayView.css';
-import { getNumericDayString, getWeekdayNameShort } from '../utils/dateUtils';
+import {
+	getNumericDayString,
+	getWeekdayNameShort,
+} from '../../utils/dateUtils';
 import TextareaAutosize from 'react-textarea-autosize';
-import { TagEntry } from '../utils/customTypes';
+import { TagEntry } from '../../utils/customTypes';
 
 interface DayViewProps {
 	date: Date;
@@ -12,7 +15,7 @@ interface DayViewProps {
 	onTextAreaChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }
 
-const DayView: React.FC<DayViewProps> = ({
+export const DayView: React.FC<DayViewProps> = ({
 	date,
 	note,
 	tags,
@@ -37,5 +40,3 @@ const DayView: React.FC<DayViewProps> = ({
 		</IonContent>
 	);
 };
-
-export default DayView;

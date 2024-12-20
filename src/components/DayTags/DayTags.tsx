@@ -1,5 +1,5 @@
 import React from 'react';
-import { TagEntry } from '../utils/customTypes';
+import { TagEntry } from '../..//utils/customTypes';
 import cx from 'classnames';
 
 import './DayTags.css';
@@ -9,7 +9,7 @@ interface DayTagsProps {
 	visible?: boolean;
 }
 
-const DayTags: React.FC<DayTagsProps> = ({ tags, visible = true }) => {
+export const DayTags: React.FC<DayTagsProps> = ({ tags, visible = true }) => {
 	const classnames = cx('dayTags__container', {
 		'dayTags__container--hidden': !visible,
 	});
@@ -24,5 +24,3 @@ const DayTags: React.FC<DayTagsProps> = ({ tags, visible = true }) => {
 		</div>
 	);
 };
-
-export default DayTags;
