@@ -1,46 +1,23 @@
 import React, { ChangeEvent, useEffect } from 'react';
 import { useRef, useState } from 'react';
 import { debounce } from 'lodash';
-import { Swiper as SwiperInstance } from 'swiper';
 import { cogOutline } from 'ionicons/icons';
-import cx from 'classnames';
 import { Storage } from '@ionic/storage';
 
-import {
-	IonButton,
-	IonContent,
-	IonHeader,
-	IonIcon,
-	IonPage,
-	IonModal,
-	TextareaCustomEvent,
-} from '@ionic/react';
+import { IonButton, IonHeader, IonIcon, IonPage, IonModal } from '@ionic/react';
 
 import './Home.css';
 
 import {
 	getDateWithMonthOffset,
-	getFullMonthName,
-	getFullYear,
-	getNumericDateString,
 	getNumericDayString,
-	getNumericMonthString,
 	getNumericYearMonthString,
-	getNumericYearString,
-	getWeekdayNameShort,
-	isToday,
 } from '../utils/dateUtils';
 import { MonthView } from '../components/MonthView';
 import { DayView } from '../components/DayView';
 import { SettingsPage } from '../components/SettingsPage';
 import { getMonthData, writeMultiMonthlyData } from '../utils/storageUtils';
-import {
-	MonthlyData,
-	MultiMonthlyData,
-	NumericDayString,
-	TagEntry,
-} from '../utils/customTypes';
-import { DayTags } from '../components/DayTags';
+import { MultiMonthlyData } from '../utils/customTypes';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface HomeProps {
@@ -49,10 +26,6 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ storage }) => {
 	const DEFAULT_DATE = new Date();
-	const ANIMATION_DURATION = 300;
-
-	// TODO: this should be a setting?
-	const DEFAULT_NOTE_EMOJI = '📝';
 
 	const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
 	const [activeStartDate, setActiveStartDate] = useState(DEFAULT_DATE);
@@ -64,6 +37,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const [currentNote, setCurrentNote] = useState('');
 
 	// Set up sheet modal used by Settings
+	// eslint-disable-next-line no-undef
 	const modal = useRef<HTMLIonModalElement>(null);
 	const page = useRef(null);
 
@@ -112,7 +86,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	}, [storage, activeStartDate]);
 
 	// Sync changes to storage periodically
-	// TODO: probably refactor these into StorageUtils also
 	const syncToStorage = async () => {
 		if (!storage) return;
 
@@ -137,18 +110,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		setCurrentNote(dayData?.note || '');
 	}, [selectedDate, multiMonthlyData]);
 
-	const [resetAnimationActive, setResetAnimationActive] =
-		useState<boolean>(false);
-
-	const pastCalendarStartDate =
-		resetAnimationActive === true
-			? DEFAULT_DATE
-			: getDateWithMonthOffset(activeStartDate, -1);
-	const futureCalendarStartDate =
-		resetAnimationActive === true
-			? DEFAULT_DATE
-			: getDateWithMonthOffset(activeStartDate, 1);
-
 	const onDayEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
 		const note = e.target.value;
 		setCurrentNote(note);
@@ -166,42 +127,9 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		}));
 	};
 
-	const showTodayResetButton =
-		!isToday(selectedDate) ||
-		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
-
 	return (
 		<IonPage id="home-page" ref={page}>
 			<IonHeader className="home-view-header">
-				<div className="sneakyFloatingToolbar">
-					<IonButton
-						size="default"
-						// onClick={resetCalendarView}
-						className={cx({
-							resetButton: true,
-							'resetButton--hidden': !showTodayResetButton,
-						})}
-					>
-						{/* <IonIcon
-							slot="start"
-							size="medium"
-							icon={arrowUndo}
-						></IonIcon> */}
-						Today
-					</IonButton>
-					<IonButton
-						size="large"
-						fill="clear"
-						shape="round"
-						id="open-settings-modal"
-					>
-						<IonIcon
-							slot="icon-only"
-							size="large"
-							icon={cogOutline}
-						></IonIcon>
-					</IonButton>
-				</div>
 				<MonthView
 					activeStartDate={activeStartDate}
 					selectedDate={selectedDate}
@@ -209,6 +137,20 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					onSelectedDateChanged={onDateChange}
 					onActiveStartDateChanged={(newDate) =>
 						setActiveStartDate(newDate)
+					}
+					toolbarExtras={
+						<IonButton
+							size="large"
+							fill="clear"
+							shape="round"
+							id="open-settings-modal"
+						>
+							<IonIcon
+								slot="icon-only"
+								size="large"
+								icon={cogOutline}
+							></IonIcon>
+						</IonButton>
 					}
 				/>
 			</IonHeader>
