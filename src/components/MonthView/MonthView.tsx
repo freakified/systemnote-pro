@@ -51,6 +51,9 @@ export const MonthView: React.FC<MonthViewProps> = ({
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 
+	const presentCalendarRef = useRef<HTMLDivElement | null>(null);
+	const [wrapperHeight, setWrapperHeight] = useState(329);
+
 	const pastCalendarStartDate =
 		resetAnimationActive === true
 			? DEFAULT_DATE
@@ -102,8 +105,14 @@ export const MonthView: React.FC<MonthViewProps> = ({
 			setTimeout(() => {
 				swiperRef.current?.slideTo(1, 0, false); // Ensure swiper is back in the middle
 				setResetAnimationActive(false);
-				swiperRef.current?.updateAutoHeight(ANIMATION_DURATION); // Update height for new content
+				updateWrapperHeight();
 			}, ANIMATION_DURATION);
+		}
+	};
+
+	const updateWrapperHeight = () => {
+		if (presentCalendarRef?.current) {
+			setWrapperHeight(presentCalendarRef.current.offsetHeight);
 		}
 	};
 
@@ -125,8 +134,11 @@ export const MonthView: React.FC<MonthViewProps> = ({
 		// After adjusting the date, reset the swiper back to the middle slide
 		setTimeout(() => {
 			swiper?.slideTo(1, 0, false);
-			// swiper?.updateAutoHeight();
 		}, 0);
+
+		setTimeout(() => {
+			updateWrapperHeight();
+		}, 10);
 	};
 
 	const onDateChange = (value: Value) => {
@@ -200,45 +212,50 @@ export const MonthView: React.FC<MonthViewProps> = ({
 				</IonButton>
 				{toolbarExtras}
 			</div>
-			<Swiper
-				initialSlide={1}
-				slidesPerView={1}
-				spaceBetween={32}
-				autoHeight={false}
-				onSlideChangeTransitionEnd={onSlideChangeEnd}
-				onSwiper={(swiper) => (swiperRef.current = swiper)}
-			>
-				{/* Past */}
-				<SwiperSlide>
-					<div className="calendarContainer">
-						<CalendarTitle date={pastCalendarStartDate} />
-						<Calendar
-							activeStartDate={pastCalendarStartDate}
-							{...calendarCommonProps}
-						/>
-					</div>
-				</SwiperSlide>
-				{/* Present */}
-				<SwiperSlide>
-					<div className="calendarContainer">
-						<CalendarTitle date={activeStartDate} />
-						<Calendar
-							activeStartDate={activeStartDate}
-							{...calendarCommonProps}
-						/>
-					</div>
-				</SwiperSlide>
-				{/* Future */}
-				<SwiperSlide>
-					<div className="calendarContainer">
-						<CalendarTitle date={futureCalendarStartDate} />
-						<Calendar
-							activeStartDate={futureCalendarStartDate}
-							{...calendarCommonProps}
-						/>
-					</div>
-				</SwiperSlide>
-			</Swiper>
+			<div className="swiperWrapper" style={{ height: wrapperHeight }}>
+				<Swiper
+					initialSlide={1}
+					slidesPerView={1}
+					spaceBetween={32}
+					autoHeight={false}
+					onSlideChangeTransitionEnd={onSlideChangeEnd}
+					onSwiper={(swiper) => (swiperRef.current = swiper)}
+				>
+					{/* Past */}
+					<SwiperSlide>
+						<div className="calendarContainer">
+							<CalendarTitle date={pastCalendarStartDate} />
+							<Calendar
+								activeStartDate={pastCalendarStartDate}
+								{...calendarCommonProps}
+							/>
+						</div>
+					</SwiperSlide>
+					{/* Present */}
+					<SwiperSlide>
+						<div
+							className="calendarContainer"
+							ref={presentCalendarRef}
+						>
+							<CalendarTitle date={activeStartDate} />
+							<Calendar
+								activeStartDate={activeStartDate}
+								{...calendarCommonProps}
+							/>
+						</div>
+					</SwiperSlide>
+					{/* Future */}
+					<SwiperSlide>
+						<div className="calendarContainer">
+							<CalendarTitle date={futureCalendarStartDate} />
+							<Calendar
+								activeStartDate={futureCalendarStartDate}
+								{...calendarCommonProps}
+							/>
+						</div>
+					</SwiperSlide>
+				</Swiper>
+			</div>
 		</>
 	);
 };

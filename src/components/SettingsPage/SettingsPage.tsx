@@ -48,7 +48,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 					<IonTitle>Settings</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent>
+			<IonContent color="light">
 				<IonListHeader>General</IonListHeader>
 				<IonList inset={true}>
 					{/* Dark Mode Selection */}
@@ -95,9 +95,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 				</IonList>
 				<IonList inset={true}>
 					<IonItem>
-						<IonText color="medium">
-							SystemNote Pro v0.0001 Pre-Alpha
-						</IonText>
+						<IonText color="medium">SystemNote Pro</IonText>
+						<IonText color="medium">Version 0.01</IonText>
 					</IonItem>
 				</IonList>
 			</IonContent>

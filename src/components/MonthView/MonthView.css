@@ -1,3 +1,11 @@
+.swiperWrapper {
+	overflow: hidden;
+	/* background-color: red; */
+	transition: height 250ms ease;
+	box-sizing: content-box;
+	padding-bottom: 1px;
+}
+
 .swiper {
 	overflow: visible; /* ensure that selected day ring doesn't get cut off */
 }
