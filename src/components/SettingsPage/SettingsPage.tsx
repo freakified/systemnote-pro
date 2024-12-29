@@ -10,40 +10,94 @@ import {
 	IonLabel,
 	IonSelect,
 	IonSelectOption,
-	IonToggle,
 	IonButton,
 	IonButtons,
 	IonListHeader,
-	IonInput,
-	IonText,
+	IonNote,
+	IonIcon,
+	IonActionSheet,
+	IonAlert,
+	AlertInput,
 } from '@ionic/react';
-import { AppSettings } from '../../utils/settingsUtils';
+import { Storage } from '@ionic/storage';
+import {
+	APP_VERSION,
+	AppSettings,
+	DELETE_PHRASE,
+} from '../../utils/settingsUtils';
+import { exportData } from '../../utils/storageUtils';
+import {
+	downloadOutline,
+	folderOpenOutline,
+	trashOutline,
+} from 'ionicons/icons';
+import './SettingsPage.css';
+
+const handleExportData = async (storage?: Storage) => {
+	if (storage) {
+		try {
+			const jsonData = await exportData(storage);
+			const blob = new Blob([jsonData], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = 'systemnote_notes.json';
+			link.click();
+
+			// Clean up URL object
+			URL.revokeObjectURL(url);
+		} catch (error) {
+			console.error('Failed to export data:', error);
+		}
+	}
+};
+
+const handleDeleteNotes = async (storage?: Storage) => {
+	if (storage) {
+		try {
+			const jsonData = await exportData(storage);
+			const blob = new Blob([jsonData], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = 'systemnote_data.json'; // File name
+			link.click();
+
+			// Clean up URL object
+			URL.revokeObjectURL(url);
+		} catch (error) {
+			console.error('Failed to export data:', error);
+		}
+	}
+};
 
 interface SettingsPageProps {
 	onCancelButtonClick: () => void;
+	storage?: Storage;
 }
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({
 	onCancelButtonClick,
+	storage,
 }) => {
-	// States for the settings
 	const [currentSettings, setCurrentSettings] = useState<AppSettings>({
 		theme: 'DEFAULT',
 		weekStartDay: 'DEFAULT',
 		defaultNoteTag: '',
 	});
 
+	const [deleteButtonEnabled, setDeleteButtonEnabled] = useState(false);
+
 	return (
-		<IonPage>
+		<IonPage className="settingsPage">
 			<IonHeader translucent={true}>
 				<IonToolbar>
-					<IonButtons slot="secondary">
-						<IonButton onClick={onCancelButtonClick}>
-							Cancel
-						</IonButton>
-					</IonButtons>
 					<IonButtons slot="primary">
-						<IonButton>Done</IonButton>
+						<IonButton onClick={onCancelButtonClick}>
+							Done
+						</IonButton>
 					</IonButtons>
 					<IonTitle>Settings</IonTitle>
 				</IonToolbar>
@@ -75,30 +129,128 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 						</IonSelect>
 					</IonItem>
 				</IonList>
-				<IonListHeader>Data and Backups</IonListHeader>
+				<IonListHeader>Import and Export</IonListHeader>
 				<IonList inset={true}>
-					<IonItem>
-						<IonLabel color="primary">
-							Export calendar data
-						</IonLabel>
+					<IonItem
+						button
+						detail={false}
+						id="open-export-action-sheet"
+					>
+						<IonIcon
+							aria-hidden="true"
+							icon={downloadOutline}
+							slot="start"
+							color="primary"
+						></IonIcon>
+
+						<IonLabel color="primary">Export all notes</IonLabel>
 					</IonItem>
-					<IonItem>
-						<IonLabel color="primary">
-							Import calendar data
-						</IonLabel>
+					<IonItem
+						button
+						detail={false}
+						id="open-import-action-sheet"
+					>
+						<IonIcon
+							aria-hidden="true"
+							icon={folderOpenOutline}
+							slot="start"
+							color="primary"
+						></IonIcon>
+						<IonLabel color="primary">Import from backup</IonLabel>
 					</IonItem>
-					<IonItem>
-						<IonLabel color="danger">
-							Delete all calendar data
-						</IonLabel>
+					<IonItem button detail={false} id="open-delete-alert">
+						<IonIcon
+							aria-hidden="true"
+							icon={trashOutline}
+							slot="start"
+							color="danger"
+						></IonIcon>
+						<IonLabel color="danger">Delete all notes</IonLabel>
 					</IonItem>
 				</IonList>
+
+				<IonListHeader>About</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
-						<IonText color="medium">SystemNote Pro</IonText>
-						<IonText color="medium">Version 0.01</IonText>
+						<IonLabel>
+							<h2>SystemNote Pro</h2>
+							<p>Scheduling without limits</p>
+						</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonLabel>App Version</IonLabel>
+						<IonNote>{APP_VERSION}</IonNote>
 					</IonItem>
 				</IonList>
+
+				<IonActionSheet
+					header="Export backup of all notes"
+					trigger="open-export-action-sheet"
+					buttons={[
+						{
+							text: 'Download as JSON',
+							handler: () => {
+								handleExportData(storage);
+							},
+						},
+						{
+							text: 'Cancel',
+							role: 'cancel',
+						},
+					]}
+				></IonActionSheet>
+
+				<IonActionSheet
+					header="Import from backup file"
+					trigger="open-import-action-sheet"
+					buttons={[
+						{
+							text: 'Select a notes backup file',
+							handler: () => {
+								handleExportData(storage);
+							},
+						},
+						{
+							text: 'Cancel',
+							role: 'cancel',
+						},
+					]}
+				></IonActionSheet>
+
+				<IonActionSheet
+					trigger="open-delete-alert"
+					header="Are you sure you want to delete all your notes?"
+					buttons={[
+						{
+							text: 'Delete all notes',
+							id: 'delete-alert-secondary',
+							role: 'destructive',
+							cssClass: 'settingsPage-deleteButton',
+						},
+						{
+							text: 'Cancel',
+							role: 'cancel',
+						},
+					]}
+				></IonActionSheet>
+
+				<IonAlert
+					trigger="delete-alert-secondary"
+					header="Are you REALLY sure you want to delete all your notes?"
+					message="This cannot be undone!"
+					buttons={[
+						{
+							text: 'Yes, delete them all!',
+							role: 'destructive',
+							cssClass: 'settingsPage-deleteButton',
+							handler: handleDeleteNotes,
+						},
+						{
+							text: 'Actually, never mind',
+							role: 'cancel',
+						},
+					]}
+				></IonAlert>
 			</IonContent>
 		</IonPage>
 	);

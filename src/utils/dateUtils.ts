@@ -44,7 +44,11 @@ export const getNumericDayString = (date: Date): NumericDayString => {
 	return dayNumber;
 };
 
-export const getNumericYearMonthString = (date: Date): NumericYearMonthString => {
+// Given a date, returns a string of the year and month
+// Example output: 202401 (for January 2024)
+export const getNumericYearMonthString = (
+	date: Date,
+): NumericYearMonthString => {
 	return `${getNumericYearString(date)}${getNumericMonthString(date)}`;
 };
 

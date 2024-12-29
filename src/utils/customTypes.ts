@@ -64,7 +64,7 @@ export type TagEntry = string[];
 export type MonthTags = Partial<Record<NumericDayString, TagEntry>>;
 
 export type MonthlyData = Partial<
-	Record<NumericDayString, { note: string; tags: TagEntry }>
+	Record<NumericDayString, { note: string; tags?: TagEntry }>
 >;
 
 export type MultiMonthlyData = Record<NumericYearMonthString, MonthlyData>;

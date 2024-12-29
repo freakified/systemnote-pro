@@ -1,0 +1,29 @@
+.settingsPage ion-list-header.ios {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    font-weight: normal;
+    text-transform: uppercase;
+    margin-left: 16px;
+    
+}
+
+.settingsPage-about {
+    color: var(--ion-color-medium);
+    line-height: 1.5;
+    /* text-align: center; */
+    color: var(--ion-color-medium);
+    font-size: 14px;
+}
+
+.settingsPage-about--title {
+    font-weight: normal;
+}
+
+.settingsPage-about--version {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+}
+
+.settingsPage-deleteButton {
+    width: 100%;
+}

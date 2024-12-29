@@ -122,7 +122,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			...prevData,
 			[monthKey]: {
 				...prevData[monthKey],
-				[dayKey]: { note, tags: [] }, // todo: add tag inputs
+				[dayKey]: { note }, // todo: add tag inputs
 			},
 		}));
 	};
@@ -164,7 +164,10 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				trigger="open-settings-modal"
 				presentingElement={presentingElement!}
 			>
-				<SettingsPage onCancelButtonClick={dismissSettingsModal} />
+				<SettingsPage
+					onCancelButtonClick={dismissSettingsModal}
+					storage={storage}
+				/>
 			</IonModal>
 		</IonPage>
 	);

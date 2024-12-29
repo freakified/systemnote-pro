@@ -13,3 +13,5 @@ export const DefaultSettings: AppSettings = {
 	weekStartDay: 'DEFAULT',
 	defaultNoteTag: '📝',
 };
+
+export const APP_VERSION = '1.0';

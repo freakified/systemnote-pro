@@ -7,13 +7,13 @@ import {
 } from './customTypes';
 import { AppSettings, DefaultSettings } from './settingsUtils';
 
-const DB_PREFIX = 'systemnote';
+const NOTES_PREFIX = 'notes';
 
 export const getMonthData = async (
 	month: NumericYearMonthString,
 	storage: Storage,
 ): Promise<MonthlyData> => {
-	const monthKey = `${DB_PREFIX}_${month}`;
+	const monthKey = `${NOTES_PREFIX}_${month}`;
 	const monthData: MonthlyData = (await storage.get(monthKey)) || {};
 	return monthData;
 };
@@ -24,15 +24,13 @@ export const writeMultiMonthlyData = async (
 ) => {
 	for (const [yearMonthStr, data] of Object.entries(monthlyData)) {
 		if (Object.keys(data).length > 0) {
-			await storage.set(`${DB_PREFIX}_${yearMonthStr}`, data);
+			await storage.set(`${NOTES_PREFIX}_${yearMonthStr}`, data);
 		}
 	}
 };
 
 export const getSettings = async (storage: Storage): Promise<AppSettings> => {
-	const storedSettings: Partial<AppSettings> = await storage.get(
-		`${DB_PREFIX}_settings`,
-	);
+	const storedSettings: Partial<AppSettings> = await storage.get(`settings`);
 	return {
 		...DefaultSettings,
 		...(storedSettings || {}),
@@ -40,5 +38,16 @@ export const getSettings = async (storage: Storage): Promise<AppSettings> => {
 };
 
 export const setSettings = async (settings: AppSettings, storage: Storage) => {
-	await storage.set(`${DB_PREFIX}_settings`, settings);
+	await storage.set(`settings`, settings);
+};
+
+export const exportData = async (storage: Storage): Promise<string> => {
+	const allKeys = await storage.keys();
+	const allData: Record<string, unknown> = {};
+
+	for (const key of allKeys) {
+		allData[key] = await storage.get(key);
+	}
+
+	return JSON.stringify(allData, null, 2);
 };

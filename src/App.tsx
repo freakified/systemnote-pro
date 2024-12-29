@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { Route } from 'react-router-dom';
+import {
+	IonApp,
+	IonRouterOutlet,
+	setupIonicReact,
+	// isPlatform,
+} from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Storage } from '@ionic/storage';
 
@@ -38,6 +43,7 @@ import './theme/variables.css';
 
 setupIonicReact({
 	mode: 'ios',
+	// mode: isPlatform('android') ? 'md' : 'ios',
 });
 
 const App: React.FC = () => {
