@@ -157,7 +157,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
 		// Hide the year/century/decade view, no one needs that much POWER
 		minDetail: 'month',
 		formatShortWeekday: (locale: string | undefined, date: Date) => {
-			return `${getWeekdayNameShort(date, 'ja-JP')} ${getWeekdayNameShort(date, 'en-US')}`;
+			return `${getWeekdayNameShort(date, 'en-US')}`;
 		},
 		// Ensures that saturdays and sundays can have distinct styling
 		tileClassName: ({ date }) => {
