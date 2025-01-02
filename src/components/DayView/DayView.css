@@ -1,16 +1,21 @@
 .dayView-toolbar {
 	display: flex;
-	align-items: baseline;
+	align-items: flex-end;
 	gap: 4px;
 	position: sticky;
 	z-index: 1;
 	top: 0;
-	padding-top: 4px;
+	/* padding-top: 4px; */
 	padding-left: 4px;
 	background-color: var(--ion-background-color);
 	/* background-color: rgba(var(--ion-background-color-rgb), .5); */
 	/* backdrop-filter: blur(10px); */
 	border-bottom: 1px dotted rgba(128, 128, 128, 0.5);
+}
+
+.dayView-dateContainer {
+	align-items: baseline;
+	display: flex;
 }
 
 .dayView-dayNumber {
@@ -22,6 +27,13 @@
 	font-size: 14px;
 	font-weight: normal;
 	text-transform: uppercase;
+}
+
+.dayView-emojiToolbar {
+	height: 48px;
+	flex: 1;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .dayView-note-textarea {
@@ -40,4 +52,13 @@
 
 .dayView-note-textarea:focus {
 	outline: 0 none; /* TODO: Add meaningful focus visible state for keyboard users */
+}
+
+.dayView-emojiModal {
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Emoji Picker specific styles */
+#epr-category-nav-id {
+	display: none;
 }

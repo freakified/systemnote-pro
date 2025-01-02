@@ -9,7 +9,7 @@ import cx from 'classnames';
 import './MonthView.css';
 import 'swiper/css';
 
-import { IonButton } from '@ionic/react';
+import { IonButton, IonIcon } from '@ionic/react';
 
 import {
 	getDateWithMonthOffset,
@@ -24,6 +24,7 @@ import { MultiMonthlyData } from '../../utils/customTypes';
 import { CalendarTitle } from './CalendarTitle';
 import { DayTags } from '../../components/DayTags';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
+import { arrowUndo } from 'ionicons/icons';
 
 interface MonthViewProps {
 	selectedDate: Date;
@@ -196,18 +197,18 @@ export const MonthView: React.FC<MonthViewProps> = ({
 		<>
 			<div className="sneakyFloatingToolbar">
 				<IonButton
-					size="default"
+					size="small"
 					onClick={resetCalendarView}
 					className={cx({
 						resetButton: true,
 						'resetButton--hidden': !showTodayResetButton,
 					})}
 				>
-					{/* <IonIcon
-							slot="start"
-							size="medium"
-							icon={arrowUndo}
-						></IonIcon> */}
+					<IonIcon
+						slot="start"
+						// size="medium"
+						icon={arrowUndo}
+					></IonIcon>
 					Today
 				</IonButton>
 				{toolbarExtras}
