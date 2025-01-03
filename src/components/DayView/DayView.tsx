@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { IonButton, IonContent, IonIcon, IonModal } from '@ionic/react';
 import './DayView.css';
 import {
@@ -6,7 +6,7 @@ import {
 	getWeekdayNameShort,
 } from '../../utils/dateUtils';
 import TextareaAutosize from 'react-textarea-autosize';
-import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
+import EmojiPicker, { Emoji, EmojiStyle, Theme } from 'emoji-picker-react';
 
 import { TagEntry } from '../../utils/customTypes';
 import { add } from 'ionicons/icons';
@@ -16,25 +16,38 @@ interface DayViewProps {
 	note?: string;
 	tags?: TagEntry;
 	onTextAreaChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
+	onTagsChange?: (newTags: TagEntry) => void;
 }
 
 export const DayView: React.FC<DayViewProps> = ({
 	date,
-	note,
-	tags,
+	note = '',
+	tags = [],
 	onTextAreaChange,
+	onTagsChange,
 }) => {
 	const modal = useRef<HTMLIonModalElement>(null);
-	const [currentNote, setCurrentNote] = useState(note || '');
-	const pageRef = useRef<HTMLElement | null>(null);
 
-	const handleEmojiSelect = (emoji: string) => {
-		setCurrentNote((prev) => prev + emoji);
+	// Handle emoji selection
+	const handleEmojiSelect = (emoji: string, index: number) => {
+		const updatedTags = [...tags];
+		if (index < tags.length) {
+			updatedTags[index] = emoji; // Update existing tag
+		} else {
+			updatedTags.unshift(emoji); // Add new tag
+		}
+		onTagsChange?.(updatedTags);
 		modal.current?.dismiss();
 	};
 
+	// Open the emoji picker for a specific tag
+	const openEmojiPicker = (index: number) => {
+		modal.current?.setAttribute('data-index', String(index));
+		modal.current?.present();
+	};
+
 	return (
-		<IonContent className="dayView-root" ref={pageRef}>
+		<IonContent className="dayView-root">
 			<div className="dayView-toolbar">
 				<div className="dayView-dateContainer">
 					<div className="dayView-dayNumber">
@@ -46,32 +59,42 @@ export const DayView: React.FC<DayViewProps> = ({
 					</div>
 				</div>
 				<div className="dayView-emojiToolbar">
-					<IonButton
-						id="open-emoji-modal"
-						className="emojiSelectorButton"
-						size="default"
-						fill="outline"
-					>
-						{/* Emoji */}
-						<IonIcon
-							slot="icon-only"
-							size="medium"
-							icon={add}
-						></IonIcon>
-					</IonButton>
+					{tags.length < 2 && (
+						<IonButton
+							className="emojiSelectorButton"
+							size="default"
+							fill="outline"
+							onClick={() => openEmojiPicker(tags.length)}
+						>
+							<IonIcon
+								slot="icon-only"
+								size="medium"
+								icon={add}
+							></IonIcon>
+						</IonButton>
+					)}
+					{tags.map((tag, index) => (
+						<IonButton
+							key={index}
+							className="emojiSelectorButton withEmoji"
+							size="default"
+							fill="outline"
+							onClick={() => openEmojiPicker(index)}
+						>
+							{tag}
+						</IonButton>
+					))}
 				</div>
 			</div>
 			<TextareaAutosize
 				onChange={(e) => {
-					setCurrentNote(e.target.value);
 					if (onTextAreaChange) onTextAreaChange(e);
 				}}
 				className="dayView-note-textarea"
-				value={currentNote}
+				value={note}
 			/>
 			<IonModal
 				ref={modal}
-				trigger="open-emoji-modal"
 				initialBreakpoint={0.5}
 				breakpoints={[0, 0.5, 1]}
 			>
@@ -83,9 +106,12 @@ export const DayView: React.FC<DayViewProps> = ({
 						lazyLoadEmojis={true}
 						previewConfig={{ showPreview: false }}
 						theme={Theme.AUTO}
-						onEmojiClick={(emojiObject) =>
-							handleEmojiSelect(emojiObject.emoji)
-						}
+						onEmojiClick={(emojiObject) => {
+							const index = Number(
+								modal.current?.getAttribute('data-index'),
+							);
+							handleEmojiSelect(emojiObject.emoji, index);
+						}}
 						width="100%"
 						height="auto"
 					/>

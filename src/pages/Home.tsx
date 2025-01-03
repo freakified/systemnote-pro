@@ -17,7 +17,7 @@ import { MonthView } from '../components/MonthView';
 import { DayView } from '../components/DayView';
 import { SettingsPage } from '../components/SettingsPage';
 import { getMonthData, writeMultiMonthlyData } from '../utils/storageUtils';
-import { MultiMonthlyData } from '../utils/customTypes';
+import { MultiMonthlyData, TagEntry } from '../utils/customTypes';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface HomeProps {
@@ -30,11 +30,11 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
 	const [activeStartDate, setActiveStartDate] = useState(DEFAULT_DATE);
 
-	// Note related states
 	const [multiMonthlyData, setMultiMonthlyData] = useState<MultiMonthlyData>(
 		{},
 	);
 	const [currentNote, setCurrentNote] = useState('');
+	const [currentTags, setCurrentTags] = useState<TagEntry>([]); // Store current day's tags
 
 	// Set up sheet modal used by Settings
 	// eslint-disable-next-line no-undef
@@ -102,14 +102,17 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		setSelectedDate(value as Date);
 	};
 
+	// Update note and tags when the selected date changes
 	useEffect(() => {
 		const targetDate = selectedDate;
 		const monthKey = getNumericYearMonthString(targetDate);
 		const dayKey = getNumericDayString(targetDate);
 		const dayData = multiMonthlyData[monthKey]?.[dayKey];
 		setCurrentNote(dayData?.note || '');
+		setCurrentTags(dayData?.tags || []); // Set current tags
 	}, [selectedDate, multiMonthlyData]);
 
+	// Handle note edits
 	const onDayEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
 		const note = e.target.value;
 		setCurrentNote(note);
@@ -122,7 +125,24 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			...prevData,
 			[monthKey]: {
 				...prevData[monthKey],
-				[dayKey]: { note }, // todo: add tag inputs
+				[dayKey]: { ...prevData[monthKey]?.[dayKey], note },
+			},
+		}));
+	};
+
+	// Handle tag updates
+	const onTagsChange = (newTags: TagEntry) => {
+		setCurrentTags(newTags);
+
+		const date = selectedDate;
+		const monthKey = getNumericYearMonthString(date);
+		const dayKey = getNumericDayString(date);
+
+		setMultiMonthlyData((prevData) => ({
+			...prevData,
+			[monthKey]: {
+				...prevData[monthKey],
+				[dayKey]: { ...prevData[monthKey]?.[dayKey], tags: newTags },
 			},
 		}));
 	};
@@ -158,6 +178,8 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				date={selectedDate}
 				onTextAreaChange={onDayEdit}
 				note={currentNote}
+				tags={currentTags}
+				onTagsChange={onTagsChange}
 			/>
 			<IonModal
 				ref={modal}
