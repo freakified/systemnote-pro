@@ -1,14 +1,5 @@
 import React, { useRef, useState } from 'react';
-import {
-	IonButton,
-	IonContent,
-	IonIcon,
-	IonModal,
-	IonToolbar,
-	IonHeader,
-	IonTitle,
-	IonButtons,
-} from '@ionic/react';
+import { IonButton, IonContent, IonIcon, IonModal } from '@ionic/react';
 import './DayView.css';
 import {
 	getNumericDayString,
@@ -18,7 +9,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 
 import { TagEntry } from '../../utils/customTypes';
-import { add, happyOutline } from 'ionicons/icons';
+import { add } from 'ionicons/icons';
 
 interface DayViewProps {
 	date: Date;
@@ -57,27 +48,17 @@ export const DayView: React.FC<DayViewProps> = ({
 				<div className="dayView-emojiToolbar">
 					<IonButton
 						id="open-emoji-modal"
-						size="small"
+						className="emojiSelectorButton"
+						size="default"
 						fill="outline"
 					>
-						Emoji
+						{/* Emoji */}
 						<IonIcon
-							slot="start"
+							slot="icon-only"
 							size="medium"
 							icon={add}
 						></IonIcon>
 					</IonButton>
-					{/* <IonButton
-						id="open-emoji-modal"
-						size="default"
-						// fill="outline"
-					>
-						<IonIcon
-							slot="start"
-							size="medium"
-							icon={happyOutline}
-						></IonIcon>
-					</IonButton> */}
 				</div>
 			</div>
 			<TextareaAutosize
@@ -92,28 +73,14 @@ export const DayView: React.FC<DayViewProps> = ({
 				ref={modal}
 				trigger="open-emoji-modal"
 				initialBreakpoint={0.5}
-				breakpoints={[0, 0.5, 0.9]}
+				breakpoints={[0, 0.5, 1]}
 			>
-				{/* <IonHeader>
-					<IonHeader translucent={true}>
-						<IonToolbar>
-							<IonButtons slot="secondary">
-								<IonButton
-									onClick={() => modal.current?.dismiss()}
-								>
-									Cancel
-								</IonButton>
-							</IonButtons>
-							<IonTitle>Select Emoji</IonTitle>
-						</IonToolbar>
-					</IonHeader>
-				</IonHeader> */}
-				<IonContent className="dayView-emojiModal">
+				<IonContent className="ion-padding">
 					<EmojiPicker
 						autoFocusSearch={false}
 						skinTonesDisabled={true}
 						emojiStyle={EmojiStyle.NATIVE}
-						lazyLoadEmojis={false}
+						lazyLoadEmojis={true}
 						previewConfig={{ showPreview: false }}
 						theme={Theme.AUTO}
 						onEmojiClick={(emojiObject) =>

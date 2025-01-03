@@ -58,7 +58,43 @@
 	padding-bottom: env(safe-area-inset-bottom);
 }
 
+.emojiSelectorButton {
+	--background: rgba(var(--ion-color-primary-rgb), 0.1);
+	--background-hover: rgba(var(--ion-color-primary-rgb), 0.2);
+	--background-activated: rgba(var(--ion-color-primary-rgb), 0.2);
+	--background-focused: rgba(var(--ion-color-primary-rgb), 0.2);
+	--color: var(--ion-color-primary);
+	  
+		/* --color: blue; */
+	  
+		--border-radius: 500px;
+		/* --border-color: #000; */
+		--border-style: dashed;
+		--border-width: 1px;
+		min-width: 40px;
+}
+
 /* Emoji Picker specific styles */
 #epr-category-nav-id {
 	display: none;
+}
+
+.EmojiPickerReact .epr-emoji-category-label {
+	--epr-category-label-padding: 0;
+}
+
+.EmojiPickerReact .epr-emoji-category-content {
+	--epr-category-padding: 0;
+}
+
+.EmojiPickerReact.epr-main {
+	border: 0;
+}
+
+.EmojiPickerReact .epr-header {
+	--epr-header-padding: 0;
+}
+
+.epr-main > .epr-body {
+	overflow-y: visible;
 }
