@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { IonButton, IonContent, IonIcon, IonModal } from '@ionic/react';
 import './DayView.css';
 import {
@@ -6,10 +6,10 @@ import {
 	getWeekdayNameShort,
 } from '../../utils/dateUtils';
 import TextareaAutosize from 'react-textarea-autosize';
-import EmojiPicker, { Emoji, EmojiStyle, Theme } from 'emoji-picker-react';
+import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 
 import { TagEntry } from '../../utils/customTypes';
-import { add } from 'ionicons/icons';
+import { add, trashOutline } from 'ionicons/icons';
 
 interface DayViewProps {
 	date: Date;
@@ -26,24 +26,34 @@ export const DayView: React.FC<DayViewProps> = ({
 	onTextAreaChange,
 	onTagsChange,
 }) => {
-	const modal = useRef<HTMLIonModalElement>(null);
+	const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+
+	// Determine if the delete button should be shown
+	const hasDeleteButton = currentIndex !== null && currentIndex < tags.length;
 
 	// Handle emoji selection
-	const handleEmojiSelect = (emoji: string, index: number) => {
+	const handleEmojiSelect = (emoji: string) => {
+		if (currentIndex === null) return;
 		const updatedTags = [...tags];
-		if (index < tags.length) {
-			updatedTags[index] = emoji; // Update existing tag
+		if (currentIndex < tags.length) {
+			updatedTags[currentIndex] = emoji; // Update existing tag
 		} else {
 			updatedTags.unshift(emoji); // Add new tag
 		}
 		onTagsChange?.(updatedTags);
-		modal.current?.dismiss();
+		setCurrentIndex(null);
+	};
+
+	// Handle tag deletion
+	const handleDeleteTag = (index: number) => {
+		const updatedTags = tags.filter((_, i) => i !== index);
+		onTagsChange?.(updatedTags);
+		setCurrentIndex(null);
 	};
 
 	// Open the emoji picker for a specific tag
 	const openEmojiPicker = (index: number) => {
-		modal.current?.setAttribute('data-index', String(index));
-		modal.current?.present();
+		setCurrentIndex(index);
 	};
 
 	return (
@@ -94,11 +104,28 @@ export const DayView: React.FC<DayViewProps> = ({
 				value={note}
 			/>
 			<IonModal
-				ref={modal}
+				isOpen={currentIndex !== null}
+				onDidDismiss={() => setCurrentIndex(null)}
 				initialBreakpoint={0.5}
 				breakpoints={[0, 0.5, 1]}
 			>
 				<IonContent className="ion-padding">
+					{hasDeleteButton && (
+						<IonButton
+							size="default"
+							color="danger"
+							fill="outline"
+							className="dayView-emojiPicker-deleteButton"
+							onClick={() => handleDeleteTag(currentIndex!)}
+						>
+							<IonIcon
+								slot="icon-only"
+								size="medium"
+								icon={trashOutline}
+							></IonIcon>
+						</IonButton>
+					)}
+
 					<EmojiPicker
 						autoFocusSearch={false}
 						skinTonesDisabled={true}
@@ -107,13 +134,15 @@ export const DayView: React.FC<DayViewProps> = ({
 						previewConfig={{ showPreview: false }}
 						theme={Theme.AUTO}
 						onEmojiClick={(emojiObject) => {
-							const index = Number(
-								modal.current?.getAttribute('data-index'),
-							);
-							handleEmojiSelect(emojiObject.emoji, index);
+							handleEmojiSelect(emojiObject.emoji);
 						}}
 						width="100%"
 						height="auto"
+						className={
+							hasDeleteButton
+								? 'dayView-emojiPicker--withDelete'
+								: ''
+						}
 					/>
 				</IonContent>
 			</IonModal>

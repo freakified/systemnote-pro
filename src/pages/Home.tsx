@@ -130,7 +130,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		}));
 	};
 
-	// Handle tag updates
 	const onTagsChange = (newTags: TagEntry) => {
 		setCurrentTags(newTags);
 

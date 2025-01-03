@@ -81,7 +81,7 @@
 }
 
 .emojiSelectorButton.withEmoji {
-	--background: rgba(var(--ion-color-primary-rgb), 0.2);;
+	--background: rgba(var(--ion-color-primary-rgb), 0.2);
 	  
 		/* --color: blue; */
 	  
@@ -90,6 +90,23 @@
 		--border-width: 1px;
 		min-width: 40px;
 }
+
+.dayView-emojiPicker-deleteButton {
+	/* --background: rgba(var(--ion-color-danger-rgb), 0.1);
+	--background-hover: rgba(var(--ion-color-danger-rgb), 0.15);
+	--background-activated: rgba(var(--ion-color-danger-rgb), 0.2);
+	--color: var(--ion-color-danger); */
+
+	height: 40px;
+	width: 40px;
+
+	/* use sneaky positioning tricks to overlay this into the emoji picker */
+	position: absolute;
+	top: 12px;
+	right: 14px;
+	z-index: 2;
+}
+
 
 /* Emoji Picker specific styles */
 #epr-category-nav-id {
@@ -110,7 +127,13 @@
 
 .EmojiPickerReact .epr-header {
 	--epr-header-padding: 0;
+	
 }
+
+.dayView-emojiPicker--withDelete .epr-header {
+	padding-right: 56px;
+}
+
 
 .epr-main > .epr-body {
 	overflow-y: visible;
