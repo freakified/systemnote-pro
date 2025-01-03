@@ -21,10 +21,24 @@ export const getMonthData = async (
 export const writeMultiMonthlyData = async (
 	monthlyData: MultiMonthlyData,
 	storage: Storage,
+	overwritePolicy:
+		| 'prioritize-existing'
+		| 'prioritize-incoming' = 'prioritize-incoming',
+	usePrefix = true, // prefix needs to be disabled for imports
 ) => {
-	for (const [yearMonthStr, data] of Object.entries(monthlyData)) {
-		if (Object.keys(data).length > 0) {
-			await storage.set(`${NOTES_PREFIX}_${yearMonthStr}`, data);
+	const notesPrefix = usePrefix ? `${NOTES_PREFIX}_` : '';
+
+	for (const [yearMonthStr, newData] of Object.entries(monthlyData)) {
+		const monthKey = `${notesPrefix}${yearMonthStr}`;
+		const existingData: MonthlyData = (await storage.get(monthKey)) || {};
+
+		const dataToWrite: MonthlyData =
+			overwritePolicy === 'prioritize-incoming'
+				? { ...existingData, ...newData }
+				: { ...newData, ...existingData };
+
+		if (Object.keys(dataToWrite).length > 0) {
+			await storage.set(monthKey, dataToWrite);
 		}
 	}
 };
@@ -50,4 +64,8 @@ export const exportData = async (storage: Storage): Promise<string> => {
 	}
 
 	return JSON.stringify(allData, null, 2);
+};
+
+export const deleteAllData = async (storage: Storage) => {
+	await storage.clear();
 };

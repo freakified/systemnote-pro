@@ -20,18 +20,19 @@ import {
 	AlertInput,
 } from '@ionic/react';
 import { Storage } from '@ionic/storage';
+import { APP_VERSION, AppSettings } from '../../utils/settingsUtils';
 import {
-	APP_VERSION,
-	AppSettings,
-	DELETE_PHRASE,
-} from '../../utils/settingsUtils';
-import { exportData } from '../../utils/storageUtils';
+	deleteAllData,
+	exportData,
+	writeMultiMonthlyData,
+} from '../../utils/storageUtils';
 import {
 	downloadOutline,
 	folderOpenOutline,
 	trashOutline,
 } from 'ionicons/icons';
 import './SettingsPage.css';
+import { MultiMonthlyData } from '../../utils/customTypes';
 
 const handleExportData = async (storage?: Storage) => {
 	if (storage) {
@@ -45,31 +46,17 @@ const handleExportData = async (storage?: Storage) => {
 			link.download = 'systemnote_notes.json';
 			link.click();
 
-			// Clean up URL object
 			URL.revokeObjectURL(url);
-		} catch (error) {
-			console.error('Failed to export data:', error);
+		} catch {
+			// fail silently because I am a bad person
 		}
 	}
 };
 
 const handleDeleteNotes = async (storage?: Storage) => {
 	if (storage) {
-		try {
-			const jsonData = await exportData(storage);
-			const blob = new Blob([jsonData], { type: 'application/json' });
-			const url = URL.createObjectURL(blob);
-
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = 'systemnote_data.json'; // File name
-			link.click();
-
-			// Clean up URL object
-			URL.revokeObjectURL(url);
-		} catch (error) {
-			console.error('Failed to export data:', error);
-		}
+		deleteAllData(storage);
+		location.reload();
 	}
 };
 
@@ -78,17 +65,83 @@ interface SettingsPageProps {
 	storage?: Storage;
 }
 
+const countNotesInImport = (data: MultiMonthlyData): number => {
+	let count = 0;
+	Object.values(data).forEach((monthData) => {
+		Object.values(monthData).forEach((dayData) => {
+			if (dayData.note) {
+				count += 1;
+			}
+		});
+	});
+	return count;
+};
+
 export const SettingsPage: React.FC<SettingsPageProps> = ({
 	onCancelButtonClick,
 	storage,
 }) => {
+	const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+	const [showInvalidFileAlert, setShowInvalidFileAlert] = useState(false);
+	const [showImportPolicyAlert, setShowImportPolicyAlert] = useState(false);
+	const [importedData, setImportedData] = useState<MultiMonthlyData | null>(
+		null,
+	);
+	const [importedNotesCount, setImportedNotesCount] = useState(0);
+
+	const handleImportData = async (
+		event: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		if (
+			!storage ||
+			!event.target.files ||
+			event.target.files.length === 0
+		) {
+			return;
+		}
+
+		const file = event.target.files[0];
+		const reader = new FileReader();
+
+		reader.onload = () => {
+			try {
+				const jsonData = JSON.parse(reader.result as string);
+
+				if (typeof jsonData !== 'object' || jsonData === null) {
+					throw new Error('Invalid format');
+				}
+
+				setImportedNotesCount(countNotesInImport(jsonData));
+
+				setImportedData(jsonData);
+				setShowImportPolicyAlert(true); // Show policy alert if format is valid
+			} catch {
+				setShowInvalidFileAlert(true); // Show error alert for invalid file
+			}
+		};
+
+		reader.readAsText(file);
+	};
+
+	const handleImportPolicySelection = async (
+		overwritePolicy: 'prioritize-existing' | 'prioritize-incoming',
+	) => {
+		if (storage && importedData) {
+			await writeMultiMonthlyData(
+				importedData,
+				storage,
+				overwritePolicy,
+				false,
+			);
+			setImportedData(null);
+		}
+	};
+
 	const [currentSettings, setCurrentSettings] = useState<AppSettings>({
 		theme: 'DEFAULT',
 		weekStartDay: 'DEFAULT',
 		defaultNoteTag: '',
 	});
-
-	const [deleteButtonEnabled, setDeleteButtonEnabled] = useState(false);
 
 	return (
 		<IonPage className="settingsPage">
@@ -207,7 +260,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 						{
 							text: 'Select a notes backup file',
 							handler: () => {
-								handleExportData(storage);
+								fileInputRef.current?.click();
 							},
 						},
 						{
@@ -216,6 +269,73 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 						},
 					]}
 				></IonActionSheet>
+
+				<input
+					ref={fileInputRef}
+					type="file"
+					accept="application/json"
+					style={{ display: 'none' }}
+					onChange={(e) => handleImportData(e)}
+				/>
+
+				<IonAlert
+					isOpen={showInvalidFileAlert}
+					header="Invalid File"
+					message="The selected file is not a valid backup format."
+					buttons={[
+						{
+							text: 'OK',
+							handler: () => setShowInvalidFileAlert(false),
+						},
+					]}
+				/>
+
+				<IonAlert
+					isOpen={showImportPolicyAlert}
+					header={`${importedNotesCount} notes to import`}
+					message="If overlapping notes exist, how should it be handled?"
+					buttons={[
+						{
+							text: 'Preserve existing notes',
+							handler: () => {
+								handleImportPolicySelection(
+									'prioritize-existing',
+								);
+								setShowImportPolicyAlert(false);
+							},
+						},
+						{
+							text: 'Replace with imported notes',
+							role: 'destructive',
+							handler: () => {
+								handleImportPolicySelection(
+									'prioritize-incoming',
+								);
+								setShowImportPolicyAlert(false);
+							},
+						},
+						{
+							text: 'Cancel',
+							role: 'cancel',
+							handler: () => {
+								setShowImportPolicyAlert(false);
+								setImportedData(null); // Reset imported data on cancel
+							},
+						},
+					]}
+				/>
+
+				<IonAlert
+					isOpen={showInvalidFileAlert}
+					header="Notes imported"
+					message="The selected file is not a valid backup format."
+					buttons={[
+						{
+							text: 'OK',
+							handler: () => setShowInvalidFileAlert(false),
+						},
+					]}
+				/>
 
 				<IonActionSheet
 					trigger="open-delete-alert"
@@ -240,13 +360,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 					message="This cannot be undone!"
 					buttons={[
 						{
-							text: 'Yes, delete them all!',
+							text: 'Delete all notes, for real',
 							role: 'destructive',
 							cssClass: 'settingsPage-deleteButton',
-							handler: handleDeleteNotes,
+							handler: () => {
+								handleDeleteNotes(storage);
+							},
 						},
 						{
-							text: 'Actually, never mind',
+							text: 'Cancel',
 							role: 'cancel',
 						},
 					]}
