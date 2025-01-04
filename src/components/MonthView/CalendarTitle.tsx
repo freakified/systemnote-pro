@@ -1,8 +1,8 @@
 import React from 'react';
 import {
 	getFullMonthName,
-	getNumericMonthString,
 	getNumericYearString,
+	getShortMonthNumberString,
 } from '../../utils/dateUtils';
 
 interface CalendarTitleProps {
@@ -12,7 +12,7 @@ interface CalendarTitleProps {
 export const CalendarTitle: React.FC<CalendarTitleProps> = ({ date }) => (
 	<h2 className="calendarHeading-root">
 		<div className="calendarHeading-monthNumber">
-			{getNumericMonthString(date)}
+			{getShortMonthNumberString(date)}
 		</div>
 		<div className="calendarHeading-monthAndYear">
 			<div>{getNumericYearString(date)}</div>

@@ -3,6 +3,7 @@ import { IonButton, IonContent, IonIcon, IonModal } from '@ionic/react';
 import './DayView.css';
 import {
 	getNumericDayString,
+	getShortDayNumberString,
 	getWeekdayNameShort,
 } from '../../utils/dateUtils';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -61,7 +62,7 @@ export const DayView: React.FC<DayViewProps> = ({
 			<div className="dayView-toolbar">
 				<div className="dayView-dateContainer">
 					<div className="dayView-dayNumber">
-						{getNumericDayString(date)}
+						{getShortDayNumberString(date)}
 					</div>
 					<div className="dayView-weekday">
 						{getWeekdayNameShort(date, 'ja-JP')}{' '}
@@ -86,7 +87,7 @@ export const DayView: React.FC<DayViewProps> = ({
 					{tags.map((tag, index) => (
 						<IonButton
 							key={index}
-							className="emojiSelectorButton withEmoji"
+							className="emojiSelectorButton"
 							size="default"
 							fill="outline"
 							onClick={() => openEmojiPicker(index)}

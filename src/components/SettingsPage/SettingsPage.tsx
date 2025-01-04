@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	IonContent,
 	IonHeader,
@@ -19,8 +19,17 @@ import {
 	IonAlert,
 } from '@ionic/react';
 import { Storage } from '@ionic/storage';
-import { APP_VERSION, AppSettings } from '../../utils/settingsUtils';
-import { deleteAllData, writeMultiMonthlyData } from '../../utils/storageUtils';
+import {
+	APP_VERSION,
+	AppSettings,
+	DefaultSettings,
+} from '../../utils/settingsUtils';
+import {
+	deleteAllData,
+	getSettings,
+	setSettings,
+	writeMultiMonthlyData,
+} from '../../utils/storageUtils';
 import {
 	downloadOutline,
 	folderOpenOutline,
@@ -43,6 +52,25 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 	const [showInvalidFileAlert, setShowInvalidFileAlert] = useState(false);
 	const [importCompleteAlert, setImportCompleteAlert] = useState(false);
 	const [importedNotesCount, setImportedNotesCount] = useState(0);
+	const [currentSettings, setCurrentSettings] =
+		useState<AppSettings>(DefaultSettings);
+
+	// Load settings on mount
+	useEffect(() => {
+		if (storage) {
+			(async () => {
+				const settings = await getSettings(storage);
+				setCurrentSettings(settings);
+			})();
+		}
+	}, [storage]);
+
+	// Update settings in storage when currentSettings changes
+	useEffect(() => {
+		if (storage) {
+			setSettings(currentSettings, storage);
+		}
+	}, [currentSettings, storage]);
 
 	const handleDeleteNotes = async () => {
 		if (storage) {
@@ -104,12 +132,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 		reader.readAsText(file);
 	};
 
-	const [currentSettings, setCurrentSettings] = useState<AppSettings>({
-		theme: 'DEFAULT',
-		weekStartDay: 'DEFAULT',
-		defaultNoteTag: '',
-	});
-
 	return (
 		<IonPage className="settingsPage">
 			<IonHeader translucent={true}>
@@ -123,9 +145,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 				</IonToolbar>
 			</IonHeader>
 			<IonContent color="light">
-				<IonListHeader>General</IonListHeader>
+				{/* <IonListHeader>General</IonListHeader>
 				<IonList inset={true}>
-					{/* Dark Mode Selection */}
 					<IonItem>
 						<IonLabel>Appearance</IonLabel>
 						<IonSelect
@@ -148,7 +169,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 							<IonSelectOption value="DARK">Dark</IonSelectOption>
 						</IonSelect>
 					</IonItem>
-				</IonList>
+				</IonList> */}
 				<IonListHeader>Import and Export</IonListHeader>
 				<IonList inset={true}>
 					<IonItem

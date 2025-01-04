@@ -16,6 +16,7 @@
 .dayView-dateContainer {
 	align-items: baseline;
 	display: flex;
+	gap: 4px;
 }
 
 .dayView-dayNumber {
@@ -38,7 +39,8 @@
 	min-height: calc(100% - 48px - 4px);
 	width: 100%;
     border: 0;
-	caret-color : var(--ion-color-primary);
+	caret-color: var(--ion-color-primary);
+	background-color: var(--ion-background-color);
 	padding-bottom: env(safe-area-inset-bottom);
 	overflow: hidden;
 }
@@ -69,15 +71,10 @@
 	--padding-end: 0;
 	--padding-start: 0;
 	--color: var(--ion-color-primary);
-	/* --border-color: var(--ion-color-medium); */
-	  
-		/* --color: blue; */
-	  
-		--border-radius: 4px;
-		/* --border-color: #000; */
-		--border-style: dashed;
-		--border-width: 1px;
-		min-width: 40px;
+	--border-radius: 4px;
+	--border-style: dashed;
+	--border-width: 1px;
+	min-width: 40px;
 }
 
 .emojiSelectorButton.withEmoji {
@@ -107,7 +104,6 @@
 	z-index: 2;
 }
 
-
 /* Emoji Picker specific styles */
 #epr-category-nav-id {
 	display: none;
@@ -134,6 +130,11 @@
 	padding-right: 56px;
 }
 
+.epr-main.EmojiPickerReact {
+	background-color: transparent;
+	--epr-bg-color: transparent;
+	--epr-category-label-bg-color: transparent;
+}
 
 .epr-main > .epr-body {
 	overflow-y: visible;
