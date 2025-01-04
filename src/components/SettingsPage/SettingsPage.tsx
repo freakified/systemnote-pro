@@ -17,15 +17,10 @@ import {
 	IonIcon,
 	IonActionSheet,
 	IonAlert,
-	AlertInput,
 } from '@ionic/react';
 import { Storage } from '@ionic/storage';
 import { APP_VERSION, AppSettings } from '../../utils/settingsUtils';
-import {
-	deleteAllData,
-	exportData,
-	writeMultiMonthlyData,
-} from '../../utils/storageUtils';
+import { deleteAllData, writeMultiMonthlyData } from '../../utils/storageUtils';
 import {
 	downloadOutline,
 	folderOpenOutline,
@@ -33,49 +28,12 @@ import {
 } from 'ionicons/icons';
 import './SettingsPage.css';
 import { MultiMonthlyData } from '../../utils/customTypes';
-
-const handleExportData = async (storage?: Storage) => {
-	if (storage) {
-		try {
-			const jsonData = await exportData(storage);
-			const blob = new Blob([jsonData], { type: 'application/json' });
-			const url = URL.createObjectURL(blob);
-
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = 'systemnote_notes.json';
-			link.click();
-
-			URL.revokeObjectURL(url);
-		} catch {
-			// fail silently because I am a bad person
-		}
-	}
-};
-
-const handleDeleteNotes = async (storage?: Storage) => {
-	if (storage) {
-		deleteAllData(storage);
-		location.reload();
-	}
-};
+import { countNotesInImport, exportDataAsJSON } from '../../utils/backupUtils';
 
 interface SettingsPageProps {
 	onCancelButtonClick: () => void;
 	storage?: Storage;
 }
-
-const countNotesInImport = (data: MultiMonthlyData): number => {
-	let count = 0;
-	Object.values(data).forEach((monthData) => {
-		Object.values(monthData).forEach((dayData) => {
-			if (dayData.note) {
-				count += 1;
-			}
-		});
-	});
-	return count;
-};
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({
 	onCancelButtonClick,
@@ -83,11 +41,27 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 }) => {
 	const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 	const [showInvalidFileAlert, setShowInvalidFileAlert] = useState(false);
-	const [showImportPolicyAlert, setShowImportPolicyAlert] = useState(false);
-	const [importedData, setImportedData] = useState<MultiMonthlyData | null>(
-		null,
-	);
+	const [importCompleteAlert, setImportCompleteAlert] = useState(false);
 	const [importedNotesCount, setImportedNotesCount] = useState(0);
+
+	const handleDeleteNotes = async () => {
+		if (storage) {
+			deleteAllData(storage);
+			location.reload();
+		}
+	};
+
+	const writeImportedData = async (importedData: MultiMonthlyData) => {
+		if (storage && importedData) {
+			await writeMultiMonthlyData(
+				importedData,
+				storage,
+				'prioritize-existing',
+				false,
+			);
+			setImportCompleteAlert(true);
+		}
+	};
 
 	const handleImportData = async (
 		event: React.ChangeEvent<HTMLInputElement>,
@@ -111,30 +85,23 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 					throw new Error('Invalid format');
 				}
 
-				setImportedNotesCount(countNotesInImport(jsonData));
+				const numImportedNotes = countNotesInImport(jsonData);
+				setImportedNotesCount(numImportedNotes);
 
-				setImportedData(jsonData);
-				setShowImportPolicyAlert(true); // Show policy alert if format is valid
+				if (numImportedNotes === 0) {
+					throw new Error('No notes');
+				}
+
+				writeImportedData(jsonData);
 			} catch {
-				setShowInvalidFileAlert(true); // Show error alert for invalid file
+				if (fileInputRef?.current) {
+					fileInputRef.current.value = '';
+				}
+				setShowInvalidFileAlert(true);
 			}
 		};
 
 		reader.readAsText(file);
-	};
-
-	const handleImportPolicySelection = async (
-		overwritePolicy: 'prioritize-existing' | 'prioritize-incoming',
-	) => {
-		if (storage && importedData) {
-			await writeMultiMonthlyData(
-				importedData,
-				storage,
-				overwritePolicy,
-				false,
-			);
-			setImportedData(null);
-		}
 	};
 
 	const [currentSettings, setCurrentSettings] = useState<AppSettings>({
@@ -243,7 +210,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 						{
 							text: 'Download as JSON',
 							handler: () => {
-								handleExportData(storage);
+								exportDataAsJSON(storage);
 							},
 						},
 						{
@@ -280,8 +247,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
 				<IonAlert
 					isOpen={showInvalidFileAlert}
-					header="Invalid File"
-					message="The selected file is not a valid backup format."
+					header="Invalid file format"
+					message="The selected file does not seem to contain SystemNote backup data."
 					buttons={[
 						{
 							text: 'OK',
@@ -291,51 +258,18 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 				/>
 
 				<IonAlert
-					isOpen={showImportPolicyAlert}
-					header={`${importedNotesCount} notes to import`}
-					message="If overlapping notes exist, how should it be handled?"
+					isOpen={importCompleteAlert}
+					header={`${importedNotesCount} notes imported`}
+					message="Your notes have been successfully imported."
 					buttons={[
 						{
-							text: 'Preserve existing notes',
+							text: 'Return to calendar',
 							handler: () => {
-								handleImportPolicySelection(
-									'prioritize-existing',
-								);
-								setShowImportPolicyAlert(false);
-							},
-						},
-						{
-							text: 'Replace with imported notes',
-							role: 'destructive',
-							handler: () => {
-								handleImportPolicySelection(
-									'prioritize-incoming',
-								);
-								setShowImportPolicyAlert(false);
-							},
-						},
-						{
-							text: 'Cancel',
-							role: 'cancel',
-							handler: () => {
-								setShowImportPolicyAlert(false);
-								setImportedData(null); // Reset imported data on cancel
+								location.reload();
 							},
 						},
 					]}
-				/>
-
-				<IonAlert
-					isOpen={showInvalidFileAlert}
-					header="Notes imported"
-					message="The selected file is not a valid backup format."
-					buttons={[
-						{
-							text: 'OK',
-							handler: () => setShowInvalidFileAlert(false),
-						},
-					]}
-				/>
+				></IonAlert>
 
 				<IonActionSheet
 					trigger="open-delete-alert"
@@ -360,11 +294,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 					message="This cannot be undone!"
 					buttons={[
 						{
-							text: 'Delete all notes, for real',
+							text: 'Delete all notes',
 							role: 'destructive',
 							cssClass: 'settingsPage-deleteButton',
 							handler: () => {
-								handleDeleteNotes(storage);
+								handleDeleteNotes();
 							},
 						},
 						{
