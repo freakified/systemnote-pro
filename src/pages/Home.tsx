@@ -4,7 +4,14 @@ import { debounce } from 'lodash';
 import { cogOutline } from 'ionicons/icons';
 import { Storage } from '@ionic/storage';
 
-import { IonButton, IonHeader, IonIcon, IonPage, IonModal } from '@ionic/react';
+import {
+	IonButton,
+	IonHeader,
+	IonIcon,
+	IonPage,
+	IonModal,
+	IonBadge,
+} from '@ionic/react';
 
 import './Home.css';
 
@@ -146,6 +153,8 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		}));
 	};
 
+	const showBadge = true;
+
 	return (
 		<IonPage id="home-page" ref={page}>
 			<IonHeader className="home-view-header">
@@ -169,6 +178,21 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 								size="large"
 								icon={cogOutline}
 							></IonIcon>
+							{showBadge && (
+								<IonBadge
+									color="danger"
+									style={{
+										position: 'absolute',
+										top: '-5px',
+										right: '-5px',
+										zIndex: 1,
+										fontSize: '10px',
+										padding: '4px 6px',
+									}}
+								>
+									!
+								</IonBadge>
+							)}
 						</IonButton>
 					}
 				/>

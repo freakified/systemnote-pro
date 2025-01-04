@@ -15,3 +15,7 @@ export const DefaultSettings: AppSettings = {
 };
 
 export const APP_VERSION = '1.0';
+
+export const isInstalled = () => {
+	return window.matchMedia('(display-mode: standalone)').matches;
+};
