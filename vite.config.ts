@@ -1,7 +1,8 @@
 import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
+import { ManifestOptions, VitePWA } from 'vite-plugin-pwa';
+import manifest from './manifest.json';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,9 +12,18 @@ export default defineConfig({
 		VitePWA({
 			registerType: 'autoUpdate',
 			injectRegister: 'auto',
+			manifestFilename: 'manifest.json',
+			manifest: manifest as ManifestOptions,
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-				maximumFileSizeToCacheInBytes: 5000000,
+				maximumFileSizeToCacheInBytes: 2097152 * 20,
+				runtimeCaching: [
+					{
+						handler: 'StaleWhileRevalidate',
+						urlPattern: ({ url }) => url.pathname === '/_config',
+						method: 'GET',
+					},
+				],
 			},
 		}),
 	],
