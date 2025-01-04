@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { IonButton, IonContent, IonIcon, IonModal } from '@ionic/react';
 import './DayView.css';
 import {
-	getNumericDayString,
 	getShortDayNumberString,
 	getWeekdayNameShort,
 } from '../../utils/dateUtils';
 import TextareaAutosize from 'react-textarea-autosize';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
-
 import { TagEntry } from '../../utils/customTypes';
 import { add, trashOutline } from 'ionicons/icons';
 
@@ -27,34 +25,24 @@ export const DayView: React.FC<DayViewProps> = ({
 	onTextAreaChange,
 	onTagsChange,
 }) => {
-	const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+	// Tracks which, if any, tag is currently being edited
+	// Used to control when the emoji picker is shown, and what it is editing
+	const [activeTagSelectionIdx, setActiveTagSelectionIdx] = useState<
+		number | null
+	>(null);
 
 	// Determine if the delete button should be shown
-	const hasDeleteButton = currentIndex !== null && currentIndex < tags.length;
+	const hasDeleteButton =
+		activeTagSelectionIdx !== null && tags[activeTagSelectionIdx] !== '';
 
-	// Handle emoji selection
-	const handleEmojiSelect = (emoji: string) => {
-		if (currentIndex === null) return;
-		const updatedTags = [...tags];
-		if (currentIndex < tags.length) {
-			updatedTags[currentIndex] = emoji; // Update existing tag
-		} else {
-			updatedTags.unshift(emoji); // Add new tag
+	const handleUpdateTag = (emoji: string) => {
+		if (activeTagSelectionIdx !== null) {
+			const updatedTags = [...tags];
+			updatedTags[activeTagSelectionIdx] = emoji;
+
+			onTagsChange?.(updatedTags);
+			setActiveTagSelectionIdx(null);
 		}
-		onTagsChange?.(updatedTags);
-		setCurrentIndex(null);
-	};
-
-	// Handle tag deletion
-	const handleDeleteTag = (index: number) => {
-		const updatedTags = tags.filter((_, i) => i !== index);
-		onTagsChange?.(updatedTags);
-		setCurrentIndex(null);
-	};
-
-	// Open the emoji picker for a specific tag
-	const openEmojiPicker = (index: number) => {
-		setCurrentIndex(index);
 	};
 
 	return (
@@ -70,45 +58,35 @@ export const DayView: React.FC<DayViewProps> = ({
 					</div>
 				</div>
 				<div className="dayView-emojiToolbar">
-					{tags.length < 2 && (
-						<IonButton
-							className="emojiSelectorButton"
-							size="default"
-							fill="outline"
-							onClick={() => openEmojiPicker(tags.length)}
-						>
-							<IonIcon
-								slot="icon-only"
-								size="medium"
-								icon={add}
-							></IonIcon>
-						</IonButton>
-					)}
-					{tags.map((tag, index) => (
+					{[0, 1].map((index) => (
 						<IonButton
 							key={index}
 							className="emojiSelectorButton"
 							size="default"
 							fill="outline"
-							onClick={() => openEmojiPicker(index)}
+							onClick={() => setActiveTagSelectionIdx(index)}
 						>
-							{tag}
+							{tags[index] || (
+								<IonIcon
+									slot="icon-only"
+									size="medium"
+									icon={add}
+								></IonIcon>
+							)}
 						</IonButton>
 					))}
 				</div>
 			</div>
 			<TextareaAutosize
-				onChange={(e) => {
-					if (onTextAreaChange) onTextAreaChange(e);
-				}}
+				onChange={(e) => onTextAreaChange?.(e)}
 				className="dayView-note-textarea"
 				value={note}
 			/>
 			<IonModal
-				isOpen={currentIndex !== null}
-				onDidDismiss={() => setCurrentIndex(null)}
+				isOpen={activeTagSelectionIdx !== null}
+				onDidDismiss={() => setActiveTagSelectionIdx(null)}
 				initialBreakpoint={0.5}
-				breakpoints={[0, 0.5, 1]}
+				breakpoints={[0, 0.5, 0.9]}
 			>
 				<IonContent className="ion-padding">
 					{hasDeleteButton && (
@@ -117,7 +95,7 @@ export const DayView: React.FC<DayViewProps> = ({
 							color="danger"
 							fill="outline"
 							className="dayView-emojiPicker-deleteButton"
-							onClick={() => handleDeleteTag(currentIndex!)}
+							onClick={() => handleUpdateTag('')}
 						>
 							<IonIcon
 								slot="icon-only"
@@ -135,7 +113,7 @@ export const DayView: React.FC<DayViewProps> = ({
 						previewConfig={{ showPreview: false }}
 						theme={Theme.AUTO}
 						onEmojiClick={(emojiObject) => {
-							handleEmojiSelect(emojiObject.emoji);
+							handleUpdateTag(emojiObject.emoji);
 						}}
 						width="100%"
 						height="auto"
