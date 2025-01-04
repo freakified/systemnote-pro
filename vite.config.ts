@@ -6,7 +6,7 @@ import manifest from './manifest.json';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	base: './',
+	base: '/systemnote-pro',
 	plugins: [
 		react(),
 		legacy(),

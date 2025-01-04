@@ -47,7 +47,7 @@ setupIonicReact({
 });
 
 const App: React.FC = () => {
-	const [storage, setStorage] = useState<Storage | null>(null);
+	const [storage, setStorage] = useState<Storage | undefined>(undefined);
 
 	useEffect(() => {
 		const initStorage = async () => {
@@ -60,13 +60,7 @@ const App: React.FC = () => {
 
 	return (
 		<IonApp>
-			<IonReactRouter>
-				<IonRouterOutlet>
-					<Route path="/" exact={true}>
-						<Home storage={storage} />
-					</Route>
-				</IonRouterOutlet>
-			</IonReactRouter>
+			<Home storage={storage} />
 		</IonApp>
 	);
 };
