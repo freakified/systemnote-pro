@@ -10,6 +10,8 @@ interface DayTagsProps {
 }
 
 export const DayTags: React.FC<DayTagsProps> = ({ tags, visible = true }) => {
+	// hiding and showing daytags this way is needed to prevent an emoji display
+	// bug on Safari where they don't *fully* disappear
 	const classnames = cx('dayTags__container', {
 		'dayTags__container--hidden': !visible,
 	});

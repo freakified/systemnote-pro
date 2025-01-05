@@ -179,13 +179,17 @@ export const MonthView: React.FC<MonthViewProps> = ({
 			const dayHasTags = (dayData?.tags || []).length > 0;
 			const dayHasNote = (dayData?.note || '').length > 0;
 
-			if (dayHasTags) {
-				return <DayTags tags={dayData?.tags} />;
-			} else if (dayHasNote) {
-				return <DayTags tags={[DEFAULT_NOTE_EMOJI]} />;
-			} else {
-				return <DayTags visible={false} />;
-			}
+			return (
+				<>
+					{dayHasNote && (
+						<div className="monthView-day-hasNoteIndicator" />
+					)}
+					<DayTags
+						tags={dayHasTags ? dayData?.tags : undefined}
+						visible={dayHasTags}
+					/>
+				</>
+			);
 		},
 	};
 

@@ -6,13 +6,12 @@
 	opacity: 1;
 	transition: 300ms all ease;
 	transform: scale3d(1, 1, 1);
+	position: absolute;
+	bottom: 5px;
+	left: 2px;
 }
 
 .dayTags__container--hidden {
 	opacity: 0;
 	transform: scale3d(.1, .1, .1);
-}
-
-.dayTags__tag {
-	/* asdf */
 }

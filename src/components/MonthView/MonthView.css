@@ -40,6 +40,7 @@
 	border-bottom: 1px solid var(--ion-color-light-shade);
 	border-right: 1px solid var(--ion-color-light-shade);
 	flex-direction: column;
+	position: relative;
 }
 
 .react-calendar__tile--active {
@@ -134,4 +135,13 @@
 	border-top: 1px solid var(--ion-color-light-shade);
 	margin-left: -1px;
 	margin-right: -1px;
+}
+
+.monthView-day-hasNoteIndicator {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='12' fill='none'%3E%3Cpath stroke='%23969696' d='M.5.5h9v8.293L6.793 11.5H.5V.5Z'/%3E%3Cpath stroke='%23969696' d='M6.5 8.5h3v.766L6.819 11.5H6.5v-3ZM3 3.5h4M3 5.5h4'/%3E%3C/svg%3E");
+	height: 12px;
+	width: 10px;
+	position: absolute;
+	right: 5px;
+	top: 5px;
 }
