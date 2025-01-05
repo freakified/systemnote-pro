@@ -176,7 +176,8 @@ export const MonthView: React.FC<MonthViewProps> = ({
 			const monthKey = getNumericYearMonthString(date);
 			const dayKey = getNumericDayString(date);
 			const dayData = multiMonthlyData[monthKey]?.[dayKey];
-			const dayHasTags = (dayData?.tags || []).length > 0;
+			const dayHasTags =
+				(dayData?.tags || []).filter((el) => el !== '').length > 0;
 			const dayHasNote = (dayData?.note || '').length > 0;
 
 			if (dayHasTags) {

@@ -9,6 +9,7 @@
 	position: absolute;
 	bottom: 5px;
 	left: 2px;
+	height: 100%;
 }
 
 .dayTags__container--hidden {
