@@ -1,24 +1,20 @@
-// InstallationDirections.tsx
 import React from 'react';
 import {
-	IonPage,
 	IonHeader,
 	IonToolbar,
 	IonTitle,
 	IonContent,
-	IonButton,
 	IonButtons,
+	IonBackButton,
 } from '@ionic/react';
 
-const InstallationDirections: React.FC<{ onBack: () => void }> = ({
-	onBack,
-}) => {
+const InstallationDirections: React.FC = () => {
 	return (
-		<IonPage>
-			<IonHeader>
+		<>
+			<IonHeader translucent={true}>
 				<IonToolbar>
 					<IonButtons slot="start">
-						<IonButton onClick={onBack}>Back</IonButton>
+						<IonBackButton></IonBackButton>
 					</IonButtons>
 					<IonTitle>Install App</IonTitle>
 				</IonToolbar>
@@ -27,7 +23,7 @@ const InstallationDirections: React.FC<{ onBack: () => void }> = ({
 				<img src="/systemnote-pro/favicon.png" width="64" height="64" />
 				Systemnote Pro Version 1.0
 			</IonContent>
-		</IonPage>
+		</>
 	);
 };
 

@@ -17,7 +17,9 @@ import {
 	IonAlert,
 	IonBadge,
 	IonNav,
+	IonNavLink,
 } from '@ionic/react';
+
 import { Storage } from '@ionic/storage';
 import {
 	APP_VERSION,
@@ -56,15 +58,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 	const [importedNotesCount, setImportedNotesCount] = useState(0);
 	const [currentSettings, setCurrentSettings] =
 		useState<AppSettings>(DefaultSettings);
-
-	// eslint-disable-next-line no-undef
-	const navRef = useRef<HTMLIonNavElement>(null);
-
-	const navigateToInstallationDirections = () => {
-		navRef.current?.push(InstallationDirections, {
-			onBack: () => navRef.current?.pop(),
-		});
-	};
 
 	useEffect(() => {
 		if (storage) {
@@ -143,17 +136,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
 	return (
 		<IonNav
-			ref={navRef}
 			root={() => (
 				<IonPage className="settingsPage">
 					<IonHeader translucent={true}>
 						<IonToolbar>
+							<IonTitle>Settings</IonTitle>
 							<IonButtons slot="primary">
 								<IonButton onClick={onCancelButtonClick}>
 									Done
 								</IonButton>
 							</IonButtons>
-							<IonTitle>Settings</IonTitle>
 						</IonToolbar>
 					</IonHeader>
 					<IonContent color="light">
@@ -184,19 +176,21 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 		</IonList> */}
 						<IonListHeader>App Installation</IonListHeader>
 						<IonList inset={true}>
-							<IonItem
-								button
-								onClick={navigateToInstallationDirections}
+							<IonNavLink
+								routerDirection="forward"
+								component={() => <InstallationDirections />}
 							>
-								<IonIcon
-									aria-hidden="true"
-									icon={appsOutline}
-									slot="start"
-									color="primary"
-								></IonIcon>
-								<IonLabel>Install app</IonLabel>
-								<IonBadge color="danger">1</IonBadge>
-							</IonItem>
+								<IonItem button>
+									<IonIcon
+										aria-hidden="true"
+										icon={appsOutline}
+										slot="start"
+										color="primary"
+									></IonIcon>
+									<IonLabel>Install app</IonLabel>
+									<IonBadge color="danger">1</IonBadge>
+								</IonItem>
+							</IonNavLink>
 						</IonList>
 						<IonListHeader>Import and Export</IonListHeader>
 						<IonList inset={true}>
