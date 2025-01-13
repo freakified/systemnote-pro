@@ -11,6 +11,7 @@ import {
 	IonPage,
 	IonModal,
 	IonBadge,
+	IonContent,
 } from '@ionic/react';
 
 import './Home.css';
@@ -29,10 +30,13 @@ import { Value } from 'react-calendar/dist/cjs/shared/types';
 
 interface HomeProps {
 	storage?: Storage;
+	startWithSettingsModalOpen?: boolean;
 }
 
 const Home: React.FC<HomeProps> = ({ storage }) => {
 	const DEFAULT_DATE = new Date();
+
+	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
 	const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
 	const [activeStartDate, setActiveStartDate] = useState(DEFAULT_DATE);
@@ -43,9 +47,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const [currentNote, setCurrentNote] = useState('');
 	const [currentTags, setCurrentTags] = useState<TagEntry>([]); // Store current day's tags
 
-	// Set up sheet modal used by Settings
-	// eslint-disable-next-line no-undef
-	const modal = useRef<HTMLIonModalElement>(null);
 	const page = useRef(null);
 
 	const [presentingElement, setPresentingElement] =
@@ -56,7 +57,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	}, []);
 
 	const dismissSettingsModal = () => {
-		modal.current?.dismiss();
+		setSettingsModalOpen(false);
 	};
 
 	// Fetch initial data on component mount
@@ -157,63 +158,55 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	return (
 		<IonPage id="home-page" ref={page}>
-			<IonHeader className="home-view-header">
-				<MonthView
-					activeStartDate={activeStartDate}
-					selectedDate={selectedDate}
-					multiMonthlyData={multiMonthlyData}
-					onSelectedDateChanged={onDateChange}
-					onActiveStartDateChanged={(newDate) =>
-						setActiveStartDate(newDate)
-					}
-					toolbarExtras={
-						<IonButton
-							size="large"
-							fill="clear"
-							shape="round"
-							id="open-settings-modal"
-						>
-							<IonIcon
-								slot="icon-only"
+			<IonContent>
+				<IonHeader className="home-view-header">
+					<MonthView
+						activeStartDate={activeStartDate}
+						selectedDate={selectedDate}
+						multiMonthlyData={multiMonthlyData}
+						onSelectedDateChanged={onDateChange}
+						onActiveStartDateChanged={(newDate) =>
+							setActiveStartDate(newDate)
+						}
+						toolbarExtras={
+							<IonButton
 								size="large"
-								icon={cogOutline}
-							></IonIcon>
-							{showBadge && (
-								<IonBadge
-									color="danger"
-									style={{
-										position: 'absolute',
-										top: '-5px',
-										right: '-5px',
-										zIndex: 1,
-										fontSize: '10px',
-										padding: '4px 6px',
-									}}
-								>
-									!
-								</IonBadge>
-							)}
-						</IonButton>
-					}
+								fill="clear"
+								shape="round"
+								onClick={() => setSettingsModalOpen(true)}
+							>
+								<IonIcon
+									slot="icon-only"
+									size="large"
+									icon={cogOutline}
+								></IonIcon>
+								{showBadge && (
+									<div className="home-settingsButton-badge">
+										1
+									</div>
+								)}
+							</IonButton>
+						}
+					/>
+				</IonHeader>
+				<DayView
+					date={selectedDate}
+					onTextAreaChange={onDayEdit}
+					note={currentNote}
+					tags={currentTags}
+					onTagsChange={onTagsChange}
 				/>
-			</IonHeader>
-			<DayView
-				date={selectedDate}
-				onTextAreaChange={onDayEdit}
-				note={currentNote}
-				tags={currentTags}
-				onTagsChange={onTagsChange}
-			/>
-			<IonModal
-				ref={modal}
-				trigger="open-settings-modal"
-				presentingElement={presentingElement!}
-			>
-				<SettingsPage
-					onCancelButtonClick={dismissSettingsModal}
-					storage={storage}
-				/>
-			</IonModal>
+				<IonModal
+					isOpen={settingsModalOpen}
+					presentingElement={presentingElement!}
+					onDidDismiss={dismissSettingsModal}
+				>
+					<SettingsPage
+						onCancelButtonClick={dismissSettingsModal}
+						storage={storage}
+					/>
+				</IonModal>
+			</IonContent>
 		</IonPage>
 	);
 };

@@ -60,7 +60,13 @@ const App: React.FC = () => {
 
 	return (
 		<IonApp>
-			<Home storage={storage} />
+			<IonReactRouter>
+				<IonRouterOutlet>
+					<Route path="/systemnote-pro" exact={true}>
+						<Home storage={storage} />
+					</Route>
+				</IonRouterOutlet>
+			</IonReactRouter>
 		</IonApp>
 	);
 };

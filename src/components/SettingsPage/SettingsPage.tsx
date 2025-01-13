@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	IonContent,
 	IonHeader,
@@ -8,8 +8,6 @@ import {
 	IonList,
 	IonItem,
 	IonLabel,
-	IonSelect,
-	IonSelectOption,
 	IonButton,
 	IonButtons,
 	IonListHeader,
@@ -17,6 +15,8 @@ import {
 	IonIcon,
 	IonActionSheet,
 	IonAlert,
+	IonBadge,
+	IonNav,
 } from '@ionic/react';
 import { Storage } from '@ionic/storage';
 import {
@@ -31,6 +31,7 @@ import {
 	writeMultiMonthlyData,
 } from '../../utils/storageUtils';
 import {
+	appsOutline,
 	downloadOutline,
 	folderOpenOutline,
 	trashOutline,
@@ -38,6 +39,7 @@ import {
 import './SettingsPage.css';
 import { MultiMonthlyData } from '../../utils/customTypes';
 import { countNotesInImport, exportDataAsJSON } from '../../utils/backupUtils';
+import InstallationDirections from './InstallationDirections';
 
 interface SettingsPageProps {
 	onCancelButtonClick: () => void;
@@ -55,7 +57,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 	const [currentSettings, setCurrentSettings] =
 		useState<AppSettings>(DefaultSettings);
 
-	// Load settings on mount
+	// eslint-disable-next-line no-undef
+	const navRef = useRef<HTMLIonNavElement>(null);
+
+	const navigateToInstallationDirections = () => {
+		navRef.current?.push(InstallationDirections, {
+			onBack: () => navRef.current?.pop(),
+		});
+	};
+
 	useEffect(() => {
 		if (storage) {
 			(async () => {
@@ -65,7 +75,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 		}
 	}, [storage]);
 
-	// Update settings in storage when currentSettings changes
 	useEffect(() => {
 		if (storage) {
 			setSettings(currentSettings, storage);
@@ -133,202 +142,234 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 	};
 
 	return (
-		<IonPage className="settingsPage">
-			<IonHeader translucent={true}>
-				<IonToolbar>
-					<IonButtons slot="primary">
-						<IonButton onClick={onCancelButtonClick}>
-							Done
-						</IonButton>
-					</IonButtons>
-					<IonTitle>Settings</IonTitle>
-				</IonToolbar>
-			</IonHeader>
-			<IonContent color="light">
-				{/* <IonListHeader>General</IonListHeader>
-				<IonList inset={true}>
-					<IonItem>
-						<IonLabel>Appearance</IonLabel>
-						<IonSelect
-							value={currentSettings.theme}
-							onIonChange={(e) =>
-								setCurrentSettings({
-									...currentSettings,
-									theme: e.detail
-										.value as AppSettings['theme'],
-								})
-							}
-							interface="popover"
-						>
-							<IonSelectOption value="DEFAULT">
-								System Default
-							</IonSelectOption>
-							<IonSelectOption value="LIGHT">
-								Light
-							</IonSelectOption>
-							<IonSelectOption value="DARK">Dark</IonSelectOption>
-						</IonSelect>
-					</IonItem>
-				</IonList> */}
-				<IonListHeader>Import and Export</IonListHeader>
-				<IonList inset={true}>
-					<IonItem
-						button
-						detail={false}
-						id="open-export-action-sheet"
-					>
-						<IonIcon
-							aria-hidden="true"
-							icon={downloadOutline}
-							slot="start"
-							color="primary"
-						></IonIcon>
+		<IonNav
+			ref={navRef}
+			root={() => (
+				<IonPage className="settingsPage">
+					<IonHeader translucent={true}>
+						<IonToolbar>
+							<IonButtons slot="primary">
+								<IonButton onClick={onCancelButtonClick}>
+									Done
+								</IonButton>
+							</IonButtons>
+							<IonTitle>Settings</IonTitle>
+						</IonToolbar>
+					</IonHeader>
+					<IonContent color="light">
+						{/* <IonListHeader>General</IonListHeader>
+		<IonList inset={true}>
+			<IonItem>
+				<IonLabel>Appearance</IonLabel>
+				<IonSelect
+					value={currentSettings.theme}
+					onIonChange={(e) =>
+						setCurrentSettings({
+							...currentSettings,
+							theme: e.detail
+								.value as AppSettings['theme'],
+						})
+					}
+					interface="popover"
+				>
+					<IonSelectOption value="DEFAULT">
+						System Default
+					</IonSelectOption>
+					<IonSelectOption value="LIGHT">
+						Light
+					</IonSelectOption>
+				<IonSelectOption value="DARK">Dark</IonSelectOption>
+				</IonSelect>
+			</IonItem>
+		</IonList> */}
+						<IonListHeader>App Installation</IonListHeader>
+						<IonList inset={true}>
+							<IonItem
+								button
+								onClick={navigateToInstallationDirections}
+							>
+								<IonIcon
+									aria-hidden="true"
+									icon={appsOutline}
+									slot="start"
+									color="primary"
+								></IonIcon>
+								<IonLabel>Install app</IonLabel>
+								<IonBadge color="danger">1</IonBadge>
+							</IonItem>
+						</IonList>
+						<IonListHeader>Import and Export</IonListHeader>
+						<IonList inset={true}>
+							<IonItem
+								button
+								detail={false}
+								id="open-export-action-sheet"
+							>
+								<IonIcon
+									aria-hidden="true"
+									icon={downloadOutline}
+									slot="start"
+									color="primary"
+								></IonIcon>
 
-						<IonLabel color="primary">Export all notes</IonLabel>
-					</IonItem>
-					<IonItem
-						button
-						detail={false}
-						id="open-import-action-sheet"
-					>
-						<IonIcon
-							aria-hidden="true"
-							icon={folderOpenOutline}
-							slot="start"
-							color="primary"
-						></IonIcon>
-						<IonLabel color="primary">Import from backup</IonLabel>
-					</IonItem>
-					<IonItem button detail={false} id="open-delete-alert">
-						<IonIcon
-							aria-hidden="true"
-							icon={trashOutline}
-							slot="start"
-							color="danger"
-						></IonIcon>
-						<IonLabel color="danger">Delete all notes</IonLabel>
-					</IonItem>
-				</IonList>
+								<IonLabel color="primary">
+									Export all notes
+								</IonLabel>
+							</IonItem>
+							<IonItem
+								button
+								detail={false}
+								id="open-import-action-sheet"
+							>
+								<IonIcon
+									aria-hidden="true"
+									icon={folderOpenOutline}
+									slot="start"
+									color="primary"
+								></IonIcon>
+								<IonLabel color="primary">
+									Import from backup
+								</IonLabel>
+							</IonItem>
+							<IonItem
+								button
+								detail={false}
+								id="open-delete-alert"
+							>
+								<IonIcon
+									aria-hidden="true"
+									icon={trashOutline}
+									slot="start"
+									color="danger"
+								></IonIcon>
+								<IonLabel color="danger">
+									Delete all notes
+								</IonLabel>
+							</IonItem>
+						</IonList>
 
-				<IonListHeader>About</IonListHeader>
-				<IonList inset={true}>
-					<IonItem>
-						<IonLabel>
-							<h2>SystemNote Pro</h2>
-							<p>Scheduling without limits</p>
-						</IonLabel>
-					</IonItem>
-					<IonItem>
-						<IonLabel>App Version</IonLabel>
-						<IonNote>{APP_VERSION}</IonNote>
-					</IonItem>
-				</IonList>
+						<IonListHeader>About</IonListHeader>
+						<IonList inset={true}>
+							<IonItem>
+								<IonLabel>
+									<h2>SystemNote Pro</h2>
+									<p>Scheduling without limits</p>
+								</IonLabel>
+							</IonItem>
+							<IonItem>
+								<IonLabel>App Version</IonLabel>
+								<IonNote>{APP_VERSION}</IonNote>
+							</IonItem>
+						</IonList>
 
-				<IonActionSheet
-					header="Export backup of all notes"
-					trigger="open-export-action-sheet"
-					buttons={[
-						{
-							text: 'Download as JSON',
-							handler: () => {
-								exportDataAsJSON(storage);
-							},
-						},
-						{
-							text: 'Cancel',
-							role: 'cancel',
-						},
-					]}
-				></IonActionSheet>
+						<IonActionSheet
+							header="Export backup of all notes"
+							trigger="open-export-action-sheet"
+							buttons={[
+								{
+									text: 'Download as JSON',
+									handler: () => {
+										exportDataAsJSON(storage);
+									},
+								},
+								{
+									text: 'Cancel',
+									role: 'cancel',
+								},
+							]}
+						></IonActionSheet>
 
-				<IonActionSheet
-					header="Import from backup file"
-					trigger="open-import-action-sheet"
-					buttons={[
-						{
-							text: 'Select a notes backup file',
-							handler: () => {
-								fileInputRef.current?.click();
-							},
-						},
-						{
-							text: 'Cancel',
-							role: 'cancel',
-						},
-					]}
-				></IonActionSheet>
+						<IonActionSheet
+							header="Import from backup file"
+							trigger="open-import-action-sheet"
+							buttons={[
+								{
+									text: 'Select a notes backup file',
+									handler: () => {
+										fileInputRef.current?.click();
+									},
+								},
+								{
+									text: 'Cancel',
+									role: 'cancel',
+								},
+							]}
+						></IonActionSheet>
 
-				<input
-					ref={fileInputRef}
-					type="file"
-					accept="application/json"
-					style={{ display: 'none' }}
-					onChange={(e) => handleImportData(e)}
-				/>
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="application/json"
+							style={{ display: 'none' }}
+							onChange={(e) => handleImportData(e)}
+						/>
 
-				<IonAlert
-					isOpen={showInvalidFileAlert}
-					header="Invalid file format"
-					message="The selected file does not seem to contain SystemNote backup data."
-					buttons={[
-						{
-							text: 'OK',
-							handler: () => setShowInvalidFileAlert(false),
-						},
-					]}
-				/>
+						<IonAlert
+							isOpen={showInvalidFileAlert}
+							header="Invalid file format"
+							message="The selected file does not seem to contain SystemNote backup data."
+							buttons={[
+								{
+									text: 'OK',
+									handler: () =>
+										setShowInvalidFileAlert(false),
+								},
+							]}
+						/>
 
-				<IonAlert
-					isOpen={importCompleteAlert}
-					header={`${importedNotesCount} notes imported`}
-					message="Your notes have been successfully imported."
-					buttons={[
-						{
-							text: 'Return to calendar',
-							handler: () => {
-								location.reload();
-							},
-						},
-					]}
-				></IonAlert>
+						<IonAlert
+							isOpen={importCompleteAlert}
+							header={`${importedNotesCount} notes imported`}
+							message="Your notes have been successfully imported."
+							buttons={[
+								{
+									text: 'Return to calendar',
+									handler: () => {
+										location.reload();
+									},
+								},
+							]}
+						></IonAlert>
 
-				<IonActionSheet
-					trigger="open-delete-alert"
-					header="Are you sure you want to delete all your notes?"
-					buttons={[
-						{
-							text: 'Delete all notes',
-							id: 'delete-alert-secondary',
-							role: 'destructive',
-							cssClass: 'settingsPage-deleteButton',
-						},
-						{
-							text: 'Cancel',
-							role: 'cancel',
-						},
-					]}
-				></IonActionSheet>
+						<IonActionSheet
+							trigger="open-delete-alert"
+							header="Are you sure you want to delete all your notes?"
+							buttons={[
+								{
+									text: 'Delete all notes',
+									id: 'delete-alert-secondary',
+									role: 'destructive',
+									cssClass: 'settingsPage-deleteButton',
+								},
+								{
+									text: 'Cancel',
+									role: 'cancel',
+								},
+							]}
+						></IonActionSheet>
 
-				<IonAlert
-					trigger="delete-alert-secondary"
-					header="Are you REALLY sure you want to delete all your notes?"
-					message="This cannot be undone!"
-					buttons={[
-						{
-							text: 'Delete all notes',
-							role: 'destructive',
-							cssClass: 'settingsPage-deleteButton',
-							handler: () => {
-								handleDeleteNotes();
-							},
-						},
-						{
-							text: 'Cancel',
-							role: 'cancel',
-						},
-					]}
-				></IonAlert>
-			</IonContent>
-		</IonPage>
+						<IonAlert
+							trigger="delete-alert-secondary"
+							header="Are you REALLY sure you want to delete all your notes?"
+							message="This cannot be undone!"
+							buttons={[
+								{
+									text: 'Delete all notes',
+									role: 'destructive',
+									cssClass: 'settingsPage-deleteButton',
+									handler: () => {
+										handleDeleteNotes();
+									},
+								},
+								{
+									text: 'Cancel',
+									role: 'cancel',
+								},
+							]}
+						></IonAlert>
+					</IonContent>
+				</IonPage>
+			)}
+		/>
 	);
 };
