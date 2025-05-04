@@ -20,17 +20,17 @@ const SettingsContext = createContext<{
 export const useSettings = () => useContext(SettingsContext);
 
 const storage = new Storage();
-await storage.create();
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 	const [settings, setSettingsState] = useState<AppSettings>();
 
 	useEffect(() => {
-		const loadSettings = async () => {
+		const init = async () => {
+			await storage.create();
 			const storedSettings = await getSettings(storage);
 			setSettingsState(storedSettings);
 		};
-		loadSettings();
+		init();
 	}, []);
 
 	const updateSettings = async (newSettings: Partial<AppSettings>) => {
