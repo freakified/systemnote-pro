@@ -40,6 +40,10 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { SettingsProvider } from './components/SettingsProvider/SettingsProvider';
+import { SettingsPage } from './components/SettingsPage';
+import ChangeLog from './components/SettingsPage/Changelog';
+import InstallationDirections from './components/SettingsPage/InstallationDirections';
 
 setupIonicReact({
 	mode: 'ios',
@@ -59,15 +63,32 @@ const App: React.FC = () => {
 	}, []);
 
 	return (
-		<IonApp>
-			<IonReactRouter>
-				<IonRouterOutlet>
-					<Route path="/systemnote-pro" exact={true}>
-						<Home storage={storage} />
-					</Route>
-				</IonRouterOutlet>
-			</IonReactRouter>
-		</IonApp>
+		<SettingsProvider>
+			<IonApp>
+				<IonReactRouter>
+					<IonRouterOutlet>
+						<Route path="/systemnote-pro" exact={true}>
+							<Home storage={storage} />
+						</Route>
+						<Route path="/systemnote-pro/settings" exact={true}>
+							<SettingsPage />
+						</Route>
+						<Route
+							path="/systemnote-pro/settings/changelog"
+							exact={true}
+						>
+							<ChangeLog />
+						</Route>
+						<Route
+							path="/systemnote-pro/settings/installation"
+							exact={true}
+						>
+							<InstallationDirections />
+						</Route>
+					</IonRouterOutlet>
+				</IonReactRouter>
+			</IonApp>
+		</SettingsProvider>
 	);
 };
 

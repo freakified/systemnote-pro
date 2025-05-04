@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import manifest from './manifest.json';
+import fs from 'fs';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,4 +29,10 @@ export default defineConfig({
 			},
 		}),
 	],
+	// server: {
+	// 	https: {
+	// 		key: fs.readFileSync('.ionic/ssl/key.pem'), // Path to your private key
+	// 		cert: fs.readFileSync('.ionic/ssl/cert.pem'), // Path to your certificate
+	// 	},
+	// },
 });

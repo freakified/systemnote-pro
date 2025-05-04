@@ -1,10 +1,9 @@
-.settingsPage ion-list-header.ios {
+ion-list-header.ios {
     color: var(--ion-color-medium);
     font-size: 14px;
     font-weight: normal;
     text-transform: uppercase;
     margin-left: 16px;
-    
 }
 
 .settingsPage-about {
@@ -26,4 +25,36 @@
 
 .settingsPage-deleteButton {
     width: 100%;
+}
+
+.settingsPage-installation-appLogoContainer {
+    display: flex;
+    padding-block-start: 24px;
+    padding-block-end: 8px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settingsPage-installation-appName {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.settingsPage-installation-appVersion {
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+.settingsPage-installation-iosDirections ion-icon {
+    font-size: 20px;
+    line-height: 10px;
+}
+
+.settingsPage-appLogoImg {
+    border-radius: 16px;
+}
+
+ion-toolbar {
+    background-color: var(--ion-color-light);
 }

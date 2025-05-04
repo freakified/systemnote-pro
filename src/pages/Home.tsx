@@ -9,8 +9,6 @@ import {
 	IonHeader,
 	IonIcon,
 	IonPage,
-	IonModal,
-	IonBadge,
 	IonContent,
 } from '@ionic/react';
 
@@ -23,20 +21,22 @@ import {
 } from '../utils/dateUtils';
 import { MonthView } from '../components/MonthView';
 import { DayView } from '../components/DayView';
-import { SettingsPage } from '../components/SettingsPage';
 import { getMonthData, writeMultiMonthlyData } from '../utils/storageUtils';
 import { MultiMonthlyData, TagEntry } from '../utils/customTypes';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
+import {
+	isAppInstalled,
+	isInstallablePlatform,
+} from '../utils/installationUtils';
+
+import { useSettings } from '../components/SettingsProvider/SettingsProvider';
 
 interface HomeProps {
 	storage?: Storage;
-	startWithSettingsModalOpen?: boolean;
 }
 
 const Home: React.FC<HomeProps> = ({ storage }) => {
 	const DEFAULT_DATE = new Date();
-
-	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
 	const [selectedDate, setSelectedDate] = useState(DEFAULT_DATE);
 	const [activeStartDate, setActiveStartDate] = useState(DEFAULT_DATE);
@@ -49,21 +49,19 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	const page = useRef(null);
 
-	const [presentingElement, setPresentingElement] =
-		useState<HTMLElement | null>(null);
+	const { settings } = useSettings();
 
-	useEffect(() => {
-		setPresentingElement(page.current);
-	}, []);
-
-	const dismissSettingsModal = () => {
-		setSettingsModalOpen(false);
-	};
+	const showInstallationBadge =
+		isInstallablePlatform() &&
+		!isAppInstalled() &&
+		settings &&
+		settings.hasSeenInstallationPrompt === false;
 
 	// Fetch initial data on component mount
 	useEffect(() => {
 		const fetchInitialData = async () => {
 			if (!storage) return;
+
 			const monthsToFetch = [
 				getNumericYearMonthString(
 					getDateWithMonthOffset(activeStartDate, -1),
@@ -154,8 +152,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		}));
 	};
 
-	const showBadge = true;
-
 	return (
 		<IonPage id="home-page" ref={page}>
 			<IonContent>
@@ -173,14 +169,15 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 								size="large"
 								fill="clear"
 								shape="round"
-								onClick={() => setSettingsModalOpen(true)}
+								routerLink="/systemnote-pro/settings"
+								routerDirection="forward"
 							>
 								<IonIcon
 									slot="icon-only"
 									size="large"
 									icon={cogOutline}
 								></IonIcon>
-								{showBadge && (
+								{showInstallationBadge && (
 									<div className="home-settingsButton-badge">
 										1
 									</div>
@@ -196,16 +193,6 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					tags={currentTags}
 					onTagsChange={onTagsChange}
 				/>
-				<IonModal
-					isOpen={settingsModalOpen}
-					presentingElement={presentingElement!}
-					onDidDismiss={dismissSettingsModal}
-				>
-					<SettingsPage
-						onCancelButtonClick={dismissSettingsModal}
-						storage={storage}
-					/>
-				</IonModal>
 			</IonContent>
 		</IonPage>
 	);

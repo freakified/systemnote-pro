@@ -3,19 +3,15 @@ export type Theme = 'DEFAULT' | 'LIGHT' | 'DARK';
 export type WeekStartDay = 'DEFAULT' | 'SUN' | 'MON';
 
 export interface AppSettings {
-	theme: Theme;
-	weekStartDay: WeekStartDay;
-	defaultNoteTag: string;
+	theme?: Theme;
+	weekStartDay?: WeekStartDay;
+	hasSeenInstallationPrompt?: boolean;
 }
 
 export const DefaultSettings: AppSettings = {
 	theme: 'DEFAULT',
 	weekStartDay: 'DEFAULT',
-	defaultNoteTag: '📝',
+	hasSeenInstallationPrompt: false,
 };
 
-export const APP_VERSION = '1.0';
-
-export const isInstalled = () => {
-	return window.matchMedia('(display-mode: standalone)').matches;
-};
+export const APP_VERSION = '1.1';
