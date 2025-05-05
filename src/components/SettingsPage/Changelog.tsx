@@ -28,17 +28,22 @@ const ChangeLog: React.FC = () => {
 					<IonTitle>Version History</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent color="light">
+			<IonContent>
 				<IonListHeader>
 					<IonLabel>Version 1.1</IonLabel>
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
-						<IonLabel>Interactive app onboarding function</IonLabel>
+						<IonLabel>&bull; Dark mode improvements</IonLabel>
 					</IonItem>
 					<IonItem>
 						<IonLabel>
-							Improved settings page functionality
+							&bull; Interactive app onboarding function
+						</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonLabel>
+							&bull; Improved settings page functionality
 						</IonLabel>
 					</IonItem>
 				</IonList>
@@ -47,7 +52,7 @@ const ChangeLog: React.FC = () => {
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
-						<IonLabel>Initial release</IonLabel>
+						<IonLabel>&bull; Initial release</IonLabel>
 					</IonItem>
 				</IonList>
 			</IonContent>

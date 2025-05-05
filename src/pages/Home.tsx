@@ -154,7 +154,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	};
 
 	return (
-		<IonPage id="home-page" ref={page}>
+		<IonPage id="home-page" className="home-page" ref={page}>
 			<IonContent>
 				<IonHeader className="home-view-header">
 					<MonthView

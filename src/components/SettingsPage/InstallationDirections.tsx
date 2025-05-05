@@ -74,7 +74,7 @@ const InstallationDirections: React.FC = () => {
 					<IonTitle>Install App</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent color="light">
+			<IonContent>
 				<div className="settingsPage-installation-appLogoContainer">
 					<img
 						className="settingsPage-appLogoImg"

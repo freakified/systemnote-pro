@@ -41,6 +41,7 @@
 	border-right: 1px solid var(--ion-color-light-shade);
 	flex-direction: column;
 	position: relative;
+	align-items: flex-start;
 }
 
 .react-calendar__tile--active {

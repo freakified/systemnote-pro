@@ -3,8 +3,14 @@
 	padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 } */
 
-ion-header {
-	/* background-color: var(--ion-background-color); */
+:root .home-page {
+	--ion-background-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root .home-page {
+		--ion-background-color: #000;
+	}
 }
 
 .home-view-header {
