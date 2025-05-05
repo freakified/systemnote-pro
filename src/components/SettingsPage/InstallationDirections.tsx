@@ -20,7 +20,7 @@ import { isAppInstalled, getPlatformType } from '../../utils/installationUtils';
 import appLogo from '../../appLogo.png';
 
 import { useSettings } from '../SettingsProvider/SettingsProvider';
-import { APP_VERSION, BASE_URL } from '../../utils/constants';
+import { APP_VERSION } from '../../utils/constants';
 
 const InstallationDirections: React.FC = () => {
 	// On load, save that the user has seen the installation prompt,
@@ -67,7 +67,7 @@ const InstallationDirections: React.FC = () => {
 				<IonToolbar>
 					<IonButtons slot="start">
 						<IonBackButton
-							defaultHref={`${BASE_URL}/settings`}
+							defaultHref="/settings"
 							text="Settings"
 						></IonBackButton>
 					</IonButtons>

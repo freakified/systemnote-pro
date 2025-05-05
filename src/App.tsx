@@ -66,24 +66,18 @@ const App: React.FC = () => {
 	return (
 		<SettingsProvider>
 			<IonApp>
-				<IonReactRouter>
+				<IonReactRouter basename={BASE_URL}>
 					<IonRouterOutlet>
-						<Route path={`${BASE_URL}`} exact={true}>
+						<Route path="/" exact={true}>
 							<Home storage={storage} />
 						</Route>
-						<Route path={`${BASE_URL}/settings`} exact={true}>
+						<Route path="/settings" exact={true}>
 							<SettingsPage />
 						</Route>
-						<Route
-							path={`${BASE_URL}/settings/changelog`}
-							exact={true}
-						>
+						<Route path="/settings/changelog" exact={true}>
 							<ChangeLog />
 						</Route>
-						<Route
-							path={`${BASE_URL}/settings/installation`}
-							exact={true}
-						>
+						<Route path="/settings/installation" exact={true}>
 							<InstallationDirections />
 						</Route>
 					</IonRouterOutlet>

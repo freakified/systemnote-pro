@@ -42,7 +42,6 @@ interface SettingsPageProps {
 	storage?: Storage;
 }
 import { useSettings } from '../SettingsProvider/SettingsProvider';
-import { BASE_URL } from '../../utils/constants';
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 	const InstallationStatus: React.FC<{
@@ -153,7 +152,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 					<IonButtons slot="start">
 						<IonBackButton
 							text="Home"
-							defaultHref={`${BASE_URL}`}
+							defaultHref="/"
 							color="primary"
 						></IonBackButton>
 					</IonButtons>

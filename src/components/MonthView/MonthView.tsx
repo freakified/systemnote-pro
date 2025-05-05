@@ -46,9 +46,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
 	const DEFAULT_DATE = new Date();
 	const ANIMATION_DURATION = 300;
 
-	// TODO: this should be a setting?
-	const DEFAULT_NOTE_EMOJI = '📝';
-
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 

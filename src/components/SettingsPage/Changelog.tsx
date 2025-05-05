@@ -12,7 +12,6 @@ import {
 	IonListHeader,
 	IonPage,
 } from '@ionic/react';
-import { BASE_URL } from '../../utils/constants';
 
 const ChangeLog: React.FC = () => {
 	return (
@@ -21,7 +20,7 @@ const ChangeLog: React.FC = () => {
 				<IonToolbar>
 					<IonButtons slot="start">
 						<IonBackButton
-							defaultHref={`${BASE_URL}/settings`}
+							defaultHref="/settings"
 							text="Settings"
 						></IonBackButton>
 					</IonButtons>
