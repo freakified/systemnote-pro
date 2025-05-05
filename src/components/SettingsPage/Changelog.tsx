@@ -16,7 +16,7 @@ import {
 const ChangeLog: React.FC = () => {
 	return (
 		<IonPage>
-			<IonHeader translucent={true}>
+			<IonHeader class="ion-no-border" translucent={true}>
 				<IonToolbar>
 					<IonButtons slot="start">
 						<IonBackButton
@@ -27,7 +27,7 @@ const ChangeLog: React.FC = () => {
 					<IonTitle>Version History</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent>
+			<IonContent fullscreen>
 				<IonListHeader>
 					<IonLabel>Version 1.1</IonLabel>
 				</IonListHeader>

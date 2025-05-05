@@ -63,7 +63,7 @@ const InstallationDirections: React.FC = () => {
 
 	return (
 		<IonPage>
-			<IonHeader translucent={true}>
+			<IonHeader class="ion-no-border" translucent={true}>
 				<IonToolbar>
 					<IonButtons slot="start">
 						<IonBackButton
@@ -74,7 +74,7 @@ const InstallationDirections: React.FC = () => {
 					<IonTitle>Install App</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent>
+			<IonContent fullscreen>
 				<div className="settingsPage-installation-appLogoContainer">
 					<img
 						className="settingsPage-appLogoImg"

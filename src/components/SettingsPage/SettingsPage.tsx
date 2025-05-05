@@ -146,7 +146,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 
 	return (
 		<IonPage className="settingsPage">
-			<IonHeader translucent={true}>
+			<IonHeader class="ion-no-border" translucent={true}>
 				<IonToolbar>
 					<IonTitle>Settings</IonTitle>
 					<IonButtons slot="start">
@@ -158,7 +158,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 					</IonButtons>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent>
+			<IonContent fullscreen>
 				<IonListHeader>Import and Export</IonListHeader>
 				<IonList inset={true}>
 					<IonItem
