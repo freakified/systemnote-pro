@@ -18,7 +18,7 @@ import {
 	IonBackButton,
 } from '@ionic/react';
 
-import { APP_VERSION } from '../../utils/settingsUtils';
+import { APP_VERSION } from '../../utils/constants';
 import { Storage } from '@ionic/storage';
 
 import { deleteAllData, writeMultiMonthlyData } from '../../utils/storageUtils';
@@ -42,6 +42,7 @@ interface SettingsPageProps {
 	storage?: Storage;
 }
 import { useSettings } from '../SettingsProvider/SettingsProvider';
+import { BASE_URL } from '../../utils/constants';
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 	const InstallationStatus: React.FC<{
@@ -151,18 +152,19 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 					<IonTitle>Settings</IonTitle>
 					<IonButtons slot="start">
 						<IonBackButton
-							defaultHref="/systemnote-pro"
 							text="Home"
+							defaultHref={`${BASE_URL}`}
+							color="primary"
 						></IonBackButton>
 					</IonButtons>
 				</IonToolbar>
 			</IonHeader>
 			<IonContent color="light">
-				<IonHeader collapse="condense">
+				{/* <IonHeader collapse="condense">
 					<IonToolbar color="light">
 						<IonTitle size="large">Settings</IonTitle>
 					</IonToolbar>
-				</IonHeader>
+				</IonHeader> */}
 				<IonListHeader>Import and Export</IonListHeader>
 				<IonList inset={true}>
 					<IonItem

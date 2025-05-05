@@ -44,6 +44,7 @@ import { SettingsProvider } from './components/SettingsProvider/SettingsProvider
 import { SettingsPage } from './components/SettingsPage';
 import ChangeLog from './components/SettingsPage/Changelog';
 import InstallationDirections from './components/SettingsPage/InstallationDirections';
+import { BASE_URL } from './utils/constants';
 
 setupIonicReact({
 	mode: 'ios',
@@ -67,20 +68,20 @@ const App: React.FC = () => {
 			<IonApp>
 				<IonReactRouter>
 					<IonRouterOutlet>
-						<Route path="/systemnote-pro" exact={true}>
+						<Route path={`${BASE_URL}`} exact={true}>
 							<Home storage={storage} />
 						</Route>
-						<Route path="/systemnote-pro/settings" exact={true}>
+						<Route path={`${BASE_URL}/settings`} exact={true}>
 							<SettingsPage />
 						</Route>
 						<Route
-							path="/systemnote-pro/settings/changelog"
+							path={`${BASE_URL}/settings/changelog`}
 							exact={true}
 						>
 							<ChangeLog />
 						</Route>
 						<Route
-							path="/systemnote-pro/settings/installation"
+							path={`${BASE_URL}/settings/installation`}
 							exact={true}
 						>
 							<InstallationDirections />

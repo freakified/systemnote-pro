@@ -13,5 +13,3 @@ export const DefaultSettings: AppSettings = {
 	weekStartDay: 'DEFAULT',
 	hasSeenInstallationPrompt: false,
 };
-
-export const APP_VERSION = '1.1';

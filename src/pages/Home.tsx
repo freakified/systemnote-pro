@@ -30,6 +30,7 @@ import {
 } from '../utils/installationUtils';
 
 import { useSettings } from '../components/SettingsProvider/SettingsProvider';
+import { BASE_URL } from '../utils/constants';
 
 interface HomeProps {
 	storage?: Storage;
@@ -169,7 +170,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 								size="large"
 								fill="clear"
 								shape="round"
-								routerLink="/systemnote-pro/settings"
+								routerLink={`${BASE_URL}/settings`}
 								routerDirection="forward"
 							>
 								<IonIcon

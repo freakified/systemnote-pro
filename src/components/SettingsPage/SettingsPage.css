@@ -56,5 +56,5 @@ ion-list-header.ios {
 }
 
 ion-toolbar {
-    background-color: var(--ion-color-light);
+    /* background-color: var(--ion-color-light); */
 }

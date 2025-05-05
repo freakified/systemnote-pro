@@ -18,9 +18,9 @@ import { ellipsisVertical, shareOutline } from 'ionicons/icons';
 import { isAppInstalled, getPlatformType } from '../../utils/installationUtils';
 
 import appLogo from '../../appLogo.png';
-import { APP_VERSION } from '../../utils/settingsUtils';
 
 import { useSettings } from '../SettingsProvider/SettingsProvider';
+import { APP_VERSION, BASE_URL } from '../../utils/constants';
 
 const InstallationDirections: React.FC = () => {
 	// On load, save that the user has seen the installation prompt,
@@ -66,7 +66,10 @@ const InstallationDirections: React.FC = () => {
 			<IonHeader translucent={true}>
 				<IonToolbar>
 					<IonButtons slot="start">
-						<IonBackButton text="Settings"></IonBackButton>
+						<IonBackButton
+							defaultHref={`${BASE_URL}/settings`}
+							text="Settings"
+						></IonBackButton>
 					</IonButtons>
 					<IonTitle>Install App</IonTitle>
 				</IonToolbar>
