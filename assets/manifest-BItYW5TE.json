@@ -1,6 +1,7 @@
 {
   "short_name": "SystemNote",
   "name": "SystemNote Pro",
+  "start_url": "/systemnote-pro",
   "icons": [
     {
       "src": "./systemnote-pro/favicon.png",
