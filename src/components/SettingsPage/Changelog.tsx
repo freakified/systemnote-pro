@@ -13,6 +13,8 @@ import {
 	IonPage,
 } from '@ionic/react';
 
+import './SettingsPage.css';
+
 const ChangeLog: React.FC = () => {
 	return (
 		<IonPage>
@@ -27,22 +29,33 @@ const ChangeLog: React.FC = () => {
 					<IonTitle>Version History</IonTitle>
 				</IonToolbar>
 			</IonHeader>
-			<IonContent fullscreen>
+			<IonContent fullscreen class="changelog_">
+				<IonListHeader>
+					<IonLabel>Version 1.2</IonLabel>
+				</IonListHeader>
+				<IonList inset={true}>
+					<IonItem>
+						<IonLabel>
+							Option to show public holidays on calendar
+						</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonLabel>New icon for emoji selector</IonLabel>
+					</IonItem>
+				</IonList>
 				<IonListHeader>
 					<IonLabel>Version 1.1</IonLabel>
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
-						<IonLabel>&bull; Dark mode improvements</IonLabel>
+						<IonLabel>Dark mode improvements</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonLabel>Interactive app onboarding function</IonLabel>
 					</IonItem>
 					<IonItem>
 						<IonLabel>
-							&bull; Interactive app onboarding function
-						</IonLabel>
-					</IonItem>
-					<IonItem>
-						<IonLabel>
-							&bull; Improved settings page functionality
+							Improved settings page functionality
 						</IonLabel>
 					</IonItem>
 				</IonList>
@@ -51,7 +64,7 @@ const ChangeLog: React.FC = () => {
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
-						<IonLabel>&bull; Initial release</IonLabel>
+						<IonLabel>Initial release</IonLabel>
 					</IonItem>
 				</IonList>
 			</IonContent>

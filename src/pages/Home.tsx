@@ -29,6 +29,8 @@ import {
 	isInstallablePlatform,
 } from '../utils/installationUtils';
 
+import Holidays, { HolidaysTypes } from 'date-holidays';
+
 import { useSettings } from '../components/SettingsProvider/SettingsProvider';
 
 interface HomeProps {
@@ -45,7 +47,11 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		{},
 	);
 	const [currentNote, setCurrentNote] = useState('');
-	const [currentTags, setCurrentTags] = useState<TagEntry>([]); // Store current day's tags
+	const [currentTags, setCurrentTags] = useState<TagEntry>([]);
+
+	const [annualHolidays, setAnnualHolidays] = useState<
+		HolidaysTypes.Holiday[]
+	>([]);
 
 	const page = useRef(null);
 
@@ -90,6 +96,13 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 		fetchInitialData();
 	}, [storage, activeStartDate]);
+
+	// Get those holidays
+	useEffect(() => {
+		const hd = new Holidays('jp');
+
+		setAnnualHolidays(hd.getHolidays(activeStartDate.getFullYear(), 'en'));
+	}, [activeStartDate]);
 
 	// Sync changes to storage periodically
 	const syncToStorage = async () => {
@@ -164,6 +177,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 						onActiveStartDateChanged={(newDate) =>
 							setActiveStartDate(newDate)
 						}
+						holidays={annualHolidays}
 						toolbarExtras={
 							<IonButton
 								size="large"
@@ -191,6 +205,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					onTextAreaChange={onDayEdit}
 					note={currentNote}
 					tags={currentTags}
+					annualHolidays={annualHolidays}
 					onTagsChange={onTagsChange}
 				/>
 			</IonContent>

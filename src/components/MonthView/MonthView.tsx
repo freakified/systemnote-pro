@@ -13,6 +13,7 @@ import { IonButton, IonIcon } from '@ionic/react';
 
 import {
 	getDateWithMonthOffset,
+	getNumericDateString,
 	getNumericDayString,
 	getNumericYearMonthString,
 	getWeekdayNameShort,
@@ -25,11 +26,13 @@ import { CalendarTitle } from './CalendarTitle';
 import { DayTags } from '../../components/DayTags';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import { arrowUndo } from 'ionicons/icons';
+import { HolidaysTypes } from 'date-holidays';
 
 interface MonthViewProps {
 	selectedDate: Date;
 	activeStartDate: Date;
 	multiMonthlyData: MultiMonthlyData;
+	holidays?: HolidaysTypes.Holiday[];
 	onSelectedDateChanged: (newDate: Date) => void;
 	onActiveStartDateChanged: (newDate: Date) => void;
 	toolbarExtras?: ReactNode;
@@ -39,18 +42,20 @@ export const MonthView: React.FC<MonthViewProps> = ({
 	selectedDate,
 	activeStartDate,
 	multiMonthlyData,
+	holidays,
 	onSelectedDateChanged,
 	onActiveStartDateChanged,
 	toolbarExtras,
 }) => {
 	const DEFAULT_DATE = new Date();
 	const ANIMATION_DURATION = 300;
+	const DEFAULT_HEIGHT = 318;
 
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 
 	const presentCalendarRef = useRef<HTMLDivElement | null>(null);
-	const [wrapperHeight, setWrapperHeight] = useState(329);
+	const [wrapperHeight, setWrapperHeight] = useState(DEFAULT_HEIGHT);
 
 	const pastCalendarStartDate =
 		resetAnimationActive === true
@@ -157,17 +162,28 @@ export const MonthView: React.FC<MonthViewProps> = ({
 		formatShortWeekday: (locale: string | undefined, date: Date) => {
 			return `${getWeekdayNameShort(date, 'ja-JP')} ${getWeekdayNameShort(date, 'en-US')}`;
 		},
-		// Ensures that saturdays and sundays can have distinct styling
 		tileClassName: ({ date }) => {
 			const dayNumber = date.getDay();
+			const classes = [];
 
+			// Ensures that saturdays and sundays can have distinct styling
 			if (dayNumber === 0) {
-				return 'react-calendar__month-view__days__day--sunday';
+				classes.push('react-calendar__month-view__days__day--sunday');
 			} else if (dayNumber === 6) {
-				return 'react-calendar__month-view__days__day--saturday';
-			} else {
-				return null;
+				classes.push('react-calendar__month-view__days__day--saturday');
 			}
+
+			// Styling for public holidays
+			if (
+				holidays?.some(
+					(holiday) =>
+						holiday.start.toDateString() === date.toDateString(),
+				)
+			) {
+				classes.push('react-calendar__month-view__days__day--holiday');
+			}
+
+			return classes.join(' ') || null;
 		},
 		tileContent: ({ date }) => {
 			const monthKey = getNumericYearMonthString(date);
@@ -200,11 +216,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
 						'resetButton--hidden': !showTodayResetButton,
 					})}
 				>
-					<IonIcon
-						slot="start"
-						// size="medium"
-						icon={arrowUndo}
-					></IonIcon>
+					<IonIcon slot="start" icon={arrowUndo}></IonIcon>
 					Today
 				</IonButton>
 				{toolbarExtras}

@@ -8,12 +8,14 @@ import {
 import TextareaAutosize from 'react-textarea-autosize';
 import EmojiPicker, { EmojiStyle, Theme } from 'emoji-picker-react';
 import { TagEntry } from '../../utils/customTypes';
-import { add, trashOutline } from 'ionicons/icons';
+import { happyOutline, trashOutline } from 'ionicons/icons';
+import { HolidaysTypes } from 'date-holidays';
 
 interface DayViewProps {
 	date: Date;
 	note?: string;
 	tags?: TagEntry;
+	annualHolidays?: HolidaysTypes.Holiday[];
 	onTextAreaChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 	onTagsChange?: (newTags: TagEntry) => void;
 }
@@ -22,6 +24,7 @@ export const DayView: React.FC<DayViewProps> = ({
 	date,
 	note = '',
 	tags = [],
+	annualHolidays,
 	onTextAreaChange,
 	onTagsChange,
 }) => {
@@ -52,29 +55,43 @@ export const DayView: React.FC<DayViewProps> = ({
 					<div className="dayView-dayNumber">
 						{getShortDayNumberString(date)}
 					</div>
-					<div className="dayView-weekday">
-						{getWeekdayNameShort(date, 'ja-JP')}{' '}
-						{getWeekdayNameShort(date)}
+					<div className="dayView-dayInfoContainer">
+						<div className="dayView-holiday">
+							{
+								// In theory, we could modify this in a future update to allow for
+								// multiple holidays on a day (which the library supports),
+								// but for now we limit to one per day
+								annualHolidays?.find(
+									(h) =>
+										new Date(h.date).toDateString() ===
+										date.toDateString(),
+								)?.name
+							}
+						</div>
+						<div className="dayView-weekday">
+							{getWeekdayNameShort(date, 'ja-JP')}{' '}
+							{getWeekdayNameShort(date)}
+						</div>
 					</div>
-				</div>
-				<div className="dayView-emojiToolbar">
-					{[0, 1].map((index) => (
-						<IonButton
-							key={index}
-							className="emojiSelectorButton"
-							size="default"
-							fill="outline"
-							onClick={() => setActiveTagSelectionIdx(index)}
-						>
-							{tags[index] || (
-								<IonIcon
-									slot="icon-only"
-									size="medium"
-									icon={add}
-								></IonIcon>
-							)}
-						</IonButton>
-					))}
+					<div className="dayView-emojiToolbar">
+						{[0, 1].map((index) => (
+							<IonButton
+								key={index}
+								className="emojiSelectorButton"
+								size="default"
+								fill="outline"
+								onClick={() => setActiveTagSelectionIdx(index)}
+							>
+								{tags[index] || (
+									<IonIcon
+										slot="icon-only"
+										size="medium"
+										icon={happyOutline}
+									></IonIcon>
+								)}
+							</IonButton>
+						))}
+					</div>
 				</div>
 			</div>
 			<TextareaAutosize

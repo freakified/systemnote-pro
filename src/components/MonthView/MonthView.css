@@ -81,21 +81,25 @@
 	}
 }
 
-/* TODO: this will need to become smarter once we add support
-   for week starting on monday */
-.react-calendar__month-view__weekdays__weekday:nth-child(1),
+
 .react-calendar__month-view__days__day--sunday {
 	background-color: #FF3B300F;
 	color: #FF3B30;
 }
 
-.react-calendar__month-view__weekdays__weekday:nth-child(7),
 .react-calendar__month-view__days__day--saturday {
 	background-color: #007AFF0F;
 	border-right: 0px none;
 	color: #007AFF;
 }
 
+.react-calendar__month-view__days__day--holiday { 
+	background-color: #FF3B300F;
+	color: #FF3B30;
+}
+
+/* TODO: this will need to become smarter once we add support
+   for week starting on monday */
 .react-calendar__month-view__weekdays__weekday:nth-child(1) {
 	background-color: #FF3B301F;
 }
