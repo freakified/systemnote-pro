@@ -48,7 +48,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 		showHighlight?: boolean;
 	}> = ({ showHighlight = false }) => (
 		<>
-			<IonListHeader>Installation</IonListHeader>
 			<IonList inset={true}>
 				<IonItem
 					button
@@ -74,6 +73,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 	const [importedNotesCount, setImportedNotesCount] = useState(0);
 
 	const { settings } = useSettings();
+	if (!settings) return;
 
 	const highlightInstallationStatus =
 		isInstallablePlatform() &&
@@ -159,6 +159,22 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen>
+				<IonListHeader>View Options</IonListHeader>
+				<IonList inset={true}>
+					<IonItem
+						button
+						routerLink="settings/holidays"
+						routerDirection="forward"
+					>
+						<IonLabel>Holidays</IonLabel>
+						<IonNote>
+							{settings.enableHolidayDisplay === false
+								? 'Off'
+								: settings.holidayCountry}
+						</IonNote>
+					</IonItem>
+				</IonList>
+
 				<IonListHeader>Import and Export</IonListHeader>
 				<IonList inset={true}>
 					<IonItem

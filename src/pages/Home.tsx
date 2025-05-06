@@ -56,6 +56,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const page = useRef(null);
 
 	const { settings } = useSettings();
+	if (!settings) return;
 
 	const showInstallationBadge =
 		isInstallablePlatform() &&
@@ -99,10 +100,16 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	// Get those holidays
 	useEffect(() => {
-		const hd = new Holidays('jp');
+		if (settings.enableHolidayDisplay) {
+			const hd = new Holidays(settings.holidayCountry as string);
 
-		setAnnualHolidays(hd.getHolidays(activeStartDate.getFullYear(), 'en'));
-	}, [activeStartDate]);
+			setAnnualHolidays(
+				hd.getHolidays(activeStartDate.getFullYear(), 'en'),
+			);
+		} else {
+			setAnnualHolidays([]);
+		}
+	}, [activeStartDate, settings]);
 
 	// Sync changes to storage periodically
 	const syncToStorage = async () => {

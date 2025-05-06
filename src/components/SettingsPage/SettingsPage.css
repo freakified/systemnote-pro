@@ -54,3 +54,25 @@ ion-list-header.ios {
 .settingsPage-appLogoImg {
     border-radius: 16px;
 }
+
+.settingsPage-radio {
+    padding-right: 16px;
+    border-bottom: 1px solid var(--ion-color-light-shade);
+}
+
+.settingsPage-radio:last-of-type {
+    border-bottom: 0 none;
+}
+
+.settingsPage-countryList {
+	max-height: 500px;
+	overflow: hidden;
+	transition: max-height 0.4s ease, opacity 0.4s ease;
+	opacity: 1;
+}
+
+.settingsPage-countryList.hidden {
+	max-height: 0;
+	opacity: 0;
+	pointer-events: none;
+}

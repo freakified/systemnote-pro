@@ -11,6 +11,7 @@ import {
 	IonLabel,
 	IonListHeader,
 	IonPage,
+	IonText,
 } from '@ionic/react';
 
 import './SettingsPage.css';
@@ -35,11 +36,17 @@ const ChangeLog: React.FC = () => {
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
+						<IonText slot="start" color="medium">
+							&#9642;
+						</IonText>{' '}
 						<IonLabel>
 							Option to show public holidays on calendar
 						</IonLabel>
 					</IonItem>
 					<IonItem>
+						<IonText slot="start" color="medium">
+							&#9642;
+						</IonText>
 						<IonLabel>New icon for emoji selector</IonLabel>
 					</IonItem>
 				</IonList>
@@ -48,12 +55,21 @@ const ChangeLog: React.FC = () => {
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
+						<IonText slot="start" color="medium">
+							&#9642;
+						</IonText>
 						<IonLabel>Dark mode improvements</IonLabel>
 					</IonItem>
 					<IonItem>
+						<IonText slot="start" color="medium">
+							&#9642;
+						</IonText>
 						<IonLabel>Interactive app onboarding function</IonLabel>
 					</IonItem>
 					<IonItem>
+						<IonText slot="start" color="medium">
+							&#9642;
+						</IonText>
 						<IonLabel>
 							Improved settings page functionality
 						</IonLabel>
@@ -64,6 +80,9 @@ const ChangeLog: React.FC = () => {
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
+						<IonText slot="start" color="medium">
+							&#9642;
+						</IonText>
 						<IonLabel>Initial release</IonLabel>
 					</IonItem>
 				</IonList>
