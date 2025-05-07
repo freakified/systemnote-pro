@@ -73,7 +73,7 @@ const App: React.FC = () => {
 							<Home storage={storage} />
 						</Route>
 						<Route path="/settings" exact={true}>
-							<SettingsPage />
+							<SettingsPage storage={storage} />
 						</Route>
 						<Route path="/settings/changelog" exact={true}>
 							<ChangeLog />

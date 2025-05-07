@@ -56,7 +56,10 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	const page = useRef(null);
 
 	const { settings } = useSettings();
-	if (!settings) return;
+
+	if (!settings) {
+		return null;
+	}
 
 	const showInstallationBadge =
 		isInstallablePlatform() &&
@@ -67,7 +70,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	// Fetch initial data on component mount
 	useEffect(() => {
 		const fetchInitialData = async () => {
-			if (!storage) return;
+			if (!storage || !settings) return;
 
 			const monthsToFetch = [
 				getNumericYearMonthString(
@@ -96,10 +99,12 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		};
 
 		fetchInitialData();
-	}, [storage, activeStartDate]);
+	}, [storage, activeStartDate, settings]);
 
 	// Get those holidays
 	useEffect(() => {
+		if (!settings) return;
+
 		if (settings.enableHolidayDisplay) {
 			const hd = new Holidays(settings.holidayCountry as string);
 
@@ -174,7 +179,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	return (
 		<IonPage id="home-page" className="home-page" ref={page}>
-			<div className="home-view-header">
+			<IonHeader className="home-view-header">
 				<MonthView
 					activeStartDate={activeStartDate}
 					selectedDate={selectedDate}
@@ -205,7 +210,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 						</IonButton>
 					}
 				/>
-			</div>
+			</IonHeader>
 			<DayView
 				date={selectedDate}
 				onTextAreaChange={onDayEdit}

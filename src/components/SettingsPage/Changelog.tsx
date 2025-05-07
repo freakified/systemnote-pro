@@ -40,8 +40,16 @@ const ChangeLog: React.FC = () => {
 							∙
 						</IonText>
 						<IonLabel>
+							Fix for bug where month view would sometimes not
+							appear
+						</IonLabel>
+					</IonItem>
+					<IonItem>
+						<IonText slot="start" color="medium">
+							∙
+						</IonText>
+						<IonLabel>
 							Improved scrolling performance in emoji picker sheet
-							and note area
 						</IonLabel>
 					</IonItem>
 				</IonList>

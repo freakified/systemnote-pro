@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,7 +13,6 @@ import { IonButton, IonIcon } from '@ionic/react';
 
 import {
 	getDateWithMonthOffset,
-	getNumericDateString,
 	getNumericDayString,
 	getNumericYearMonthString,
 	getWeekdayNameShort,
@@ -49,7 +48,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
 }) => {
 	const DEFAULT_DATE = new Date();
 	const ANIMATION_DURATION = 300;
-	const DEFAULT_HEIGHT = 318;
+	const DEFAULT_HEIGHT = 320;
 
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
@@ -108,16 +107,33 @@ export const MonthView: React.FC<MonthViewProps> = ({
 			setTimeout(() => {
 				swiperRef.current?.slideTo(1, 0, false); // Ensure swiper is back in the middle
 				setResetAnimationActive(false);
-				updateWrapperHeight();
 			}, ANIMATION_DURATION);
 		}
 	};
 
 	const updateWrapperHeight = () => {
-		if (presentCalendarRef?.current) {
-			setWrapperHeight(presentCalendarRef.current.offsetHeight);
-		}
+		const newWrapperHeight =
+			presentCalendarRef?.current &&
+			presentCalendarRef?.current?.offsetHeight > 0
+				? presentCalendarRef.current.offsetHeight
+				: DEFAULT_HEIGHT;
+
+		setWrapperHeight(newWrapperHeight);
 	};
+
+	// wait a bit before trying to recalculate the wrapper height on load
+	useEffect(() => {
+		setTimeout(() => {
+			updateWrapperHeight();
+		}, ANIMATION_DURATION);
+	}, []);
+
+	// recalculate the wrapper height every time active start date changes
+	useEffect(() => {
+		setTimeout(() => {
+			updateWrapperHeight();
+		}, 10);
+	}, [activeStartDate]);
 
 	const onSlideChangeEnd = (swiper: SwiperInstance) => {
 		const { activeIndex } = swiper;
@@ -138,10 +154,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
 		setTimeout(() => {
 			swiper?.slideTo(1, 0, false);
 		}, 0);
-
-		setTimeout(() => {
-			updateWrapperHeight();
-		}, 10);
 	};
 
 	const onDateChange = (value: Value) => {
