@@ -174,48 +174,46 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	return (
 		<IonPage id="home-page" className="home-page" ref={page}>
-			<IonContent>
-				<IonHeader className="home-view-header">
-					<MonthView
-						activeStartDate={activeStartDate}
-						selectedDate={selectedDate}
-						multiMonthlyData={multiMonthlyData}
-						onSelectedDateChanged={onDateChange}
-						onActiveStartDateChanged={(newDate) =>
-							setActiveStartDate(newDate)
-						}
-						holidays={annualHolidays}
-						toolbarExtras={
-							<IonButton
+			<div className="home-view-header">
+				<MonthView
+					activeStartDate={activeStartDate}
+					selectedDate={selectedDate}
+					multiMonthlyData={multiMonthlyData}
+					onSelectedDateChanged={onDateChange}
+					onActiveStartDateChanged={(newDate) =>
+						setActiveStartDate(newDate)
+					}
+					holidays={annualHolidays}
+					toolbarExtras={
+						<IonButton
+							size="large"
+							fill="clear"
+							shape="round"
+							routerLink="/settings"
+							routerDirection="forward"
+						>
+							<IonIcon
+								slot="icon-only"
 								size="large"
-								fill="clear"
-								shape="round"
-								routerLink="/settings"
-								routerDirection="forward"
-							>
-								<IonIcon
-									slot="icon-only"
-									size="large"
-									icon={cogOutline}
-								></IonIcon>
-								{showInstallationBadge && (
-									<div className="home-settingsButton-badge">
-										1
-									</div>
-								)}
-							</IonButton>
-						}
-					/>
-				</IonHeader>
-				<DayView
-					date={selectedDate}
-					onTextAreaChange={onDayEdit}
-					note={currentNote}
-					tags={currentTags}
-					annualHolidays={annualHolidays}
-					onTagsChange={onTagsChange}
+								icon={cogOutline}
+							></IonIcon>
+							{showInstallationBadge && (
+								<div className="home-settingsButton-badge">
+									1
+								</div>
+							)}
+						</IonButton>
+					}
 				/>
-			</IonContent>
+			</div>
+			<DayView
+				date={selectedDate}
+				onTextAreaChange={onDayEdit}
+				note={currentNote}
+				tags={currentTags}
+				annualHolidays={annualHolidays}
+				onTagsChange={onTagsChange}
+			/>
 		</IonPage>
 	);
 };

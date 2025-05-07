@@ -49,7 +49,7 @@ export const DayView: React.FC<DayViewProps> = ({
 	};
 
 	return (
-		<IonContent className="dayView-root">
+		<div className="dayView-root">
 			<div className="dayView-toolbar">
 				<div className="dayView-dateContainer">
 					<div className="dayView-dayNumber">
@@ -94,54 +94,54 @@ export const DayView: React.FC<DayViewProps> = ({
 					</div>
 				</div>
 			</div>
-			<TextareaAutosize
-				onChange={(e) => onTextAreaChange?.(e)}
-				className="dayView-note-textarea"
-				value={note}
-			/>
+			<IonContent class="dayView-note">
+				<textarea
+					onChange={(e) => onTextAreaChange?.(e)}
+					className="dayView-note-textarea"
+					value={note}
+				/>
+			</IonContent>
 			<IonModal
 				isOpen={activeTagSelectionIdx !== null}
 				onDidDismiss={() => setActiveTagSelectionIdx(null)}
 				initialBreakpoint={0.5}
-				breakpoints={[0, 0.5, 0.9]}
+				breakpoints={[0, 0.5, 1]}
 			>
-				<IonContent className="ion-padding">
-					{hasDeleteButton && (
-						<IonButton
-							size="default"
-							color="danger"
-							fill="outline"
-							className="dayView-emojiPicker-deleteButton"
-							onClick={() => handleUpdateTag('')}
-						>
-							<IonIcon
-								slot="icon-only"
-								size="medium"
-								icon={trashOutline}
-							></IonIcon>
-						</IonButton>
-					)}
+				{hasDeleteButton && (
+					<IonButton
+						size="default"
+						color="danger"
+						fill="outline"
+						className="dayView-emojiPicker-deleteButton"
+						onClick={() => handleUpdateTag('')}
+					>
+						<IonIcon
+							slot="icon-only"
+							size="medium"
+							icon={trashOutline}
+						></IonIcon>
+					</IonButton>
+				)}
 
-					<EmojiPicker
-						autoFocusSearch={false}
-						skinTonesDisabled={true}
-						emojiStyle={EmojiStyle.NATIVE}
-						lazyLoadEmojis={true}
-						previewConfig={{ showPreview: false }}
-						theme={Theme.AUTO}
-						onEmojiClick={(emojiObject) => {
-							handleUpdateTag(emojiObject.emoji);
-						}}
-						width="100%"
-						height="auto"
-						className={
-							hasDeleteButton
-								? 'dayView-emojiPicker--withDelete'
-								: ''
-						}
-					/>
-				</IonContent>
+				<EmojiPicker
+					autoFocusSearch={false}
+					skinTonesDisabled={true}
+					emojiStyle={EmojiStyle.NATIVE}
+					lazyLoadEmojis={true}
+					previewConfig={{ showPreview: false }}
+					theme={Theme.AUTO}
+					onEmojiClick={(emojiObject) => {
+						handleUpdateTag(emojiObject.emoji);
+					}}
+					width="100%"
+					height="auto"
+					className={
+						hasDeleteButton
+							? 'dayView-emojiPicker--withDelete'
+							: 'dayView-emojiPicker'
+					}
+				/>
 			</IonModal>
-		</IonContent>
+		</div>
 	);
 };

@@ -5,6 +5,7 @@
 
 :root .home-page {
 	--ion-background-color: #fff;
+	--ion-toolbar-background: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +16,13 @@
 
 .home-view-header {
 	padding-top: env(safe-area-inset-top);
+	background-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+	.home-view-header {
+		background-color: #000;
+	}
 }
 
 /* #root {

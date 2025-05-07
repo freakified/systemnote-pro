@@ -32,20 +32,34 @@ const ChangeLog: React.FC = () => {
 			</IonHeader>
 			<IonContent fullscreen class="changelog_">
 				<IonListHeader>
+					<IonLabel>Version 1.2.1</IonLabel>
+				</IonListHeader>
+				<IonList inset={true}>
+					<IonItem>
+						<IonText slot="start" color="medium">
+							∙
+						</IonText>
+						<IonLabel>
+							Improved scrolling performance in emoji picker sheet
+							and note area
+						</IonLabel>
+					</IonItem>
+				</IonList>
+				<IonListHeader>
 					<IonLabel>Version 1.2</IonLabel>
 				</IonListHeader>
 				<IonList inset={true}>
 					<IonItem>
 						<IonText slot="start" color="medium">
-							&#9642;
-						</IonText>{' '}
+							&bull;
+						</IonText>
 						<IonLabel>
 							Option to show public holidays on calendar
 						</IonLabel>
 					</IonItem>
 					<IonItem>
 						<IonText slot="start" color="medium">
-							&#9642;
+							&bull;
 						</IonText>
 						<IonLabel>New icon for emoji selector</IonLabel>
 					</IonItem>
@@ -56,19 +70,19 @@ const ChangeLog: React.FC = () => {
 				<IonList inset={true}>
 					<IonItem>
 						<IonText slot="start" color="medium">
-							&#9642;
+							&bull;
 						</IonText>
 						<IonLabel>Dark mode improvements</IonLabel>
 					</IonItem>
 					<IonItem>
 						<IonText slot="start" color="medium">
-							&#9642;
+							&bull;
 						</IonText>
 						<IonLabel>Interactive app onboarding function</IonLabel>
 					</IonItem>
 					<IonItem>
 						<IonText slot="start" color="medium">
-							&#9642;
+							&bull;
 						</IonText>
 						<IonLabel>
 							Improved settings page functionality
@@ -81,7 +95,7 @@ const ChangeLog: React.FC = () => {
 				<IonList inset={true}>
 					<IonItem>
 						<IonText slot="start" color="medium">
-							&#9642;
+							&bull;
 						</IonText>
 						<IonLabel>Initial release</IonLabel>
 					</IonItem>
