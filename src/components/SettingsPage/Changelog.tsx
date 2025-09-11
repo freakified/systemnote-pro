@@ -14,6 +14,8 @@ import {
 	IonText,
 } from '@ionic/react';
 
+import changelog from '../../utils/changelog.json';
+
 import './SettingsPage.css';
 
 const ChangeLog: React.FC = () => {
@@ -31,83 +33,23 @@ const ChangeLog: React.FC = () => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen class="changelog_">
-				<IonListHeader>
-					<IonLabel>Version 1.2.1</IonLabel>
-				</IonListHeader>
-				<IonList inset={true}>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							∙
-						</IonText>
-						<IonLabel>
-							Fix for bug where month view would sometimes not
-							appear
-						</IonLabel>
-					</IonItem>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							∙
-						</IonText>
-						<IonLabel>
-							Improved scrolling performance in emoji picker sheet
-						</IonLabel>
-					</IonItem>
-				</IonList>
-				<IonListHeader>
-					<IonLabel>Version 1.2</IonLabel>
-				</IonListHeader>
-				<IonList inset={true}>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							&bull;
-						</IonText>
-						<IonLabel>
-							Option to show public holidays on calendar
-						</IonLabel>
-					</IonItem>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							&bull;
-						</IonText>
-						<IonLabel>New icon for emoji selector</IonLabel>
-					</IonItem>
-				</IonList>
-				<IonListHeader>
-					<IonLabel>Version 1.1</IonLabel>
-				</IonListHeader>
-				<IonList inset={true}>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							&bull;
-						</IonText>
-						<IonLabel>Dark mode improvements</IonLabel>
-					</IonItem>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							&bull;
-						</IonText>
-						<IonLabel>Interactive app onboarding function</IonLabel>
-					</IonItem>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							&bull;
-						</IonText>
-						<IonLabel>
-							Improved settings page functionality
-						</IonLabel>
-					</IonItem>
-				</IonList>
-				<IonListHeader>
-					<IonLabel>Version 1.0</IonLabel>
-				</IonListHeader>
-				<IonList inset={true}>
-					<IonItem>
-						<IonText slot="start" color="medium">
-							&bull;
-						</IonText>
-						<IonLabel>Initial release</IonLabel>
-					</IonItem>
-				</IonList>
+				{changelog.map((log) => (
+					<React.Fragment key={log.version}>
+						<IonListHeader>
+							<IonLabel>Version {log.version}</IonLabel>
+						</IonListHeader>
+						<IonList inset={true}>
+							{log.entries.map((entry, idx) => (
+								<IonItem key={idx}>
+									<IonText slot="start" color="medium">
+										&bull;
+									</IonText>
+									<IonLabel>{entry}</IonLabel>
+								</IonItem>
+							))}
+						</IonList>
+					</React.Fragment>
+				))}
 			</IonContent>
 		</IonPage>
 	);

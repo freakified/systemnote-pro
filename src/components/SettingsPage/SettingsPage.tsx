@@ -47,24 +47,18 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 	const InstallationStatus: React.FC<{
 		showHighlight?: boolean;
 	}> = ({ showHighlight = false }) => (
-		<>
-			<IonList inset={true}>
-				<IonItem
-					button
-					routerLink="settings/installation"
-					routerDirection="forward"
-				>
-					<IonIcon
-						aria-hidden="true"
-						icon={appsOutline}
-						slot="start"
-						color="primary"
-					></IonIcon>
-					<IonLabel>Install app</IonLabel>
-					{showHighlight && <IonBadge color="danger">1</IonBadge>}
-				</IonItem>
-			</IonList>
-		</>
+		<IonItem
+			button
+			routerLink="settings/installation"
+			routerDirection="forward"
+		>
+			<IonLabel>Installation</IonLabel>
+			{showHighlight ? (
+				<IonBadge color="danger">1</IonBadge>
+			) : (
+				<IonNote>Not installed</IonNote>
+			)}
+		</IonItem>
 	);
 
 	const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -75,14 +69,17 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 	const { settings } = useSettings();
 	if (!settings) return;
 
-	const highlightInstallationStatus =
-		isInstallablePlatform() &&
-		!isAppInstalled() &&
-		settings.hasSeenInstallationPrompt === false;
+	// const highlightInstallationStatus =
+	// 	isInstallablePlatform() &&
+	// 	!isAppInstalled() &&
+	// 	settings.hasSeenInstallationPrompt === false;
 
-	const showInstallationStatus = useMemo(() => {
-		return isInstallablePlatform();
-	}, []);
+	// const showInstallationStatus = useMemo(() => {
+	// 	return isInstallablePlatform();
+	// }, []);
+
+	const highlightInstallationStatus = false;
+	const showInstallationStatus = true;
 
 	const handleDeleteNotes = async () => {
 		if (storage) {
@@ -232,13 +229,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 						<IonLabel>App Version</IonLabel>
 						<IonNote>{APP_VERSION}</IonNote>
 					</IonItem>
+					{showInstallationStatus && (
+						<InstallationStatus
+							showHighlight={highlightInstallationStatus}
+						/>
+					)}
 				</IonList>
-
-				{showInstallationStatus && (
-					<InstallationStatus
-						showHighlight={highlightInstallationStatus}
-					/>
-				)}
 
 				<IonActionSheet
 					header="Export backup of all notes"

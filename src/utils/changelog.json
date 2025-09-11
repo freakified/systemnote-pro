@@ -1,0 +1,36 @@
+[
+	{
+		"version": "1.2.2",
+		"entries": [
+			"Further refinements to onboarding flow"
+		]
+	},
+	{
+		"version": "1.2.1",
+		"entries": [
+			"Fix for bug where month view would sometimes not appear",
+			"Improved scrolling performance in emoji picker sheet"
+		]
+	},
+	{
+		"version": "1.2",
+		"entries": [
+			"Option to show public holidays on calendar",
+			"New icon for emoji selector"
+		]
+	},
+	{
+		"version": "1.1",
+		"entries": [
+			"Dark mode improvements",
+			"Interactive app onboarding function",
+			"Improved settings page functionality"
+		]
+	},
+	{
+		"version": "1.0",
+		"entries": [
+			"Initial release"
+		]
+	}
+]
