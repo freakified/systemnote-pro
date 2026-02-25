@@ -42,6 +42,8 @@ interface SettingsPageProps {
 	storage?: Storage;
 }
 import { useSettings } from '../SettingsProvider/SettingsProvider';
+import { SUPPORTED_LANGUAGES } from './LanguageSelectorPage';
+import Holidays from 'date-holidays';
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 	const InstallationStatus: React.FC<{
@@ -160,6 +162,18 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 				<IonList inset={true}>
 					<IonItem
 						button
+						routerLink="settings/language"
+						routerDirection="forward"
+					>
+						<IonLabel>Language</IonLabel>
+						<IonNote>
+							{SUPPORTED_LANGUAGES.find(
+								(l) => l.code === settings.appLanguage,
+							)?.name || settings.appLanguage}
+						</IonNote>
+					</IonItem>
+					<IonItem
+						button
 						routerLink="settings/holidays"
 						routerDirection="forward"
 					>
@@ -167,7 +181,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 						<IonNote>
 							{settings.enableHolidayDisplay === false
 								? 'Off'
-								: settings.holidayCountry}
+								: new Holidays().getCountries(
+									settings.appLanguage || 'en',
+								)[settings.holidayCountry || 'JP'] ||
+								settings.holidayCountry}
 						</IonNote>
 					</IonItem>
 				</IonList>

@@ -109,7 +109,10 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 			const hd = new Holidays(settings.holidayCountry as string);
 
 			setAnnualHolidays(
-				hd.getHolidays(activeStartDate.getFullYear(), 'en'),
+				hd.getHolidays(
+					activeStartDate.getFullYear(),
+					settings.appLanguage || 'en',
+				),
 			);
 		} else {
 			setAnnualHolidays([]);

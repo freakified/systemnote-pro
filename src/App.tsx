@@ -46,6 +46,7 @@ import ChangeLog from './components/SettingsPage/Changelog';
 import InstallationDirections from './components/SettingsPage/InstallationDirections';
 import { BASE_URL } from './utils/constants';
 import HolidaySelectorPage from './components/SettingsPage/HolidaySelectorPage';
+import LanguageSelectorPage from './components/SettingsPage/LanguageSelectorPage';
 
 setupIonicReact({
 	mode: 'ios',
@@ -80,6 +81,9 @@ const App: React.FC = () => {
 						</Route>
 						<Route path="/settings/installation" exact={true}>
 							<InstallationDirections />
+						</Route>
+						<Route path="/settings/language" exact={true}>
+							<LanguageSelectorPage />
 						</Route>
 						<Route path="/settings/holidays" exact={true}>
 							<HolidaySelectorPage />

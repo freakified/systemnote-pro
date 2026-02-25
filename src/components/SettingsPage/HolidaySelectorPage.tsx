@@ -36,7 +36,8 @@ const HolidaySelectorPage: React.FC = () => {
 
 	useEffect(() => {
 		const hd = new Holidays();
-		const supportedCountries = hd.getCountries('en');
+		const lang = settings?.appLanguage || 'en';
+		const supportedCountries = hd.getCountries(lang);
 		const filteredCountries = DISPLAYED_HOLIDAY_COUNTRY_OPTIONS.reduce(
 			(obj, code) => {
 				if (supportedCountries[code]) {
@@ -47,7 +48,7 @@ const HolidaySelectorPage: React.FC = () => {
 			{} as { [key: string]: string },
 		);
 		setCountries(filteredCountries);
-	}, []);
+	}, [settings?.appLanguage]);
 
 	const handleCountryChange = (value: string) => {
 		setSelectedCountry(value);

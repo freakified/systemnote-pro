@@ -8,6 +8,7 @@ export interface AppSettings {
 	hasSeenInstallationPrompt?: boolean;
 	enableHolidayDisplay?: boolean;
 	holidayCountry?: string;
+	appLanguage?: string;
 }
 
 export const DefaultSettings: AppSettings = {
@@ -16,4 +17,5 @@ export const DefaultSettings: AppSettings = {
 	hasSeenInstallationPrompt: false,
 	enableHolidayDisplay: true,
 	holidayCountry: 'JP',
+	appLanguage: navigator.language.split('-')[0] || 'en',
 };
