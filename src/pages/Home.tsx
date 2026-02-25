@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from 'react';
+import React, { ChangeEvent, useCallback, useEffect } from 'react';
 import { useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import { cogOutline } from 'ionicons/icons';
@@ -22,7 +22,7 @@ import {
 import { MonthView } from '../components/MonthView';
 import { DayView } from '../components/DayView';
 import { getMonthData, writeMultiMonthlyData } from '../utils/storageUtils';
-import { MultiMonthlyData, TagEntry } from '../utils/customTypes';
+import { MonthlyData, MultiMonthlyData, NumericYearMonthString, TagEntry } from '../utils/customTypes';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import {
 	isAppInstalled,
@@ -55,6 +55,9 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 
 	const page = useRef(null);
 
+	// Data cache: tracks which months we've already loaded from storage
+	const dataCache = useRef<Map<string, MonthlyData>>(new Map());
+
 	const { settings } = useSettings();
 
 	if (!settings) {
@@ -67,22 +70,19 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		settings &&
 		settings.hasSeenInstallationPrompt === false;
 
-	// Fetch initial data on component mount
-	useEffect(() => {
-		const fetchInitialData = async () => {
-			if (!storage || !settings) return;
+	// Load months into cache if not already present
+	const loadMonthsIfNeeded = useCallback(
+		async (monthKeys: NumericYearMonthString[]) => {
+			if (!storage) return;
 
-			const monthsToFetch = [
-				getNumericYearMonthString(
-					getDateWithMonthOffset(activeStartDate, -1),
-				),
-				getNumericYearMonthString(activeStartDate),
-				getNumericYearMonthString(
-					getDateWithMonthOffset(activeStartDate, 1),
-				),
-			];
-			const dataByMonth = await Promise.all(
-				monthsToFetch.map((month) =>
+			const uncachedMonths = monthKeys.filter(
+				(key) => !dataCache.current.has(key),
+			);
+
+			if (uncachedMonths.length === 0) return;
+
+			const fetchedData = await Promise.all(
+				uncachedMonths.map((month) =>
 					getMonthData(month, storage).then((data) => ({
 						month,
 						data,
@@ -90,16 +90,44 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				),
 			);
 
-			setMultiMonthlyData(
-				dataByMonth.reduce(
-					(acc, { month, data }) => ({ ...acc, [month]: data }),
-					{},
+			// Update cache
+			const newEntries: Partial<MultiMonthlyData> = {};
+			for (const { month, data } of fetchedData) {
+				dataCache.current.set(month as string, data);
+				newEntries[month] = data;
+			}
+
+			// Merge into React state
+			setMultiMonthlyData((prev) => ({ ...prev, ...newEntries } as MultiMonthlyData));
+		},
+		[storage],
+	);
+
+	// Load initial data (current month ± 2)
+	useEffect(() => {
+		if (!storage || !settings) return;
+
+		const monthsToFetch = [-2, -1, 0, 1, 2].map((offset) =>
+			getNumericYearMonthString(
+				getDateWithMonthOffset(activeStartDate, offset),
+			),
+		);
+
+		loadMonthsIfNeeded(monthsToFetch);
+	}, [storage, settings]); // Only on mount — not on activeStartDate changes
+
+	// When the visible month changes, load nearby months lazily
+	const onVisibleMonthChanged = useCallback(
+		(monthDate: Date) => {
+			const monthsToFetch = [-2, -1, 0, 1, 2].map((offset) =>
+				getNumericYearMonthString(
+					getDateWithMonthOffset(monthDate, offset),
 				),
 			);
-		};
-
-		fetchInitialData();
-	}, [storage, activeStartDate, settings]);
+			loadMonthsIfNeeded(monthsToFetch);
+		},
+		[loadMonthsIfNeeded],
+	);
 
 	// Get those holidays
 	useEffect(() => {
@@ -155,13 +183,14 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		const monthKey = getNumericYearMonthString(date);
 		const dayKey = getNumericDayString(date);
 
-		setMultiMonthlyData((prevData) => ({
-			...prevData,
-			[monthKey]: {
-				...prevData[monthKey],
-				[dayKey]: { ...prevData[monthKey]?.[dayKey], note },
-			},
-		}));
+		const updatedMonth: MonthlyData = {
+			...multiMonthlyData[monthKey],
+			[dayKey]: { ...multiMonthlyData[monthKey]?.[dayKey], note },
+		};
+
+		// Update cache too
+		dataCache.current.set(monthKey as string, updatedMonth);
+		setMultiMonthlyData((prev) => ({ ...prev, [monthKey]: updatedMonth } as MultiMonthlyData));
 	};
 
 	const onTagsChange = (newTags: TagEntry) => {
@@ -171,13 +200,14 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		const monthKey = getNumericYearMonthString(date);
 		const dayKey = getNumericDayString(date);
 
-		setMultiMonthlyData((prevData) => ({
-			...prevData,
-			[monthKey]: {
-				...prevData[monthKey],
-				[dayKey]: { ...prevData[monthKey]?.[dayKey], tags: newTags },
-			},
-		}));
+		const updatedMonth: MonthlyData = {
+			...multiMonthlyData[monthKey],
+			[dayKey]: { ...multiMonthlyData[monthKey]?.[dayKey], tags: newTags },
+		};
+
+		// Update cache too
+		dataCache.current.set(monthKey as string, updatedMonth);
+		setMultiMonthlyData((prev) => ({ ...prev, [monthKey]: updatedMonth }));
 	};
 
 	return (
@@ -191,6 +221,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					onActiveStartDateChanged={(newDate) =>
 						setActiveStartDate(newDate)
 					}
+					onVisibleMonthChanged={onVisibleMonthChanged}
 					holidays={annualHolidays}
 					toolbarExtras={
 						<IonButton

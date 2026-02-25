@@ -1,13 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useCallback, useEffect } from 'react';
 import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Swiper as SwiperInstance } from 'swiper';
 import cx from 'classnames';
 
 import './MonthView.css';
-import 'swiper/css';
 
 import { IonButton, IonIcon } from '@ionic/react';
 
@@ -27,6 +24,14 @@ import { Value } from 'react-calendar/dist/cjs/shared/types';
 import { arrowUndo } from 'ionicons/icons';
 import { HolidaysTypes } from 'date-holidays';
 
+// +/- 5 years of months from today
+const MONTH_RANGE = 60;
+const TOTAL_SLIDES = MONTH_RANGE * 2 + 1;
+const CENTER_INDEX = MONTH_RANGE;
+
+// Only render Calendar components within this many slots of the visible one
+const RENDER_BUFFER = 2;
+
 interface MonthViewProps {
 	selectedDate: Date;
 	activeStartDate: Date;
@@ -34,6 +39,7 @@ interface MonthViewProps {
 	holidays?: HolidaysTypes.Holiday[];
 	onSelectedDateChanged: (newDate: Date) => void;
 	onActiveStartDateChanged: (newDate: Date) => void;
+	onVisibleMonthChanged?: (monthDate: Date) => void;
 	toolbarExtras?: ReactNode;
 }
 
@@ -44,116 +50,139 @@ export const MonthView: React.FC<MonthViewProps> = ({
 	holidays,
 	onSelectedDateChanged,
 	onActiveStartDateChanged,
+	onVisibleMonthChanged,
 	toolbarExtras,
 }) => {
-	const DEFAULT_DATE = new Date();
-	const ANIMATION_DURATION = 300;
+	const TODAY = useRef(new Date()).current;
 	const DEFAULT_HEIGHT = 320;
+	const ANIMATION_DURATION = 300;
 
 	const [resetAnimationActive, setResetAnimationActive] =
 		useState<boolean>(false);
 
-	const presentCalendarRef = useRef<HTMLDivElement | null>(null);
+	const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+	const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+	const visibleIndexRef = useRef<number>(CENTER_INDEX);
+	const [visibleIndex, setVisibleIndex] = useState<number>(CENTER_INDEX);
+	const hasInitialScrolled = useRef(false);
+
+	// Height management
 	const [wrapperHeight, setWrapperHeight] = useState(DEFAULT_HEIGHT);
 
-	const pastCalendarStartDate =
-		resetAnimationActive === true
-			? DEFAULT_DATE
-			: getDateWithMonthOffset(activeStartDate, -1);
-	const futureCalendarStartDate =
-		resetAnimationActive === true
-			? DEFAULT_DATE
-			: getDateWithMonthOffset(activeStartDate, 1);
+	// Compute the date for a given slide index
+	const getDateForIndex = useCallback(
+		(index: number): Date => {
+			const offset = index - CENTER_INDEX;
+			return getDateWithMonthOffset(TODAY, offset);
+		},
+		[TODAY],
+	);
 
-	const swiperRef = useRef<SwiperInstance | null>(null);
-
-	const resetCalendarView = () => {
-		const defaultMonth =
-			DEFAULT_DATE.getMonth() + DEFAULT_DATE.getFullYear() * 100;
-		const activeMonth =
-			activeStartDate.getMonth() + activeStartDate.getFullYear() * 100;
-
-		if (activeMonth === defaultMonth) {
-			onSelectedDateChanged(DEFAULT_DATE);
-			onActiveStartDateChanged(DEFAULT_DATE);
-		} else {
-			// this will cause non-active dates to show they're the default
-			setResetAnimationActive(true);
-
-			// Handle the case when we're in a future month
-			if (activeMonth > defaultMonth) {
-				// Animate left after updating the previous slide
-				setTimeout(() => {
-					swiperRef.current?.slidePrev(ANIMATION_DURATION, true); // Swipe left (previous slide)
-				}, 0);
-			}
-
-			// Handle the case when we're in a past month
-			else if (activeMonth < defaultMonth) {
-				// Animate right after updating the next slide
-				setTimeout(() => {
-					swiperRef.current?.slideNext(ANIMATION_DURATION, true); // Swipe right (next slide)
-				}, 0);
-			}
-
-			// Just before the animation completes, reset the state
-			// Adding this timing ensures that the state is in time
-			setTimeout(() => {
-				onSelectedDateChanged(DEFAULT_DATE);
-				onActiveStartDateChanged(DEFAULT_DATE);
-			}, ANIMATION_DURATION / 10);
-
-			// After the animation completes, reset everything back to default
-			setTimeout(() => {
-				swiperRef.current?.slideTo(1, 0, false); // Ensure swiper is back in the middle
-				setResetAnimationActive(false);
-			}, ANIMATION_DURATION);
-		}
-	};
-
-	const updateWrapperHeight = () => {
-		const newWrapperHeight =
-			presentCalendarRef?.current &&
-			presentCalendarRef?.current?.offsetHeight > 0
-				? presentCalendarRef.current.offsetHeight
-				: DEFAULT_HEIGHT;
-
-		setWrapperHeight(newWrapperHeight);
-	};
-
-	// wait a bit before trying to recalculate the wrapper height on load
+	// Set up slide refs array
 	useEffect(() => {
-		setTimeout(() => {
-			updateWrapperHeight();
-		}, ANIMATION_DURATION);
+		slideRefs.current = new Array(TOTAL_SLIDES).fill(null);
 	}, []);
 
-	// recalculate the wrapper height every time active start date changes
+	// Initial scroll to center (no animation)
 	useEffect(() => {
-		setTimeout(() => {
-			updateWrapperHeight();
-		}, 10);
-	}, [activeStartDate]);
+		if (hasInitialScrolled.current) return;
+		const container = scrollContainerRef.current;
+		if (!container) return;
 
-	const onSlideChangeEnd = (swiper: SwiperInstance) => {
-		const { activeIndex } = swiper;
+		// Wait for layout
+		requestAnimationFrame(() => {
+			const slideWidth = container.offsetWidth;
+			container.scrollLeft = CENTER_INDEX * slideWidth;
+			hasInitialScrolled.current = true;
+		});
+	}, []);
 
-		if (activeIndex === 0) {
-			// Swiped to previous month
-			onActiveStartDateChanged(
-				getDateWithMonthOffset(activeStartDate, -1),
-			);
-		} else if (activeIndex === 2) {
-			// Swiped to next month
-			onActiveStartDateChanged(
-				getDateWithMonthOffset(activeStartDate, 1),
-			);
+	// IntersectionObserver to track which month is visible
+	useEffect(() => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+						const index = Number(
+							(entry.target as HTMLElement).dataset.index,
+						);
+						if (!isNaN(index) && index !== visibleIndexRef.current) {
+							visibleIndexRef.current = index;
+							setVisibleIndex(index);
+
+							const monthDate = getDateForIndex(index);
+							onActiveStartDateChanged(monthDate);
+							onVisibleMonthChanged?.(monthDate);
+						}
+					}
+				}
+			},
+			{
+				root: container,
+				threshold: 0.5,
+			},
+		);
+
+		// Observe all slides
+		const slides = container.querySelectorAll('.scrollSnapSlide');
+		slides.forEach((slide) => observer.observe(slide));
+
+		return () => observer.disconnect();
+	}, [
+		getDateForIndex,
+		onActiveStartDateChanged,
+		onVisibleMonthChanged,
+	]);
+
+	// Update wrapper height when the visible month changes
+	// useEffect(() => {
+	// 	const timeout = setTimeout(() => {
+	// 		const visibleSlide = slideRefs.current[visibleIndex];
+	// 		if (visibleSlide) {
+	// 			const calContainer = visibleSlide.querySelector(
+	// 				'.calendarContainer',
+	// 			) as HTMLElement | null;
+	// 			if (calContainer && calContainer.offsetHeight > 0) {
+	// 				setWrapperHeight(calContainer.offsetHeight);
+	// 			}
+	// 		}
+	// 	}, 10);
+	// 	return () => clearTimeout(timeout);
+	// }, [visibleIndex, activeStartDate]);
+
+	const resetCalendarView = () => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		const currentMonth =
+			activeStartDate.getMonth() + activeStartDate.getFullYear() * 100;
+		const todayMonth = TODAY.getMonth() + TODAY.getFullYear() * 100;
+
+		if (currentMonth === todayMonth) {
+			// Already on today's month, just select today
+			onSelectedDateChanged(TODAY);
+			return;
 		}
 
-		// After adjusting the date, reset the swiper back to the middle slide
+		setResetAnimationActive(true);
+
+		const centerSlide = slideRefs.current[CENTER_INDEX];
+		if (centerSlide) {
+			centerSlide.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest',
+				inline: 'start',
+			});
+		}
+
+		// After animation, select today and clear the animation flag
 		setTimeout(() => {
-			swiper?.slideTo(1, 0, false);
-		}, 0);
+			onSelectedDateChanged(TODAY);
+			setResetAnimationActive(false);
+		}, ANIMATION_DURATION);
 	};
 
 	const onDateChange = (value: Value) => {
@@ -162,14 +191,10 @@ export const MonthView: React.FC<MonthViewProps> = ({
 
 	const calendarCommonProps: CalendarProps = {
 		onChange: onDateChange,
-		// If the reset animation is active, temporarily hide the "today" ring
 		value: resetAnimationActive ? null : selectedDate,
 		selectRange: false,
-		// This sets the start date to Sunday; we'll add an option to control this later
 		locale: 'en-US',
-		// Hide the navigation, since we're using a custom swipe-based nav system
 		showNavigation: false,
-		// Hide the year/century/decade view, no one needs that much POWER
 		minDetail: 'month',
 		formatShortWeekday: (locale: string | undefined, date: Date) => {
 			return `${getWeekdayNameShort(date, 'ja-JP')} ${getWeekdayNameShort(date, 'en-US')}`;
@@ -178,21 +203,23 @@ export const MonthView: React.FC<MonthViewProps> = ({
 			const dayNumber = date.getDay();
 			const classes = [];
 
-			// Ensures that saturdays and sundays can have distinct styling
 			if (dayNumber === 0) {
 				classes.push('react-calendar__month-view__days__day--sunday');
 			} else if (dayNumber === 6) {
-				classes.push('react-calendar__month-view__days__day--saturday');
+				classes.push(
+					'react-calendar__month-view__days__day--saturday',
+				);
 			}
 
-			// Styling for public holidays
 			if (
 				holidays?.some(
 					(holiday) =>
 						holiday.start.toDateString() === date.toDateString(),
 				)
 			) {
-				classes.push('react-calendar__month-view__days__day--holiday');
+				classes.push(
+					'react-calendar__month-view__days__day--holiday',
+				);
 			}
 
 			return classes.join(' ') || null;
@@ -215,7 +242,12 @@ export const MonthView: React.FC<MonthViewProps> = ({
 
 	const showTodayResetButton =
 		!isToday(selectedDate) ||
-		activeStartDate.getMonth() !== DEFAULT_DATE.getMonth();
+		activeStartDate.getMonth() !== TODAY.getMonth();
+
+	// Determine which indices should render full Calendar components
+	const shouldRenderCalendar = (index: number) => {
+		return Math.abs(index - visibleIndex) <= RENDER_BUFFER;
+	};
 
 	return (
 		<>
@@ -233,49 +265,43 @@ export const MonthView: React.FC<MonthViewProps> = ({
 				</IonButton>
 				{toolbarExtras}
 			</div>
-			<div className="swiperWrapper" style={{ height: wrapperHeight }}>
-				<Swiper
-					initialSlide={1}
-					slidesPerView={1}
-					spaceBetween={32}
-					autoHeight={false}
-					onSlideChangeTransitionEnd={onSlideChangeEnd}
-					onSwiper={(swiper) => (swiperRef.current = swiper)}
-				>
-					{/* Past */}
-					<SwiperSlide>
-						<div className="calendarContainer">
-							<CalendarTitle date={pastCalendarStartDate} />
-							<Calendar
-								activeStartDate={pastCalendarStartDate}
-								{...calendarCommonProps}
-							/>
-						</div>
-					</SwiperSlide>
-					{/* Present */}
-					<SwiperSlide>
+			<div
+				className="scrollSnapContainer"
+				ref={scrollContainerRef}
+				style={{ height: wrapperHeight }}
+			>
+				{Array.from({ length: TOTAL_SLIDES }, (_, i) => {
+					const monthDate = getDateForIndex(i);
+					const render = shouldRenderCalendar(i);
+
+					return (
 						<div
-							className="calendarContainer"
-							ref={presentCalendarRef}
+							key={i}
+							className="scrollSnapSlide"
+							data-index={i}
+							ref={(el) => {
+								slideRefs.current[i] = el;
+							}}
 						>
-							<CalendarTitle date={activeStartDate} />
-							<Calendar
-								activeStartDate={activeStartDate}
-								{...calendarCommonProps}
-							/>
+							{render ? (
+								<div className="calendarContainer">
+									<CalendarTitle date={monthDate} />
+									<Calendar
+										activeStartDate={monthDate}
+										{...calendarCommonProps}
+									/>
+								</div>
+							) : (
+								<div
+									className="calendarContainer"
+									style={{
+										height: wrapperHeight,
+									}}
+								/>
+							)}
 						</div>
-					</SwiperSlide>
-					{/* Future */}
-					<SwiperSlide>
-						<div className="calendarContainer">
-							<CalendarTitle date={futureCalendarStartDate} />
-							<Calendar
-								activeStartDate={futureCalendarStartDate}
-								{...calendarCommonProps}
-							/>
-						</div>
-					</SwiperSlide>
-				</Swiper>
+					);
+				})}
 			</div>
 		</>
 	);
