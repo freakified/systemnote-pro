@@ -3,6 +3,7 @@ import React, { ReactNode, useCallback, useEffect } from 'react';
 import { useRef, useState } from 'react';
 import Calendar, { CalendarProps } from 'react-calendar';
 import cx from 'classnames';
+import { debounce } from 'lodash';
 
 import './MonthView.css';
 
@@ -137,22 +138,41 @@ export const MonthView: React.FC<MonthViewProps> = ({
     onVisibleMonthChanged,
   ]);
 
-  // Disable wrapper height animation until we solve the mystery of iOS 
-  // Update wrapper height when the visible month changes
-  // useEffect(() => {
-  // 	const timeout = setTimeout(() => {
-  // 		const visibleSlide = slideRefs.current[visibleIndex];
-  // 		if (visibleSlide) {
-  // 			const calContainer = visibleSlide.querySelector(
-  // 				'.calendarContainer',
-  // 			) as HTMLElement | null;
-  // 			if (calContainer && calContainer.offsetHeight > 0) {
-  // 				setWrapperHeight(calContainer.offsetHeight);
-  // 			}
-  // 		}
-  // 	}, 10);
-  // 	return () => clearTimeout(timeout);
-  // }, [visibleIndex, activeStartDate]);
+  // Update wrapper height only when scrolling has completely stopped.
+  // Resizing during snap animation breaks iOS Safari's scroll-snap layout.
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const updateHeight = () => {
+      const visibleSlide = slideRefs.current[visibleIndexRef.current];
+      if (visibleSlide) {
+        const calContainer = visibleSlide.querySelector(
+          '.calendarContainer',
+        ) as HTMLElement | null;
+        if (calContainer && calContainer.offsetHeight > 0) {
+          setWrapperHeight(calContainer.offsetHeight + 4);
+        }
+      }
+    };
+
+    const handleScrollEnd = debounce(updateHeight, 150);
+
+    // Modern browsers support scrollend directly
+    const onScrollEnd = () => updateHeight();
+
+    container.addEventListener('scroll', handleScrollEnd);
+    container.addEventListener('scrollend', onScrollEnd);
+
+    // Check height slightly after initial load
+    setTimeout(updateHeight, 100);
+
+    return () => {
+      container.removeEventListener('scroll', handleScrollEnd);
+      container.removeEventListener('scrollend', onScrollEnd);
+      handleScrollEnd.cancel();
+    };
+  }, []);
 
   const resetCalendarView = () => {
     const container = scrollContainerRef.current;
@@ -194,7 +214,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
     onChange: onDateChange,
     value: resetAnimationActive ? null : selectedDate,
     selectRange: false,
-    showFixedNumberOfWeeks: true,
     locale: 'en-US',
     showNavigation: false,
     minDetail: 'month',
@@ -270,7 +289,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
       <div
         className="scrollSnapContainer"
         ref={scrollContainerRef}
-      // style={{ height: wrapperHeight }}
+        style={{ height: wrapperHeight }}
       >
         {Array.from({ length: TOTAL_SLIDES }, (_, i) => {
           const monthDate = getDateForIndex(i);

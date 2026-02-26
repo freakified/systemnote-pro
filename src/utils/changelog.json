@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.3.1",
+    "entries": [
+      "Fixed issue where calendar height was not correctly adjusting to content"
+    ]
+  },
+  {
     "version": "1.3",
     "entries": [
       "Improved scrolling performance for calendar slider",
