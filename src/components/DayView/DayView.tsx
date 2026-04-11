@@ -21,6 +21,10 @@ interface DayViewProps {
   annualHolidays?: HolidaysTypes.Holiday[];
   onTextAreaChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
   onTagsChange?: (newTags: TagEntry) => void;
+  /** When provided, the note area becomes a tappable preview rather than an editable textarea */
+  onNoteTap?: () => void;
+  /** Whether to show the date/emoji toolbar. Defaults to true. */
+  showToolbar?: boolean;
 }
 
 export const DayView: React.FC<DayViewProps> = ({
@@ -30,6 +34,8 @@ export const DayView: React.FC<DayViewProps> = ({
   annualHolidays,
   onTextAreaChange,
   onTagsChange,
+  onNoteTap,
+  showToolbar = true,
 }) => {
   // Tracks which, if any, tag is currently being edited
   // Used to control when the emoji picker is shown, and what it is editing
@@ -56,56 +62,70 @@ export const DayView: React.FC<DayViewProps> = ({
 
   return (
     <div className="dayView-root">
-      <div className="dayView-toolbar">
-        <div className="dayView-dateContainer">
-          <div className="dayView-dayNumber">
-            {getShortDayNumberString(date)}
-          </div>
-          <div className="dayView-dayInfoContainer">
-            <div className="dayView-holiday">
-              {
-                // In theory, we could modify this in a future update to allow for
-                // multiple holidays on a day (which the library supports),
-                // but for now we limit to one per day
-                annualHolidays?.find(
-                  (h) =>
-                    new Date(h.date).toDateString() ===
-                    date.toDateString(),
-                )?.name
-              }
+      {showToolbar && (
+        <div className="dayView-toolbar">
+          <div className="dayView-dateContainer">
+            <div className="dayView-dayNumber">
+              {getShortDayNumberString(date)}
             </div>
-            <div className="dayView-weekday">
-              {getWeekdayNameShort(date, 'ja-JP')}{' '}
-              {getWeekdayNameShort(date)}
+            <div className="dayView-dayInfoContainer">
+              <div className="dayView-holiday">
+                {
+                  // In theory, we could modify this in a future update to allow for
+                  // multiple holidays on a day (which the library supports),
+                  // but for now we limit to one per day
+                  annualHolidays?.find(
+                    (h) =>
+                      new Date(h.date).toDateString() ===
+                      date.toDateString(),
+                  )?.name
+                }
+              </div>
+              <div className="dayView-weekday">
+                {getWeekdayNameShort(date, 'ja-JP')}{' '}
+                {getWeekdayNameShort(date)}
+              </div>
             </div>
-          </div>
-          <div className="dayView-emojiToolbar">
-            {[0, 1].map((index) => (
-              <IonButton
-                key={index}
-                className="emojiSelectorButton"
-                size="default"
-                fill="outline"
-                onClick={() => setActiveTagSelectionIdx(index)}
-              >
-                {tags[index] || (
-                  <IonIcon
-                    slot="icon-only"
-                    size="medium"
-                    icon={happyOutline}
-                  ></IonIcon>
-                )}
-              </IonButton>
-            ))}
+            <div className="dayView-emojiToolbar">
+              {[0, 1].map((index) => (
+                <IonButton
+                  key={index}
+                  className="emojiSelectorButton"
+                  size="default"
+                  fill="outline"
+                  onClick={() => setActiveTagSelectionIdx(index)}
+                >
+                  {tags[index] || (
+                    <IonIcon
+                      slot="icon-only"
+                      size="medium"
+                      icon={happyOutline}
+                    ></IonIcon>
+                  )}
+                </IonButton>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
       <IonContent class="dayView-note">
-        <textarea
-          onChange={(e) => onTextAreaChange?.(e)}
-          className="dayView-note-textarea"
-          value={note}
-        />
+        {onNoteTap ? (
+          <div
+            className="dayView-note-textarea dayView-note-preview"
+            onClick={onNoteTap}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && onNoteTap()}
+          >
+            {note}
+          </div>
+        ) : (
+          <textarea
+            onChange={(e) => onTextAreaChange?.(e)}
+            className="dayView-note-textarea"
+            value={note}
+          />
+        )}
       </IonContent>
       <IonModal
         isOpen={activeTagSelectionIdx !== null}

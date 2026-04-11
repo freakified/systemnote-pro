@@ -79,3 +79,26 @@
 	width: 16px;
 	height: 16px;
 }
+
+/* Wide (tablet/desktop) split layout */
+.home-splitLayout {
+	display: flex;
+	height: 100%;
+}
+
+.home-splitLayout-calendar {
+	flex: 0 0 400px;
+	overflow-y: auto;
+	border-right: 1px solid rgba(128, 128, 128, 0.2);
+	position: relative;
+	padding-top: env(safe-area-inset-top);
+	background-color: var(--ion-background-color);
+}
+
+.home-splitLayout-detail {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding-top: env(safe-area-inset-top);
+}

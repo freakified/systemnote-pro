@@ -8,6 +8,7 @@ import {
 	IonButton,
 	IonHeader,
 	IonIcon,
+	IonModal,
 	IonPage,
 	IonContent,
 } from '@ionic/react';
@@ -32,6 +33,7 @@ import {
 import Holidays, { HolidaysTypes } from 'date-holidays';
 
 import { useSettings } from '../components/SettingsProvider/SettingsProvider';
+import { useIsWideScreen } from '../hooks/useIsWideScreen';
 
 interface HomeProps {
 	storage?: Storage;
@@ -53,12 +55,15 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		HolidaysTypes.Holiday[]
 	>([]);
 
+	const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+
 	const page = useRef(null);
 
 	// Data cache: tracks which months we've already loaded from storage
 	const dataCache = useRef<Map<string, MonthlyData>>(new Map());
 
 	const { settings } = useSettings();
+	const isWide = useIsWideScreen();
 
 	if (!settings) {
 		return null;
@@ -210,40 +215,72 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		setMultiMonthlyData((prev) => ({ ...prev, [monthKey]: updatedMonth }));
 	};
 
+	const settingsButton = (
+		<IonButton
+			size="large"
+			fill="clear"
+			shape="round"
+			routerLink="/settings"
+			routerDirection="forward"
+		>
+			<IonIcon
+				slot="icon-only"
+				size="large"
+				icon={cogOutline}
+			></IonIcon>
+			{showInstallationBadge && (
+				<div className="home-settingsButton-badge">
+					1
+				</div>
+			)}
+		</IonButton>
+	);
+
+	const monthView = (
+		<MonthView
+			activeStartDate={activeStartDate}
+			selectedDate={selectedDate}
+			multiMonthlyData={multiMonthlyData}
+			onSelectedDateChanged={onDateChange}
+			onActiveStartDateChanged={(newDate) =>
+				setActiveStartDate(newDate)
+			}
+			onVisibleMonthChanged={onVisibleMonthChanged}
+			holidays={annualHolidays}
+			toolbarExtras={settingsButton}
+		/>
+	);
+
+	if (isWide) {
+		// Tablet/desktop: side-by-side layout
+		return (
+			<IonPage id="home-page" className="home-page" ref={page}>
+				<IonContent scrollY={false}>
+					<div className="home-splitLayout">
+						<div className="home-splitLayout-calendar">
+							{monthView}
+						</div>
+						<div className="home-splitLayout-detail">
+							<DayView
+								date={selectedDate}
+								onTextAreaChange={onDayEdit}
+								note={currentNote}
+								tags={currentTags}
+								annualHolidays={annualHolidays}
+								onTagsChange={onTagsChange}
+							/>
+						</div>
+					</div>
+				</IonContent>
+			</IonPage>
+		);
+	}
+
+	// Phone: original stacked layout — DayView inline with tappable note area
 	return (
 		<IonPage id="home-page" className="home-page" ref={page}>
 			<IonHeader className="home-view-header">
-				<MonthView
-					activeStartDate={activeStartDate}
-					selectedDate={selectedDate}
-					multiMonthlyData={multiMonthlyData}
-					onSelectedDateChanged={onDateChange}
-					onActiveStartDateChanged={(newDate) =>
-						setActiveStartDate(newDate)
-					}
-					onVisibleMonthChanged={onVisibleMonthChanged}
-					holidays={annualHolidays}
-					toolbarExtras={
-						<IonButton
-							size="large"
-							fill="clear"
-							shape="round"
-							routerLink="/settings"
-							routerDirection="forward"
-						>
-							<IonIcon
-								slot="icon-only"
-								size="large"
-								icon={cogOutline}
-							></IonIcon>
-							{showInstallationBadge && (
-								<div className="home-settingsButton-badge">
-									1
-								</div>
-							)}
-						</IonButton>
-					}
-				/>
+				{monthView}
 			</IonHeader>
 			<DayView
 				date={selectedDate}
@@ -252,7 +289,23 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				tags={currentTags}
 				annualHolidays={annualHolidays}
 				onTagsChange={onTagsChange}
+				onNoteTap={() => setIsNoteModalOpen(true)}
 			/>
+			<IonModal
+				isOpen={isNoteModalOpen}
+				onDidDismiss={() => setIsNoteModalOpen(false)}
+				breakpoints={[0, 1]}
+				initialBreakpoint={1}
+			>
+				<DayView
+					date={selectedDate}
+					onTextAreaChange={onDayEdit}
+					note={currentNote}
+					tags={currentTags}
+					annualHolidays={annualHolidays}
+					onTagsChange={onTagsChange}
+				/>
+			</IonModal>
 		</IonPage>
 	);
 };
