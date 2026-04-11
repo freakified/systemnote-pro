@@ -97,7 +97,14 @@ export const getDateWithMonthOffset = (
 	monthOffset: number,
 ): Date => {
 	const newDate = new Date(date);
-	newDate.setMonth(newDate.getMonth() + monthOffset);
+	const targetMonth = newDate.getMonth() + monthOffset;
+	newDate.setMonth(targetMonth);
+
+	const expectedMonth = ((targetMonth % 12) + 12) % 12;
+	if (newDate.getMonth() !== expectedMonth) {
+		newDate.setDate(0);
+	}
+
 	return newDate;
 };
 
