@@ -4,10 +4,13 @@ import {
 	NumericYearMonthString,
 	MonthlyData,
 	MultiMonthlyData,
+	MonthNoteData,
+	MultiMonthNoteData,
 } from './customTypes';
 import { AppSettings, DefaultSettings } from './settingsUtils';
 
 const NOTES_PREFIX = 'notes';
+const MONTH_NOTES_PREFIX = 'monthnotes';
 
 export const getMonthData = async (
 	month: NumericYearMonthString,
@@ -40,6 +43,24 @@ export const writeMultiMonthlyData = async (
 		if (Object.keys(dataToWrite).length > 0) {
 			await storage.set(monthKey, dataToWrite);
 		}
+	}
+};
+
+export const getMonthNoteData = async (
+	month: NumericYearMonthString,
+	storage: Storage,
+): Promise<MonthNoteData> => {
+	const key = `${MONTH_NOTES_PREFIX}_${month}`;
+	return (await storage.get(key)) || {};
+};
+
+export const writeMultiMonthNoteData = async (
+	data: MultiMonthNoteData,
+	storage: Storage,
+) => {
+	for (const [yearMonthStr, noteData] of Object.entries(data)) {
+		const key = `${MONTH_NOTES_PREFIX}_${yearMonthStr}`;
+		await storage.set(key, noteData);
 	}
 };
 

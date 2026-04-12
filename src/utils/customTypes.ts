@@ -68,3 +68,7 @@ export type MonthlyData = Partial<
 >;
 
 export type MultiMonthlyData = Record<NumericYearMonthString, MonthlyData>;
+
+// Month-level notes: each month can have a note and up to 2 emoji tags
+export type MonthNoteData = { note?: string; tags?: TagEntry };
+export type MultiMonthNoteData = Record<NumericYearMonthString, MonthNoteData>;

@@ -17,10 +17,11 @@ import {
   isToday,
 } from '../..//utils/dateUtils';
 
-import { MultiMonthlyData } from '../../utils/customTypes';
+import { MultiMonthlyData, MultiMonthNoteData } from '../../utils/customTypes';
 
 import { CalendarTitle } from './CalendarTitle';
 import { DayTags } from '../../components/DayTags';
+import { NoteIcon } from '../../components/NoteIcon/NoteIcon';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import { arrowUndo } from 'ionicons/icons';
 import { HolidaysTypes } from 'date-holidays';
@@ -37,10 +38,12 @@ interface MonthViewProps {
   selectedDate: Date;
   activeStartDate: Date;
   multiMonthlyData: MultiMonthlyData;
+  multiMonthNoteData?: MultiMonthNoteData;
   holidays?: HolidaysTypes.Holiday[];
   onSelectedDateChanged: (newDate: Date) => void;
   onActiveStartDateChanged: (newDate: Date) => void;
   onVisibleMonthChanged?: (monthDate: Date) => void;
+  onMonthTitleTap?: (monthDate: Date) => void;
   toolbarExtras?: ReactNode;
 }
 
@@ -48,10 +51,12 @@ export const MonthView: React.FC<MonthViewProps> = ({
   selectedDate,
   activeStartDate,
   multiMonthlyData,
+  multiMonthNoteData,
   holidays,
   onSelectedDateChanged,
   onActiveStartDateChanged,
   onVisibleMonthChanged,
+  onMonthTitleTap,
   toolbarExtras,
 }) => {
   const TODAY = useRef(new Date()).current;
@@ -256,7 +261,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
       if (dayHasTags) {
         return <DayTags tags={dayData?.tags} visible={true} />;
       } else if (dayHasNote) {
-        return <div className="monthView-day-hasNoteIndicator" />;
+        return <NoteIcon className="monthView-day-hasNoteIndicator" />;
       }
     },
   };
@@ -306,7 +311,12 @@ export const MonthView: React.FC<MonthViewProps> = ({
             >
               {render ? (
                 <div className="calendarContainer">
-                  <CalendarTitle date={monthDate} />
+                  <CalendarTitle
+                    date={monthDate}
+                    tags={multiMonthNoteData?.[getNumericYearMonthString(monthDate)]?.tags}
+                    hasNote={(multiMonthNoteData?.[getNumericYearMonthString(monthDate)]?.note || '').length > 0}
+                    onTap={onMonthTitleTap ? () => onMonthTitleTap(monthDate) : undefined}
+                  />
                   <Calendar
                     activeStartDate={monthDate}
                     {...calendarCommonProps}

@@ -1,0 +1,77 @@
+.monthNoteView-root {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+ion-modal .monthNoteView-root {
+	--ion-background-color: #fff;
+	--ion-toolbar-background: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+	ion-modal .monthNoteView-root {
+		--ion-background-color: #000;
+		--ion-toolbar-background: #000;
+	}
+}
+
+.monthNoteView-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	position: sticky;
+	z-index: 1;
+	top: 0;
+	padding-top: 20px;
+	padding-left: 6px;
+	background-color: var(--ion-background-color);
+	border-bottom: 1px dotted rgba(128, 128, 128, 0.5);
+}
+
+.monthNoteView-monthNumber {
+	font-size: 40px;
+	font-weight: bold;
+	padding-right: 6px;
+	letter-spacing: -2px;
+	line-height: 1;
+}
+
+.monthNoteView-monthAndYear {
+	font-size: 16px;
+	font-weight: normal;
+	text-transform: uppercase;
+	line-height: 1;
+	flex: 1;
+}
+
+.monthNoteView-emojiToolbar {
+	height: 48px;
+	display: flex;
+	justify-content: flex-end;
+	padding-inline-end: 2px;
+}
+
+.monthNoteView-note {
+	flex: 1;
+}
+
+.monthNoteView-note-textarea {
+	height: auto;
+	background-size: 100% 24px;
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="20" viewBox="0 0 100 20" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="20" stroke="rgba(150, 150, 150, 0.3)" stroke-width="1"/></svg>');
+	background-color: var(--ion-background-color);
+	background-attachment: local;
+	flex: 1;
+	line-height: 24px;
+	padding-inline: 4px;
+	padding-bottom: env(safe-area-inset-bottom);
+	min-height: 100%;
+	width: 100%;
+	border: 0;
+	caret-color: var(--ion-color-primary);
+}
+
+.monthNoteView-note-textarea:focus {
+	outline: 0 none;
+}

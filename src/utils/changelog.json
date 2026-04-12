@@ -2,8 +2,9 @@
   {
     "version": "1.4",
     "entries": [
-      "New layout for tablets and desktops!",
-      "On mobile, tapping the notes area opens a full-screen editing view"
+      "[New feature] Support for tablets and desktops with a new 2-pane view!",
+      "[New feature] Take notes and assign emojis to a month itself!",
+      "[Improvement] On mobile, tapping the notes area opens a full-screen editing view, ideally making editing notes easier"
     ]
   },
   {

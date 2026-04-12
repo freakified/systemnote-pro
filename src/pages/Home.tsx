@@ -22,8 +22,9 @@ import {
 } from '../utils/dateUtils';
 import { MonthView } from '../components/MonthView';
 import { DayView } from '../components/DayView';
-import { getMonthData, writeMultiMonthlyData } from '../utils/storageUtils';
-import { MonthlyData, MultiMonthlyData, NumericYearMonthString, TagEntry } from '../utils/customTypes';
+import { MonthNoteView } from '../components/MonthNoteView';
+import { getMonthData, getMonthNoteData, writeMultiMonthlyData, writeMultiMonthNoteData } from '../utils/storageUtils';
+import { MonthlyData, MonthNoteData, MultiMonthlyData, MultiMonthNoteData, NumericYearMonthString, TagEntry } from '../utils/customTypes';
 import { Value } from 'react-calendar/dist/cjs/shared/types';
 import {
 	isAppInstalled,
@@ -56,6 +57,16 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	>([]);
 
 	const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+	const [isMonthNoteModalOpen, setIsMonthNoteModalOpen] = useState(false);
+	const [activeMonthNoteDate, setActiveMonthNoteDate] = useState(DEFAULT_DATE);
+
+	const [multiMonthNoteData, setMultiMonthNoteData] = useState<MultiMonthNoteData>({});
+	const monthNoteDataCache = useRef<Map<string, MonthNoteData>>(new Map());
+
+	// Derived current month note data
+	const currentMonthNoteKey = getNumericYearMonthString(activeMonthNoteDate);
+	const currentMonthNote = multiMonthNoteData[currentMonthNoteKey]?.note || '';
+	const currentMonthTags = multiMonthNoteData[currentMonthNoteKey]?.tags || [];
 
 	const page = useRef(null);
 
@@ -108,6 +119,32 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		[storage],
 	);
 
+	const loadMonthNotesIfNeeded = useCallback(
+		async (monthKeys: NumericYearMonthString[]) => {
+			if (!storage) return;
+
+			const uncached = monthKeys.filter(
+				(key) => !monthNoteDataCache.current.has(key),
+			);
+			if (uncached.length === 0) return;
+
+			const fetched = await Promise.all(
+				uncached.map((month) =>
+					getMonthNoteData(month, storage).then((data) => ({ month, data })),
+				),
+			);
+
+			const newEntries: Partial<MultiMonthNoteData> = {};
+			for (const { month, data } of fetched) {
+				monthNoteDataCache.current.set(month as string, data);
+				newEntries[month] = data;
+			}
+
+			setMultiMonthNoteData((prev) => ({ ...prev, ...newEntries } as MultiMonthNoteData));
+		},
+		[storage],
+	);
+
 	// Load initial data (current month ± 2)
 	useEffect(() => {
 		if (!storage || !settings) return;
@@ -119,6 +156,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		);
 
 		loadMonthsIfNeeded(monthsToFetch);
+		loadMonthNotesIfNeeded(monthsToFetch);
 	}, [storage, settings]); // Only on mount — not on activeStartDate changes
 
 	// When the visible month changes, load nearby months lazily
@@ -130,8 +168,9 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 				),
 			);
 			loadMonthsIfNeeded(monthsToFetch);
+			loadMonthNotesIfNeeded(monthsToFetch);
 		},
-		[loadMonthsIfNeeded],
+		[loadMonthsIfNeeded, loadMonthNotesIfNeeded],
 	);
 
 	// Get those holidays
@@ -164,6 +203,17 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 	useEffect(() => {
 		debouncedSyncToStorage();
 	}, [multiMonthlyData]);
+
+	const syncMonthNotesToStorage = async () => {
+		if (!storage) return;
+		writeMultiMonthNoteData(multiMonthNoteData, storage);
+	};
+
+	const debouncedSyncMonthNotesToStorage = debounce(syncMonthNotesToStorage, 1000);
+
+	useEffect(() => {
+		debouncedSyncMonthNotesToStorage();
+	}, [multiMonthNoteData]);
 
 	const onDateChange = (value: Value) => {
 		setSelectedDate(value as Date);
@@ -215,6 +265,26 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		setMultiMonthlyData((prev) => ({ ...prev, [monthKey]: updatedMonth }));
 	};
 
+	const onMonthNoteEdit = (e: ChangeEvent<HTMLTextAreaElement>) => {
+		const note = e.target.value;
+		const monthKey = getNumericYearMonthString(activeMonthNoteDate);
+		const updated = { ...multiMonthNoteData[monthKey], note };
+		monthNoteDataCache.current.set(monthKey, updated);
+		setMultiMonthNoteData((prev) => ({ ...prev, [monthKey]: updated }));
+	};
+
+	const onMonthTagsChange = (newTags: TagEntry) => {
+		const monthKey = getNumericYearMonthString(activeMonthNoteDate);
+		const updated = { ...multiMonthNoteData[monthKey], tags: newTags };
+		monthNoteDataCache.current.set(monthKey, updated);
+		setMultiMonthNoteData((prev) => ({ ...prev, [monthKey]: updated }));
+	};
+
+	const onMonthTitleTap = (monthDate: Date) => {
+		setActiveMonthNoteDate(monthDate);
+		setIsMonthNoteModalOpen(true);
+	};
+
 	const settingsButton = (
 		<IonButton
 			size="large"
@@ -236,16 +306,35 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 		</IonButton>
 	);
 
+	const monthNoteModal = (
+		<IonModal
+			isOpen={isMonthNoteModalOpen}
+			onDidDismiss={() => setIsMonthNoteModalOpen(false)}
+			breakpoints={[0, 1]}
+			initialBreakpoint={1}
+		>
+			<MonthNoteView
+				date={activeMonthNoteDate}
+				note={currentMonthNote}
+				tags={currentMonthTags}
+				onTextAreaChange={onMonthNoteEdit}
+				onTagsChange={onMonthTagsChange}
+			/>
+		</IonModal>
+	);
+
 	const monthView = (
 		<MonthView
 			activeStartDate={activeStartDate}
 			selectedDate={selectedDate}
 			multiMonthlyData={multiMonthlyData}
+			multiMonthNoteData={multiMonthNoteData}
 			onSelectedDateChanged={onDateChange}
 			onActiveStartDateChanged={(newDate) =>
 				setActiveStartDate(newDate)
 			}
 			onVisibleMonthChanged={onVisibleMonthChanged}
+			onMonthTitleTap={onMonthTitleTap}
 			holidays={annualHolidays}
 			toolbarExtras={settingsButton}
 		/>
@@ -272,6 +361,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 						</div>
 					</div>
 				</IonContent>
+				{monthNoteModal}
 			</IonPage>
 		);
 	}
@@ -306,6 +396,7 @@ const Home: React.FC<HomeProps> = ({ storage }) => {
 					onTagsChange={onTagsChange}
 				/>
 			</IonModal>
+			{monthNoteModal}
 		</IonPage>
 	);
 };

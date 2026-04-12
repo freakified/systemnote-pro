@@ -1,0 +1,25 @@
+.calendarHeading-monthName {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.calendarHeading-root--tappable {
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.calendarHeading-root--tappable:active {
+	opacity: 0.6;
+}
+
+.calendarHeading-monthIndicator {
+	font-size: 14px;
+	line-height: 1;
+}
+
+.calendarHeading-monthNoteIcon {
+	color: var(--ion-color-medium);
+	display: inline-block;
+	vertical-align: middle;
+}
