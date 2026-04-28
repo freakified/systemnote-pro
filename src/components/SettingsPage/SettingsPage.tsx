@@ -58,7 +58,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ storage }) => {
 			{showHighlight ? (
 				<IonBadge color="danger">1</IonBadge>
 			) : (
-				<IonNote>Not installed</IonNote>
+				<IonNote>{isAppInstalled() ? 'Installed' : 'Not installed'}</IonNote>
 			)}
 		</IonItem>
 	);

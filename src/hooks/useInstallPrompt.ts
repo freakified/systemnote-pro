@@ -2,15 +2,19 @@ import { useEffect, useState } from 'react';
 
 let _deferredPrompt: BeforeInstallPromptEvent | null = null;
 
-window.addEventListener('beforeinstallprompt', (e) => {
-	e.preventDefault();
-	_deferredPrompt = e as BeforeInstallPromptEvent;
-});
+export function captureInstallPrompt() {
+	window.addEventListener('beforeinstallprompt', (e) => {
+		e.preventDefault();
+		_deferredPrompt = e as BeforeInstallPromptEvent;
+	});
+}
 
 export function useInstallPrompt() {
 	const [promptAvailable, setPromptAvailable] = useState(!!_deferredPrompt);
 
 	useEffect(() => {
+		if (_deferredPrompt) setPromptAvailable(true);
+
 		const handler = (e: Event) => {
 			e.preventDefault();
 			_deferredPrompt = e as BeforeInstallPromptEvent;

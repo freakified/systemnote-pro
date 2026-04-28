@@ -124,49 +124,52 @@ const InstallationDirections: React.FC = () => {
 					</>
 				)}
 
-				{showAndroidDirections && (
+				{promptAvailable && !isInstalled && (
+					<>
+						<IonListHeader>Install</IonListHeader>
+						<IonList inset={true}>
+							<IonItem button onClick={triggerInstall}>
+								<IonLabel color="primary">
+									Install SystemNote Pro
+								</IonLabel>
+							</IonItem>
+						</IonList>
+					</>
+				)}
+
+				{showAndroidDirections && !promptAvailable && (
 					<>
 						<IonListHeader>How to install (Android)</IonListHeader>
-						{promptAvailable ? (
-							<IonList inset={true}>
-								<IonItem button onClick={triggerInstall}>
-									<IonLabel color="primary">
-										Install SystemNote Pro
-									</IonLabel>
-								</IonItem>
-							</IonList>
-						) : (
-							<IonList
-								inset={true}
-								className="settingsPage-installation-iosDirections"
-							>
-								<IonItem>
-									<IonLabel>
-										1. Tap{' '}
-										<IonIcon
-											icon={ellipsisVertical}
-											aria-label="Menu"
-										/>{' '}
-										at the top of the screen
-									</IonLabel>
-								</IonItem>
-								<IonItem>
-									<IonLabel>
-										2. Find and tap{' '}
-										<strong>
-											&ldquo;Add to home screen&rdquo;
-										</strong>{' '}
-										on the menu that appears
-									</IonLabel>
-								</IonItem>
-								<IonItem>
-									<IonLabel>
-										3. Tap <strong>Add</strong> on both
-										dialogs that appear
-									</IonLabel>
-								</IonItem>
-							</IonList>
-						)}
+						<IonList
+							inset={true}
+							className="settingsPage-installation-iosDirections"
+						>
+							<IonItem>
+								<IonLabel>
+									1. Tap{' '}
+									<IonIcon
+										icon={ellipsisVertical}
+										aria-label="Menu"
+									/>{' '}
+									at the top of the screen
+								</IonLabel>
+							</IonItem>
+							<IonItem>
+								<IonLabel>
+									2. Find and tap{' '}
+									<strong>
+										&ldquo;Add to home screen&rdquo;
+									</strong>{' '}
+									on the menu that appears
+								</IonLabel>
+							</IonItem>
+							<IonItem>
+								<IonLabel>
+									3. Tap <strong>Add</strong> on both
+									dialogs that appear
+								</IonLabel>
+							</IonItem>
+						</IonList>
 					</>
 				)}
 			</IonContent>
