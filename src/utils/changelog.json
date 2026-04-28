@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.4.1",
+    "entries": [
+      "[Improvement] Fix for Android PWA installation process"
+    ]
+  },
+  {
     "version": "1.4",
     "entries": [
       "[New feature] Support for tablets and desktops with a new 2-pane view!",
