@@ -16,6 +16,7 @@ import {
 } from '@ionic/react';
 import { ellipsisVertical, shareOutline } from 'ionicons/icons';
 import { isAppInstalled, getPlatformType } from '../../utils/installationUtils';
+import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
 import appLogo from '../../appLogo.png';
 
@@ -35,20 +36,7 @@ const InstallationDirections: React.FC = () => {
 		}
 	}, []);
 
-	// TODO: Re-enable "true" android app installation, one day
-	// useEffect(() => {
-	// 	// const handler = (e: Event) => {
-	// 	// 	e.preventDefault();
-	// 	// 	setInstallPromptEvent(e as BeforeInstallPromptEvent);
-	// 	// };
-
-	// 	window.addEventListener('beforeinstallprompt', () => {
-	// 		alert('Install prompt available');
-	// 	});
-
-	// 	// window.addEventListener('beforeinstallprompt', handler);
-	// 	// return () => window.removeEventListener('beforeinstallprompt', handler);
-	// }, []);
+	const { promptAvailable, triggerInstall } = useInstallPrompt();
 
 	const platform = useMemo(() => {
 		return getPlatformType();
@@ -139,36 +127,46 @@ const InstallationDirections: React.FC = () => {
 				{showAndroidDirections && (
 					<>
 						<IonListHeader>How to install (Android)</IonListHeader>
-						<IonList
-							inset={true}
-							className="settingsPage-installation-iosDirections"
-						>
-							<IonItem>
-								<IonLabel>
-									1. Tap{' '}
-									<IonIcon
-										icon={ellipsisVertical}
-										aria-label="Menu"
-									/>{' '}
-									at the top of the screen
-								</IonLabel>
-							</IonItem>
-							<IonItem>
-								<IonLabel>
-									2. Find and tap{' '}
-									<strong>
-										&ldquo;Add to home screen&rdquo;
-									</strong>{' '}
-									on the menu that appears
-								</IonLabel>
-							</IonItem>
-							<IonItem>
-								<IonLabel>
-									3. Tap <strong>Add</strong> on both dialogs
-									that appear
-								</IonLabel>
-							</IonItem>
-						</IonList>
+						{promptAvailable ? (
+							<IonList inset={true}>
+								<IonItem button onClick={triggerInstall}>
+									<IonLabel color="primary">
+										Install SystemNote Pro
+									</IonLabel>
+								</IonItem>
+							</IonList>
+						) : (
+							<IonList
+								inset={true}
+								className="settingsPage-installation-iosDirections"
+							>
+								<IonItem>
+									<IonLabel>
+										1. Tap{' '}
+										<IonIcon
+											icon={ellipsisVertical}
+											aria-label="Menu"
+										/>{' '}
+										at the top of the screen
+									</IonLabel>
+								</IonItem>
+								<IonItem>
+									<IonLabel>
+										2. Find and tap{' '}
+										<strong>
+											&ldquo;Add to home screen&rdquo;
+										</strong>{' '}
+										on the menu that appears
+									</IonLabel>
+								</IonItem>
+								<IonItem>
+									<IonLabel>
+										3. Tap <strong>Add</strong> on both
+										dialogs that appear
+									</IonLabel>
+								</IonItem>
+							</IonList>
+						)}
 					</>
 				)}
 			</IonContent>

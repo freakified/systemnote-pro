@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
-    "lint": "eslint 'src/**/*.{js,ts,jsx,tsx}'"
+    "lint": "eslint 'src/**/*.{js,ts,jsx,tsx}'",
+    "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
     "@capacitor/app": "6.0.1",
@@ -45,6 +46,7 @@
     "@types/lodash": "^4.17.13",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
+    "@vite-pwa/assets-generator": "^1.0.2",
     "@vitejs/plugin-legacy": "^7.2.1",
     "@vitejs/plugin-react": "^4.7.0",
     "cypress": "13.15.0",
